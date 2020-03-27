@@ -17,7 +17,7 @@ class Contrties extends StatefulWidget {
   _ContrtiesState createState() => _ContrtiesState();
 }
 
-class _ContrtiesState extends State<Contrties>  {
+class _ContrtiesState extends State<Contrties> {
   void goToCountryRoom() async {
     bool other = true;
     final QuerySnapshot result =
@@ -122,17 +122,42 @@ class _ContrtiesState extends State<Contrties>  {
     }
   }
 
-  @override
-  void initState() {
-    goToCountryRoom();
-    super.initState();
+  List<int> countries = new List();
+  var map = Map();
+  List<String> usersCount = new List();
+  void countHomeManyUserInRoom() async {
+    final QuerySnapshot result1 =
+        await Firestore.instance.collection('users').getDocuments();
+    final List<DocumentSnapshot> documents1 = result1.documents;
+    usersCount = new List();
+    map = Map();
+    documents1.forEach((data) {
+      for (var i = 0; i < data['usersData'].length; i++) {
+        usersCount.add(data['usersData'][i]['current']);
+      }
+    });
+
+
+    usersCount.forEach((country) {
+      if (!map.containsKey(country)) {
+        map[country] = 1;
+      } else {
+        map[country] += 1;
+      }
+    });
   
   }
 
- 
+  @override
+  void initState() {
+    countHomeManyUserInRoom();
+    goToCountryRoom();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    countHomeManyUserInRoom();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.purple[900],
@@ -240,14 +265,23 @@ class _ContrtiesState extends State<Contrties>  {
                                       ),
                                     ),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 8.0),
-                                    child: Align(
-                                      alignment: Alignment.bottomRight,
+                                  Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: Container(
+                                      width: double.infinity,
+                                    color: Colors.black54,
                                       child: Text(
-                                        "الأعضاء 10",
+                                        map[snapshot.data['all'][index]
+                                                        ['country']]
+                                                    .toString() ==
+                                                "null"
+                                            ? '0'
+                                            : map[snapshot.data['all'][index]
+                                                    ['country']]
+                                                .toString(),
+                                                textAlign: TextAlign.center,
                                         style: TextStyle(
-                                            fontSize: 10, color: Colors.white),
+                                            fontSize: 18, color: Colors.white),
                                       ),
                                     ),
                                   ),
