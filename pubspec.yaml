@@ -25,6 +25,8 @@ dependencies:
   cupertino_icons: ^0.1.2
   cloud_firestore: ^0.13.4+2
   intl: ^0.16.1
+  ipfinder: ^1.0.1
+  shared_preferences: ^0.5.6+3
 
 
   

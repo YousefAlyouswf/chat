@@ -1,7 +1,4 @@
-import 'package:chatting/chatScreen/chatScreen.dart';
 import 'package:chatting/models/chat_model.dart';
-import 'package:chatting/models/user.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class MessageRecive extends StatelessWidget {

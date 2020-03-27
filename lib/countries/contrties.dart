@@ -2,6 +2,7 @@ import 'package:chatting/users_screen/mainUsersScreen.dart';
 import 'package:flutter/material.dart';
 import '../drawer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Contrties extends StatefulWidget {
   final String email;
@@ -17,6 +18,54 @@ class Contrties extends StatefulWidget {
 }
 
 class _ContrtiesState extends State<Contrties> {
+  void goToCountryRoom() async {
+    bool other = true;
+    final QuerySnapshot result =
+        await Firestore.instance.collection('countries').getDocuments();
+    final List<DocumentSnapshot> documents = result.documents;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    documents.forEach((data) {
+      for (var i = 0; i < data['all'].length; i++) {
+        if (prefs.getString('country') == data['all'][i]['code']) {
+          other = false;
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (BuildContext context) => UsersScreen(
+                name: widget.name,
+                email: widget.email,
+                image: widget.image,
+                gender: widget.gender,
+                password: widget.password,
+                current: data['all'][i]['country'],
+              ),
+            ),
+          );
+        }
+      }
+    });
+
+    if (other) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (BuildContext context) => UsersScreen(
+            name: widget.name,
+            email: widget.email,
+            image: widget.image,
+            gender: widget.gender,
+            password: widget.password,
+            current: 'أخرى',
+          ),
+        ),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    goToCountryRoom();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,6 +134,7 @@ class _ContrtiesState extends State<Contrties> {
                                 },
                               ]),
                             });
+
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (BuildContext context) => UsersScreen(

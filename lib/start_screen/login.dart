@@ -1,6 +1,7 @@
-import 'package:chatting/chatMainScreen/contrties.dart';
+import 'package:chatting/countries/contrties.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -42,6 +43,8 @@ class _LoginState extends State<Login> {
             ),
             InkWell(
               onTap: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+
                 bool auth = false;
                 final QuerySnapshot result =
                     await Firestore.instance.collection('users').getDocuments();
@@ -55,6 +58,12 @@ class _LoginState extends State<Login> {
                             data['usersData'][i]['password'] ==
                                 _passwordController.text) {
                       auth = true;
+                      prefs.setString('username', data['usersData'][i]['name']);
+                      prefs.setString('email', data['usersData'][i]['email']);
+                      prefs.setString('gender', data['usersData'][i]['gender']);
+                      prefs.setString('image', data['usersData'][i]['image']);
+                      prefs.setString(
+                          'password', data['usersData'][i]['password']);
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (BuildContext context) => Contrties(
