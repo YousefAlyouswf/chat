@@ -86,4 +86,24 @@ class Fireebase {
       ]),
     });
   }
+
+  void addToChatCollections(String email, String userEmail, var now,
+      String gender, String image, String code, String name) {
+    Firestore.instance.collection('chat').document().setData({
+      'from': email,
+      'to': userEmail,
+      'gender': gender,
+      'image': image,
+      'code': code,
+      'name': name,
+      'messages': FieldValue.arrayUnion([
+        {
+          'from': email,
+          'to': userEmail,
+          'content': '',
+          'time': now,
+        },
+      ]),
+    });
+  }
 }

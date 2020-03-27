@@ -1,4 +1,5 @@
 import 'package:chatting/chatScreen/chatScreen.dart';
+import 'package:chatting/models/firebase.dart';
 import 'package:chatting/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -83,21 +84,16 @@ class CurrentUsers extends StatelessWidget {
                                   }
                                 });
                                 if (!found) {
-                                  Firestore.instance
-                                      .collection('chat')
-                                      .document()
-                                      .setData({
-                                    'from': email,
-                                    'to': _user[index].email,
-                                    'messages': FieldValue.arrayUnion([
-                                      {
-                                        'from': email,
-                                        'to': _user[index].email,
-                                        'content': '',
-                                        'time': now
-                                      },
-                                    ]),
-                                  });
+                                  Fireebase().addToChatCollections(
+                                    email,
+                                    _user[index].email,
+                                    now,
+                                    _user[index].gender,
+                                    _user[index].image,
+                                    _user[index].code,
+                                    _user[index].name,
+                                  );
+
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
                                       builder: (BuildContext context) =>
@@ -126,16 +122,18 @@ class CurrentUsers extends StatelessWidget {
                                 height: 60,
                                 width: 60,
                               ),
-                        
                               title: Text(
                                 _user[index].name,
                                 textAlign: TextAlign.center,
                               ),
-
                               trailing: Image(
                                 image: _user[index].image == null ||
                                         _user[index].image == ''
-                                    ? _user[index].gender=='1'?  NetworkImage('https://www.pngitem.com/pimgs/m/184-1842706_transparent-like-a-boss-clipart-man-icon-png.png'): NetworkImage('https://www.nicepng.com/png/detail/207-2074651_png-file-woman-person-icon-png.png')
+                                    ? _user[index].gender == '1'
+                                        ? NetworkImage(
+                                            'https://www.pngitem.com/pimgs/m/184-1842706_transparent-like-a-boss-clipart-man-icon-png.png')
+                                        : NetworkImage(
+                                            'https://www.nicepng.com/png/detail/207-2074651_png-file-woman-person-icon-png.png')
                                     : NetworkImage(_user[index].image),
                                 fit: BoxFit.fitWidth,
                                 height: 60,

@@ -1,9 +1,13 @@
+import 'package:chatting/models/chat_model.dart';
 import 'package:chatting/models/firebase.dart';
 import 'package:chatting/users_screen/mainUsersScreen.dart';
+import 'package:chatting/users_screen/message_recive.dart';
 import 'package:flutter/material.dart';
 import '../drawer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'country_page.dart';
 
 class Contrties extends StatefulWidget {
   final String email;
@@ -18,7 +22,37 @@ class Contrties extends StatefulWidget {
   _ContrtiesState createState() => _ContrtiesState();
 }
 
-class _ContrtiesState extends State<Contrties> {
+class _ContrtiesState extends State<Contrties>
+    with SingleTickerProviderStateMixin {
+  List<ChatModel> chatModel = new List();
+
+  void whoChattingWithMe() async {
+    //chatModel = new List();
+    final QuerySnapshot result =
+        await Firestore.instance.collection('chat').getDocuments();
+    final List<DocumentSnapshot> documents = result.documents;
+    chatModel = new List();
+    documents.forEach((data) {
+      if (data['from'] == widget.email || data['to'] == widget.email) {
+        var date = data['messages'].last;
+        if (this.mounted) {
+          setState(() {
+            chatModel.add(ChatModel(
+              data['from'],
+              data['to'],
+              date['time'],
+              data['gender'],
+              data['image'],
+              data['code'],
+              data['name'],
+            ));
+          });
+        }
+      }
+    });
+    chatModel.sort((a, b) => a.time.compareTo(b.time));
+  }
+
   void goToCountryRoom() async {
     bool other = true;
     final QuerySnapshot result =
@@ -97,22 +131,42 @@ class _ContrtiesState extends State<Contrties> {
     });
   }
 
+  TabController _controller;
+
   @override
   void initState() {
+    whoChattingWithMe();
     getCountry();
     countHomeManyUserInRoom();
     goToCountryRoom();
     super.initState();
+    _controller = TabController(length: 2, vsync: this);
   }
 
   @override
   Widget build(BuildContext context) {
+    whoChattingWithMe();
     countHomeManyUserInRoom();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.purple[900],
         title: Text("سوالف"),
         centerTitle: true,
+        bottom: TabBar(
+          labelColor: Colors.white,
+          labelStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+          unselectedLabelColor: Colors.grey,
+          indicatorColor: Colors.white,
+          tabs: [
+            Tab(
+              text: 'الدول',
+            ),
+            Tab(
+              text: 'الرسائل',
+            ),
+          ],
+          controller: _controller,
+        ),
       ),
       endDrawer: DrawerPage(
         name: widget.name,
@@ -120,107 +174,22 @@ class _ContrtiesState extends State<Contrties> {
         image: widget.image,
         gender: widget.gender,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Container(
-          child: StreamBuilder(
-              stream: Firestore.instance
-                  .collection('countries')
-                  .document('MAqRIisbFZtn4YGoRCqV')
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Text("");
-                } else {
-                  return GridView.builder(
-                      itemCount: snapshot.data['all'].length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 1.2,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                      ),
-                      itemBuilder: (BuildContext context, int index) {
-                        return InkWell(
-                          onTap: () async {
-                            Fireebase().addCountry(
-                                widget.email,
-                                widget.gender,
-                                widget.name,
-                                widget.password,
-                                widget.image,
-                                snapshot.data['all'][index]['country'],
-                                code);
-
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (BuildContext context) => UsersScreen(
-                                  name: widget.name,
-                                  email: widget.email,
-                                  image: widget.image,
-                                  gender: widget.gender,
-                                  password: widget.password,
-                                  current: snapshot.data['all'][index]
-                                      ['country'],
-                                ),
-                              ),
-                            );
-                          },
-                          child: Card(
-                            elevation: 0,
-                            color: Colors.white70,
-                            child: Container(
-                              decoration: new BoxDecoration(
-                                  image: new DecorationImage(
-                                      image: new NetworkImage(
-                                          snapshot.data['all'][index]['image']),
-                                      fit: BoxFit.cover)),
-                              child: Stack(
-                                children: <Widget>[
-                                  Align(
-                                    alignment: Alignment.center,
-                                    child: Container(
-                                      width: double.infinity,
-                                      color: Colors.white70,
-                                      child: Text(
-                                        snapshot.data['all'][index]['country'],
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                  Align(
-                                    alignment: Alignment.bottomRight,
-                                    child: Container(
-                                      width: double.infinity,
-                                      color: Colors.black54,
-                                      child: Text(
-                                        map[snapshot.data['all'][index]
-                                                        ['country']]
-                                                    .toString() ==
-                                                "null"
-                                            ? '0'
-                                            : map[snapshot.data['all'][index]
-                                                    ['country']]
-                                                .toString(),
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                            fontSize: 18, color: Colors.white),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      });
-                }
-              }),
-        ),
+      body: TabBarView(
+        children: <Widget>[
+          Container(
+              color: Colors.white,
+              child: CountryPage(widget.email, widget.gender, widget.name,
+                  widget.password, widget.image, code, map)),
+          Container(
+            color: Colors.white,
+            child: MessageRecive(
+              current: '',
+              email: widget.email,
+              chatModel: chatModel,
+            ),
+          ),
+        ],
+        controller: _controller,
       ),
     );
   }

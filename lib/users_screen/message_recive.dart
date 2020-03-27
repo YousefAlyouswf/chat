@@ -23,19 +23,36 @@ class MessageRecive extends StatelessWidget {
             return InkWell(
               onTap: () {},
               child: Card(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        height: 20,
-                      ),
+                color: chatModel[index].gender == '2'
+                    ? Colors.pink[100]
+                    : Colors.blue[100],
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ListTile(
+                    leading: Image.asset(
+                      'icons/flags/png/${chatModel[index].code}.png',
+                      package: 'country_icons',
+                      height: 60,
+                      width: 60,
                     ),
-                    Text(chatModel[index].to == email
-                        ? chatModel[index].from
-                        : chatModel[index].to),
-                  ],
+                    title: Text(
+                      chatModel[index].name,
+                      textAlign: TextAlign.center,
+                    ),
+                    trailing: Image(
+                      image: chatModel[index].image == null ||
+                              chatModel[index].image == ''
+                          ? chatModel[index].gender == '1'
+                              ? NetworkImage(
+                                  'https://www.pngitem.com/pimgs/m/184-1842706_transparent-like-a-boss-clipart-man-icon-png.png')
+                              : NetworkImage(
+                                  'https://www.nicepng.com/png/detail/207-2074651_png-file-woman-person-icon-png.png')
+                          : NetworkImage(chatModel[index].image),
+                      fit: BoxFit.fitWidth,
+                      height: 60,
+                      width: 60,
+                    ),
+                  ),
                 ),
               ),
             );
