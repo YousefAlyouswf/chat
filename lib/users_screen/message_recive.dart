@@ -36,8 +36,12 @@ class MessageRecive extends StatelessWidget {
                       width: 60,
                     ),
                     title: Text(
-                      chatModel[index].name,
+                      chatModel[index].msg,
                       textAlign: TextAlign.center,
+                    ),
+                    subtitle: Text(
+                      chatModel[index].name,
+                      textAlign: TextAlign.end,
                     ),
                     trailing: Image(
                       image: chatModel[index].image == null ||

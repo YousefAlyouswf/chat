@@ -45,6 +45,7 @@ class _ContrtiesState extends State<Contrties>
               data['image'],
               data['code'],
               data['name'],
+              date['content'],
             ));
           });
         }

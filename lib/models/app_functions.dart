@@ -1,6 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'chat_model.dart';
 
 class AppFunctions {
   void whatGender(String genderType, String genderImage) {

@@ -45,17 +45,18 @@ class _UsersScreenState extends State<UsersScreen>
     documents.forEach((data) {
       if (data['from'] == widget.email || data['to'] == widget.email) {
         var date = data['messages'].last;
-       if (this.mounted) {
+
+        if (this.mounted) {
           setState(() {
             chatModel.add(ChatModel(
-              data['from'],
-              data['to'],
-              date['time'],
-              data['gender'],
-              data['image'],
-              data['code'],
-              data['name'],
-            ));
+                data['from'],
+                data['to'],
+                date['time'],
+                data['gender'],
+                data['image'],
+                data['code'],
+                data['name'],
+                date['content']));
           });
         }
       }
@@ -67,10 +68,9 @@ class _UsersScreenState extends State<UsersScreen>
   void initState() {
     super.initState();
     _controller = TabController(length: 2, vsync: this);
- 
-     whoChattingWithMe();
-  
-   
+
+    whoChattingWithMe();
+
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -112,11 +112,9 @@ class _UsersScreenState extends State<UsersScreen>
     }
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
-       whoChattingWithMe();
+    whoChattingWithMe();
     return WillPopScope(
       onWillPop: () async {
         SharedPreferences prefs = await SharedPreferences.getInstance();
