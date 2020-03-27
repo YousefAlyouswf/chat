@@ -17,7 +17,7 @@ class Contrties extends StatefulWidget {
   _ContrtiesState createState() => _ContrtiesState();
 }
 
-class _ContrtiesState extends State<Contrties> {
+class _ContrtiesState extends State<Contrties>  {
   void goToCountryRoom() async {
     bool other = true;
     final QuerySnapshot result =
@@ -126,7 +126,10 @@ class _ContrtiesState extends State<Contrties> {
   void initState() {
     goToCountryRoom();
     super.initState();
+  
   }
+
+ 
 
   @override
   Widget build(BuildContext context) {

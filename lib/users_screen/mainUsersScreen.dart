@@ -28,7 +28,7 @@ class UsersScreen extends StatefulWidget {
 }
 
 class _UsersScreenState extends State<UsersScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   TabController _controller;
   List<ChatModel> chatModel = new List();
   void whoChattingWithMe() async {
@@ -40,9 +40,11 @@ class _UsersScreenState extends State<UsersScreen>
     documents.forEach((data) {
       if (data['from'] == widget.email || data['to'] == widget.email) {
         var date = data['messages'].last;
-        setState(() {
-          chatModel.add(ChatModel(data['from'], data['to'], date['time']));
-        });
+        if (this.mounted) {
+          setState(() {
+            chatModel.add(ChatModel(data['from'], data['to'], date['time']));
+          });
+        }
       }
     });
     chatModel.sort((a, b) => a.time.compareTo(b.time));
@@ -50,9 +52,69 @@ class _UsersScreenState extends State<UsersScreen>
 
   @override
   void initState() {
-    whoChattingWithMe();
     super.initState();
     _controller = TabController(length: 2, vsync: this);
+    whoChattingWithMe();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    super.didChangeAppLifecycleState(state);
+    switch (state) {
+      case AppLifecycleState.paused:
+        print('paused');
+        await Firestore.instance
+            .collection('users')
+            .document('wauiqt7wiUI283ANx9n1')
+            .updateData({
+          'usersData': FieldValue.arrayRemove([
+            {
+              'email': widget.email,
+              'gender': widget.gender,
+              'name': widget.name,
+              'password': widget.password,
+              'image': widget.image,
+              'current': widget.current,
+            },
+          ]),
+        });
+        await Firestore.instance
+            .collection('users')
+            .document('wauiqt7wiUI283ANx9n1')
+            .updateData({
+          'usersData': FieldValue.arrayUnion([
+            {
+              'email': widget.email,
+              'gender': widget.gender,
+              'name': widget.name,
+              'password': widget.password,
+              'image': widget.image,
+              'current': '',
+            },
+          ]),
+        });
+
+        Navigator.of(context).pop();
+        break;
+      case AppLifecycleState.resumed:
+        print('resumed');
+        break;
+      case AppLifecycleState.inactive:
+        print('inactive');
+        break;
+      case AppLifecycleState.detached:
+        print(
+            'detached----------------------------------------------------------');
+
+        break;
+    }
   }
 
   void whatGender(String genderType, String genderImage) {
