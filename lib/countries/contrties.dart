@@ -28,6 +28,38 @@ class _ContrtiesState extends State<Contrties> {
       for (var i = 0; i < data['all'].length; i++) {
         if (prefs.getString('country') == data['all'][i]['code']) {
           other = false;
+
+          Firestore.instance
+              .collection('users')
+              .document('wauiqt7wiUI283ANx9n1')
+              .updateData({
+            'usersData': FieldValue.arrayRemove([
+              {
+                'email': widget.email,
+                'gender': widget.gender,
+                'name': widget.name,
+                'password': widget.password,
+                'image': widget.image,
+                'current': '',
+              },
+            ]),
+          });
+          Firestore.instance
+              .collection('users')
+              .document('wauiqt7wiUI283ANx9n1')
+              .updateData({
+            'usersData': FieldValue.arrayUnion([
+              {
+                'email': widget.email,
+                'gender': widget.gender,
+                'name': widget.name,
+                'password': widget.password,
+                'image': widget.image,
+                'current': data['all'][i]['country'],
+              },
+            ]),
+          });
+
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (BuildContext context) => UsersScreen(
@@ -45,6 +77,36 @@ class _ContrtiesState extends State<Contrties> {
     });
 
     if (other) {
+      Firestore.instance
+          .collection('users')
+          .document('wauiqt7wiUI283ANx9n1')
+          .updateData({
+        'usersData': FieldValue.arrayRemove([
+          {
+            'email': widget.email,
+            'gender': widget.gender,
+            'name': widget.name,
+            'password': widget.password,
+            'image': widget.image,
+            'current': '',
+          },
+        ]),
+      });
+      Firestore.instance
+          .collection('users')
+          .document('wauiqt7wiUI283ANx9n1')
+          .updateData({
+        'usersData': FieldValue.arrayUnion([
+          {
+            'email': widget.email,
+            'gender': widget.gender,
+            'name': widget.name,
+            'password': widget.password,
+            'image': widget.image,
+            'current': 'أخرى',
+          },
+        ]),
+      });
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (BuildContext context) => UsersScreen(
