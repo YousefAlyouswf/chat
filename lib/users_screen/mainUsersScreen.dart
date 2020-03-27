@@ -1,5 +1,4 @@
-import 'package:chatting/chatScreen/chatScreen.dart';
-import 'package:chatting/models/user.dart';
+import 'package:chatting/models/chat_model.dart';
 import 'package:chatting/users_screen/current_users.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -31,8 +30,27 @@ class UsersScreen extends StatefulWidget {
 class _UsersScreenState extends State<UsersScreen>
     with SingleTickerProviderStateMixin {
   TabController _controller;
+  List<ChatModel> chatModel = new List();
+  void whoChattingWithMe() async {
+    //chatModel = new List();
+    final QuerySnapshot result =
+        await Firestore.instance.collection('chat').getDocuments();
+    final List<DocumentSnapshot> documents = result.documents;
+    chatModel = new List();
+    documents.forEach((data) {
+      if (data['from'] == widget.email || data['to'] == widget.email) {
+        var date = data['messages'].last;
+        setState(() {
+          chatModel.add(ChatModel(data['from'], data['to'], date['time']));
+        });
+      }
+    });
+    chatModel.sort((a, b) => a.time.compareTo(b.time));
+  }
+
   @override
   void initState() {
+    whoChattingWithMe();
     super.initState();
     _controller = TabController(length: 2, vsync: this);
   }
@@ -53,6 +71,7 @@ class _UsersScreenState extends State<UsersScreen>
 
   @override
   Widget build(BuildContext context) {
+    whoChattingWithMe();
     return WillPopScope(
       onWillPop: () async {
         await Firestore.instance
@@ -128,6 +147,7 @@ class _UsersScreenState extends State<UsersScreen>
               child: MessageRecive(
                 current: widget.current,
                 email: widget.email,
+                chatModel: chatModel,
               ),
             ),
           ],

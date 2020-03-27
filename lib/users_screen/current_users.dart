@@ -44,18 +44,13 @@ class CurrentUsers extends StatelessWidget {
                 return ListView.builder(
                   itemCount: _user.length,
                   itemBuilder: (BuildContext context, int index) {
-                    String genderImage;
-                    if (_user[index].gender == '1') {
-                      genderImage =
-                          'https://www.pngitem.com/pimgs/m/184-1842706_transparent-like-a-boss-clipart-man-icon-png.png';
-                    } else {
-                      genderImage =
-                          'https://www.nicepng.com/png/detail/207-2074651_png-file-woman-person-icon-png.png';
-                    }
+                 
                     return InkWell(
                       onTap: _user[index].email == email
                           ? null
                           : () async {
+                            var now = DateTime.now().millisecondsSinceEpoch;
+
                               final QuerySnapshot result = await Firestore
                                   .instance
                                   .collection('chat')
@@ -96,6 +91,7 @@ class CurrentUsers extends StatelessWidget {
                                       'from': email,
                                       'to': _user[index].email,
                                       'content': '',
+                                      'time':now
                                     },
                                   ]),
                                 });

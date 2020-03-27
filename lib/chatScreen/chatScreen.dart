@@ -83,46 +83,52 @@ class _ChatScreenState extends State<ChatScreen> {
                     if (!snapshot.hasData) {
                       return Text("");
                     } else {
-                      return ListView.builder(
-                        itemCount: snapshot.data['messages'].length,
-                        controller: _controller,
-                        itemBuilder: (BuildContext context, int index) {
-                          String from =
-                              snapshot.data['messages'][index]['from'];
+                      try {
+                        return ListView.builder(
+                          itemCount: snapshot.data['messages'].length,
+                          controller: _controller,
+                          itemBuilder: (BuildContext context, int index) {
+                            String from =
+                                snapshot.data['messages'][index]['from'];
 
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Card(
-                                child: ListTile(
-                              title: from == widget.myEmail
-                                  ? Text(
-                                      snapshot.data['messages'][index]
-                                          ['content'],
-                                      textDirection: TextDirection.rtl,
-                                      style: TextStyle(color: Colors.red),
-                                    )
-                                  : Text(
-                                      snapshot.data['messages'][index]
-                                          ['content'],
-                                      textDirection: TextDirection.ltr,
-                                      style: TextStyle(color: Colors.blue),
-                                    ),
-                              trailing: from == widget.myEmail
-                                  ? Image(
-                                      image: AssetImage('assets/images/ph.png'),
-                                      fit: BoxFit.fill,
-                                    )
-                                  : null,
-                              leading: from != widget.myEmail
-                                  ? Image(
-                                      image: AssetImage('assets/images/ph.png'),
-                                      fit: BoxFit.fill,
-                                    )
-                                  : null,
-                            )),
-                          );
-                        },
-                      );
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Card(
+                                  child: ListTile(
+                                title: from == widget.myEmail
+                                    ? Text(
+                                        snapshot.data['messages'][index]
+                                            ['content'],
+                                        textDirection: TextDirection.rtl,
+                                        style: TextStyle(color: Colors.red),
+                                      )
+                                    : Text(
+                                        snapshot.data['messages'][index]
+                                            ['content'],
+                                        textDirection: TextDirection.ltr,
+                                        style: TextStyle(color: Colors.blue),
+                                      ),
+                                trailing: from == widget.myEmail
+                                    ? Image(
+                                        image:
+                                            AssetImage('assets/images/ph.png'),
+                                        fit: BoxFit.fill,
+                                      )
+                                    : null,
+                                leading: from != widget.myEmail
+                                    ? Image(
+                                        image:
+                                            AssetImage('assets/images/ph.png'),
+                                        fit: BoxFit.fill,
+                                      )
+                                    : null,
+                              )),
+                            );
+                          },
+                        );
+                      } catch (e) {
+                        return Text("لا توجد محادثات");
+                      }
                     }
                   }),
             ),
@@ -151,6 +157,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: IconButton(
                       icon: Icon(Icons.send),
                       onPressed: () async {
+                        var now = DateTime.now().millisecondsSinceEpoch;
+
                         await Firestore.instance
                             .collection('chat')
                             .document(chattingID)
@@ -159,7 +167,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             {
                               'content': _txtController.text,
                               'from': widget.myEmail,
-                              'to': widget.userEmail
+                              'to': widget.userEmail,
+                              'time': now,
                             },
                           ]),
                         });
