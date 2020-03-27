@@ -41,6 +41,7 @@ class _ContrtiesState extends State<Contrties> {
                 'password': widget.password,
                 'image': widget.image,
                 'current': '',
+                'code': '',
               },
             ]),
           });
@@ -56,6 +57,7 @@ class _ContrtiesState extends State<Contrties> {
                 'password': widget.password,
                 'image': widget.image,
                 'current': data['all'][i]['country'],
+                'code': code,
               },
             ]),
           });
@@ -89,6 +91,7 @@ class _ContrtiesState extends State<Contrties> {
             'password': widget.password,
             'image': widget.image,
             'current': '',
+            'code': '',
           },
         ]),
       });
@@ -104,6 +107,7 @@ class _ContrtiesState extends State<Contrties> {
             'password': widget.password,
             'image': widget.image,
             'current': 'أخرى',
+            'code': code,
           },
         ]),
       });
@@ -122,6 +126,12 @@ class _ContrtiesState extends State<Contrties> {
     }
   }
 
+  String code;
+  void getCountry() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    code = prefs.getString('code');
+  }
+
   List<int> countries = new List();
   var map = Map();
   List<String> usersCount = new List();
@@ -137,7 +147,6 @@ class _ContrtiesState extends State<Contrties> {
       }
     });
 
-
     usersCount.forEach((country) {
       if (!map.containsKey(country)) {
         map[country] = 1;
@@ -145,11 +154,11 @@ class _ContrtiesState extends State<Contrties> {
         map[country] += 1;
       }
     });
-  
   }
 
   @override
   void initState() {
+    getCountry();
     countHomeManyUserInRoom();
     goToCountryRoom();
     super.initState();
@@ -205,6 +214,7 @@ class _ContrtiesState extends State<Contrties> {
                                   'password': widget.password,
                                   'image': widget.image,
                                   'current': '',
+                                  'code': '',
                                 },
                               ]),
                             });
@@ -221,6 +231,7 @@ class _ContrtiesState extends State<Contrties> {
                                   'image': widget.image,
                                   'current': snapshot.data['all'][index]
                                       ['country'],
+                                  'code': code,
                                 },
                               ]),
                             });
@@ -269,7 +280,7 @@ class _ContrtiesState extends State<Contrties> {
                                     alignment: Alignment.bottomRight,
                                     child: Container(
                                       width: double.infinity,
-                                    color: Colors.black54,
+                                      color: Colors.black54,
                                       child: Text(
                                         map[snapshot.data['all'][index]
                                                         ['country']]
@@ -279,7 +290,7 @@ class _ContrtiesState extends State<Contrties> {
                                             : map[snapshot.data['all'][index]
                                                     ['country']]
                                                 .toString(),
-                                                textAlign: TextAlign.center,
+                                        textAlign: TextAlign.center,
                                         style: TextStyle(
                                             fontSize: 18, color: Colors.white),
                                       ),

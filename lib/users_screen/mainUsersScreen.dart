@@ -2,6 +2,7 @@ import 'package:chatting/models/chat_model.dart';
 import 'package:chatting/users_screen/current_users.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../drawer.dart';
 import 'message_recive.dart';
 
@@ -12,6 +13,7 @@ class UsersScreen extends StatefulWidget {
   final String gender;
   final String password;
   final String current;
+  final String code;
 
   const UsersScreen(
       {Key key,
@@ -20,7 +22,8 @@ class UsersScreen extends StatefulWidget {
       this.image,
       this.gender,
       this.password,
-      this.current})
+      this.current,
+      this.code})
       : super(key: key);
 
   @override
@@ -136,6 +139,7 @@ class _UsersScreenState extends State<UsersScreen>
     whoChattingWithMe();
     return WillPopScope(
       onWillPop: () async {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
         await Firestore.instance
             .collection('users')
             .document('wauiqt7wiUI283ANx9n1')
@@ -148,6 +152,7 @@ class _UsersScreenState extends State<UsersScreen>
               'password': widget.password,
               'image': widget.image,
               'current': widget.current,
+              'code': prefs.getString('code'),
             },
           ]),
         });
@@ -163,6 +168,7 @@ class _UsersScreenState extends State<UsersScreen>
               'password': widget.password,
               'image': widget.image,
               'current': '',
+              'code': '',
             },
           ]),
         });
@@ -202,6 +208,7 @@ class _UsersScreenState extends State<UsersScreen>
                 current: widget.current,
                 email: widget.email,
                 image: widget.image,
+                code: widget.code,
               ),
             ),
             Container(

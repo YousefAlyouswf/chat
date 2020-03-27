@@ -15,6 +15,7 @@ void getCountry() async {
   print(auth.countryName);
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setString('country', auth.countryName.toString());
+  prefs.setString('code', auth.countryCode.toLowerCase());
 }
 
 class MyApp extends StatelessWidget {
