@@ -126,14 +126,7 @@ class CurrentUsers extends StatelessWidget {
                                 height: 60,
                                 width: 60,
                               ),
-                              // Image(
-                              //   image: AssetImage(_user[index].gender == '2'
-                              //       ? 'assets/images/female.png'
-                              //       : 'assets/images/male.png'),
-                              //   fit: BoxFit.fill,
-                              //   height: 40,
-                              //   width: 40,
-                              // ),
+                        
                               title: Text(
                                 _user[index].name,
                                 textAlign: TextAlign.center,
