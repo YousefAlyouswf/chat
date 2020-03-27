@@ -1,3 +1,4 @@
+import 'package:chatting/models/firebase.dart';
 import 'package:chatting/users_screen/mainUsersScreen.dart';
 import 'package:flutter/material.dart';
 import '../drawer.dart';
@@ -29,38 +30,8 @@ class _ContrtiesState extends State<Contrties> {
         if (prefs.getString('country') == data['all'][i]['code']) {
           other = false;
 
-          Firestore.instance
-              .collection('users')
-              .document('wauiqt7wiUI283ANx9n1')
-              .updateData({
-            'usersData': FieldValue.arrayRemove([
-              {
-                'email': widget.email,
-                'gender': widget.gender,
-                'name': widget.name,
-                'password': widget.password,
-                'image': widget.image,
-                'current': '',
-                'code': '',
-              },
-            ]),
-          });
-          Firestore.instance
-              .collection('users')
-              .document('wauiqt7wiUI283ANx9n1')
-              .updateData({
-            'usersData': FieldValue.arrayUnion([
-              {
-                'email': widget.email,
-                'gender': widget.gender,
-                'name': widget.name,
-                'password': widget.password,
-                'image': widget.image,
-                'current': data['all'][i]['country'],
-                'code': code,
-              },
-            ]),
-          });
+          Fireebase().addCountry(widget.email, widget.gender, widget.name,
+              widget.password, widget.image, data['all'][i]['country'], code);
 
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -79,38 +50,8 @@ class _ContrtiesState extends State<Contrties> {
     });
 
     if (other) {
-      Firestore.instance
-          .collection('users')
-          .document('wauiqt7wiUI283ANx9n1')
-          .updateData({
-        'usersData': FieldValue.arrayRemove([
-          {
-            'email': widget.email,
-            'gender': widget.gender,
-            'name': widget.name,
-            'password': widget.password,
-            'image': widget.image,
-            'current': '',
-            'code': '',
-          },
-        ]),
-      });
-      Firestore.instance
-          .collection('users')
-          .document('wauiqt7wiUI283ANx9n1')
-          .updateData({
-        'usersData': FieldValue.arrayUnion([
-          {
-            'email': widget.email,
-            'gender': widget.gender,
-            'name': widget.name,
-            'password': widget.password,
-            'image': widget.image,
-            'current': 'أخرى',
-            'code': code,
-          },
-        ]),
-      });
+      Fireebase().addCountry(widget.email, widget.gender, widget.name,
+          widget.password, widget.image, 'أخرى', code);
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (BuildContext context) => UsersScreen(
@@ -202,39 +143,14 @@ class _ContrtiesState extends State<Contrties> {
                       itemBuilder: (BuildContext context, int index) {
                         return InkWell(
                           onTap: () async {
-                            await Firestore.instance
-                                .collection('users')
-                                .document('wauiqt7wiUI283ANx9n1')
-                                .updateData({
-                              'usersData': FieldValue.arrayRemove([
-                                {
-                                  'email': widget.email,
-                                  'gender': widget.gender,
-                                  'name': widget.name,
-                                  'password': widget.password,
-                                  'image': widget.image,
-                                  'current': '',
-                                  'code': '',
-                                },
-                              ]),
-                            });
-                            await Firestore.instance
-                                .collection('users')
-                                .document('wauiqt7wiUI283ANx9n1')
-                                .updateData({
-                              'usersData': FieldValue.arrayUnion([
-                                {
-                                  'email': widget.email,
-                                  'gender': widget.gender,
-                                  'name': widget.name,
-                                  'password': widget.password,
-                                  'image': widget.image,
-                                  'current': snapshot.data['all'][index]
-                                      ['country'],
-                                  'code': code,
-                                },
-                              ]),
-                            });
+                            Fireebase().addCountry(
+                                widget.email,
+                                widget.gender,
+                                widget.name,
+                                widget.password,
+                                widget.image,
+                                snapshot.data['all'][index]['country'],
+                                code);
 
                             Navigator.of(context).push(
                               MaterialPageRoute(

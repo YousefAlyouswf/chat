@@ -1,4 +1,5 @@
 import 'package:chatting/models/chat_model.dart';
+import 'package:chatting/models/firebase.dart';
 import 'package:chatting/users_screen/current_users.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -73,36 +74,15 @@ class _UsersScreenState extends State<UsersScreen>
     switch (state) {
       case AppLifecycleState.paused:
         print('paused');
-        await Firestore.instance
-            .collection('users')
-            .document('wauiqt7wiUI283ANx9n1')
-            .updateData({
-          'usersData': FieldValue.arrayRemove([
-            {
-              'email': widget.email,
-              'gender': widget.gender,
-              'name': widget.name,
-              'password': widget.password,
-              'image': widget.image,
-              'current': widget.current,
-            },
-          ]),
-        });
-        await Firestore.instance
-            .collection('users')
-            .document('wauiqt7wiUI283ANx9n1')
-            .updateData({
-          'usersData': FieldValue.arrayUnion([
-            {
-              'email': widget.email,
-              'gender': widget.gender,
-              'name': widget.name,
-              'password': widget.password,
-              'image': widget.image,
-              'current': '',
-            },
-          ]),
-        });
+        Fireebase().removeCountry(
+          widget.email,
+          widget.gender,
+          widget.name,
+          widget.password,
+          widget.image,
+          widget.current,
+          widget.code,
+        );
 
         Navigator.of(context).pop();
         break;
@@ -140,38 +120,16 @@ class _UsersScreenState extends State<UsersScreen>
     return WillPopScope(
       onWillPop: () async {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await Firestore.instance
-            .collection('users')
-            .document('wauiqt7wiUI283ANx9n1')
-            .updateData({
-          'usersData': FieldValue.arrayRemove([
-            {
-              'email': widget.email,
-              'gender': widget.gender,
-              'name': widget.name,
-              'password': widget.password,
-              'image': widget.image,
-              'current': widget.current,
-              'code': prefs.getString('code'),
-            },
-          ]),
-        });
-        await Firestore.instance
-            .collection('users')
-            .document('wauiqt7wiUI283ANx9n1')
-            .updateData({
-          'usersData': FieldValue.arrayUnion([
-            {
-              'email': widget.email,
-              'gender': widget.gender,
-              'name': widget.name,
-              'password': widget.password,
-              'image': widget.image,
-              'current': '',
-              'code': '',
-            },
-          ]),
-        });
+        Fireebase().removeCountry(
+          widget.email,
+          widget.gender,
+          widget.name,
+          widget.password,
+          widget.image,
+          widget.current,
+          prefs.getString('code'),
+        );
+
         return true;
       },
       child: Scaffold(
