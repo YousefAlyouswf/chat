@@ -1,3 +1,4 @@
+import 'package:chatting/models/firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -73,22 +74,13 @@ class _SignUpState extends State<SignUp> {
             ),
             InkWell(
               onTap: () async {
-                List<Map<String, dynamic>> maplist = [
-                  {
-                    'email': _emailController.text,
-                    'gender': group.toString(),
-                    'name': _nameController.text,
-                    'password': _passwordController.text,
-                    'image': '',
-                    'current': '',
-                  },
-                ];
-                await Firestore.instance
-                    .collection('users')
-                    .document('wauiqt7wiUI283ANx9n1')
-                    .updateData({
-                  'usersData': FieldValue.arrayUnion(maplist),
-                });
+
+                Fireebase().signUp(_emailController.text,
+                group.toString(),
+                _nameController.text,
+                 _passwordController.text,
+                );
+                
               },
               child: Container(
                 color: Colors.purple,

@@ -17,16 +17,16 @@ class UsersScreen extends StatefulWidget {
   final String current;
   final String code;
 
-  const UsersScreen(
-      {Key key,
-      this.name,
-      this.email,
-      this.image,
-      this.gender,
-      this.password,
-      this.current,
-      this.code})
-      : super(key: key);
+  const UsersScreen({
+    Key key,
+    this.name,
+    this.email,
+    this.image,
+    this.gender,
+    this.password,
+    this.current,
+    this.code,
+  }) : super(key: key);
 
   @override
   _UsersScreenState createState() => _UsersScreenState();
@@ -65,11 +65,20 @@ class _UsersScreenState extends State<UsersScreen>
     chatModel.sort((a, b) => a.time.compareTo(b.time));
   }
 
+  String newCurrent;
+  void changeCurrentCountry() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      newCurrent = prefs.getString('countryName');
+    });
+  }
+
   @override
   void initState() {
+    changeCurrentCountry();
     super.initState();
-    _controller = TabController(length: 2, vsync: this);
-
+    _controller = TabController(length: 3, vsync: this);
+    _controller.index = 1;
     whoChattingWithMe();
 
     WidgetsBinding.instance.addObserver(this);
@@ -116,6 +125,7 @@ class _UsersScreenState extends State<UsersScreen>
   @override
   Widget build(BuildContext context) {
     whoChattingWithMe();
+    changeCurrentCountry();
     return WillPopScope(
       onWillPop: () async {
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -128,23 +138,23 @@ class _UsersScreenState extends State<UsersScreen>
           widget.current,
           prefs.getString('code'),
         );
-  Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (BuildContext context) => Contrties(
-            name: prefs.getString('username'),
-            email: prefs.getString('email'),
-            gender: prefs.getString('gender'),
-            image: prefs.getString('image'),
-            password: prefs.getString('password'),
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (BuildContext context) => Contrties(
+              name: prefs.getString('username'),
+              email: prefs.getString('email'),
+              gender: prefs.getString('gender'),
+              image: prefs.getString('image'),
+              password: prefs.getString('password'),
+            ),
           ),
-        ),
-      );
+        );
         return false;
       },
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.purple[900],
-          title: Text(widget.current),
+          title: Text(newCurrent == null ? '1' : newCurrent),
           centerTitle: true,
           bottom: TabBar(
             labelColor: Colors.white,
@@ -152,6 +162,9 @@ class _UsersScreenState extends State<UsersScreen>
             unselectedLabelColor: Colors.grey,
             indicatorColor: Colors.white,
             tabs: [
+              Tab(
+                text: 'الدول',
+              ),
               Tab(
                 text: 'الأعضاء',
               ),
@@ -166,13 +179,32 @@ class _UsersScreenState extends State<UsersScreen>
           name: widget.name,
           email: widget.email,
           image: widget.image,
+          password: widget.password,
+          current: newCurrent,
+          code: widget.code,
+          gender: widget.gender,
         ),
         body: TabBarView(
           children: <Widget>[
+            //--------------------------------
+            Container(
+              color: Colors.white,
+              child: Contrties(
+                name: widget.name,
+                email: widget.email,
+                gender: widget.gender,
+                image: widget.image,
+                password: widget.password,
+                controller: _controller,
+                current: newCurrent,
+              ),
+            ),
+
+            //------------------------------
             Container(
               color: Colors.white,
               child: CurrentUsers(
-                current: widget.current,
+                current: newCurrent,
                 email: widget.email,
                 image: widget.image,
                 code: widget.code,
@@ -181,7 +213,7 @@ class _UsersScreenState extends State<UsersScreen>
             Container(
               color: Colors.white,
               child: MessageRecive(
-                current: widget.current,
+                current: newCurrent,
                 email: widget.email,
                 chatModel: chatModel,
               ),

@@ -3,19 +3,24 @@ import 'package:chatting/models/firebase.dart';
 import 'package:chatting/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CurrentUsers extends StatelessWidget {
   final String current;
   final String email;
   final String image;
   final String code;
-  const CurrentUsers({
+  CurrentUsers({
     Key key,
     this.current,
     this.email,
     this.image,
     this.code,
   }) : super(key: key);
+
+  void showAllUsersInSameRoom(List<User> _user, snapshot) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +38,8 @@ class CurrentUsers extends StatelessWidget {
               } else {
                 List<User> _user = new List();
                 for (var i = 0; i < snapshot.data['usersData'].length; i++) {
-                  if (snapshot.data['usersData'][i]['current'] == current) {
+                  if (snapshot.data['usersData'][i]['current'] == current &&
+                      snapshot.data['usersData'][i]['online'] == '1') {
                     _user.add(User(
                       snapshot.data['usersData'][i]['name'],
                       snapshot.data['usersData'][i]['email'],
@@ -131,9 +137,9 @@ class CurrentUsers extends StatelessWidget {
                                         _user[index].image == ''
                                     ? _user[index].gender == '1'
                                         ? NetworkImage(
-                                            'https://www.pngitem.com/pimgs/m/184-1842706_transparent-like-a-boss-clipart-man-icon-png.png')
+                                            'https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-7/64/x-01-512.png')
                                         : NetworkImage(
-                                            'https://www.nicepng.com/png/detail/207-2074651_png-file-woman-person-icon-png.png')
+                                            'https://cdn1.iconfinder.com/data/icons/business-planning-management-set-2/64/x-90-512.png')
                                     : NetworkImage(_user[index].image),
                                 fit: BoxFit.fitWidth,
                                 height: 60,

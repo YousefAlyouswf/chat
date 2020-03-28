@@ -34,14 +34,15 @@ class AppFunctions {
         if (prefs.getString('country') == data['all'][i]['code']) {
           other = false;
 
-          Fireebase().addCountry(
-              prefs.getString('email'),
-              prefs.getString('gender'),
-              prefs.getString('username'),
-              prefs.getString('password'),
-              prefs.getString('image'),
-              data['all'][i]['country'],
-              code);
+          Fireebase().goToCountryRoom(
+            prefs.getString('email'),
+            prefs.getString('gender'),
+            prefs.getString('username'),
+            prefs.getString('password'),
+            prefs.getString('image'),
+            data['all'][i]['country'],
+            code,
+          );
 
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -52,22 +53,25 @@ class AppFunctions {
                 gender: prefs.getString('gender'),
                 password: prefs.getString('password'),
                 current: data['all'][i]['country'],
+                code: code,
               ),
             ),
           );
+          //prefs.setString('countryName', data['all'][i]['country']);
         }
       }
     });
 
     if (other) {
-      Fireebase().addCountry(
-          prefs.getString('email'),
-          prefs.getString('gender'),
-          prefs.getString('username'),
-          prefs.getString('password'),
-          prefs.getString('image'),
-          'أخرى',
-          code);
+      Fireebase().goToCountryRoom(
+        prefs.getString('email'),
+        prefs.getString('gender'),
+        prefs.getString('username'),
+        prefs.getString('password'),
+        prefs.getString('image'),
+        'أخرى',
+        code,
+      );
 
       Navigator.of(context).push(
         MaterialPageRoute(
@@ -81,6 +85,7 @@ class AppFunctions {
           ),
         ),
       );
+      prefs.setString('countryName', 'أخرى');
     }
   }
 }
