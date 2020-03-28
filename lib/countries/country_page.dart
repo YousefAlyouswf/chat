@@ -104,13 +104,13 @@ class CountryPage extends StatelessWidget {
                                                       ['country']]
                                                   .toString() ==
                                               "null"
-                                          ? '0'
-                                          : map[snapshot.data['all'][index]
+                                          ? 'الأعضاء  '+'0'
+                                          :'الأعضاء  '+ map[snapshot.data['all'][index]
                                                   ['country']]
                                               .toString(),
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
-                                          fontSize: 18, color: Colors.white),
+                                          fontSize: 13, color: Colors.white),
                                     ),
                                   ),
                                 ),

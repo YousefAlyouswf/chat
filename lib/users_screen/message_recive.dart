@@ -48,9 +48,9 @@ class MessageRecive extends StatelessWidget {
                               chatModel[index].image == ''
                           ? chatModel[index].gender == '1'
                               ? NetworkImage(
-                                  'https://www.pngitem.com/pimgs/m/184-1842706_transparent-like-a-boss-clipart-man-icon-png.png')
+                                  'https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-7/64/x-01-512.png')
                               : NetworkImage(
-                                  'https://www.nicepng.com/png/detail/207-2074651_png-file-woman-person-icon-png.png')
+                                  'https://cdn1.iconfinder.com/data/icons/business-planning-management-set-2/64/x-90-512.png')
                           : NetworkImage(chatModel[index].image),
                       fit: BoxFit.fitWidth,
                       height: 60,

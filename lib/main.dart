@@ -1,7 +1,8 @@
-import 'package:chatting/start_screen/mainStartScreen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:ipfinder/ipfinder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'loading.dart';
 
 void main() {
   getCountry();
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.purple,
       ),
-      home: StartScreen(),
+      home: Loading(),
     );
   }
 }

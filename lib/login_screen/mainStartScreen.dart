@@ -1,7 +1,5 @@
-import 'package:chatting/countries/contrties.dart';
-import 'package:chatting/start_screen/signup.dart';
+import 'package:chatting/login_screen/signup.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'login.dart';
 
@@ -14,28 +12,11 @@ class StartScreen extends StatefulWidget {
 class _StartScreenState extends State<StartScreen>
     with SingleTickerProviderStateMixin {
   TabController _controller;
-  void userAlreadyLogin() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String userName = prefs.getString('username');
-    String password = prefs.getString('password');
-    if (userName != null && password != null) {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (BuildContext context) => Contrties(
-            name: prefs.getString('username'),
-            email: prefs.getString('email'),
-            gender: prefs.getString('gender'),
-            image: prefs.getString('image'),
-            password: prefs.getString('password'),
-          ),
-        ),
-      );
-    }
-  }
+  
 
   @override
   void initState() {
-   userAlreadyLogin();
+  
     super.initState();
     _controller = TabController(length: 2, vsync: this);
   }

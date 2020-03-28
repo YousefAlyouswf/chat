@@ -1,3 +1,4 @@
+import 'package:chatting/countries/contrties.dart';
 import 'package:chatting/models/chat_model.dart';
 import 'package:chatting/models/firebase.dart';
 import 'package:chatting/users_screen/current_users.dart';
@@ -127,8 +128,18 @@ class _UsersScreenState extends State<UsersScreen>
           widget.current,
           prefs.getString('code'),
         );
-
-        return true;
+  Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (BuildContext context) => Contrties(
+            name: prefs.getString('username'),
+            email: prefs.getString('email'),
+            gender: prefs.getString('gender'),
+            image: prefs.getString('image'),
+            password: prefs.getString('password'),
+          ),
+        ),
+      );
+        return false;
       },
       child: Scaffold(
         appBar: AppBar(

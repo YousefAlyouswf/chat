@@ -54,53 +54,7 @@ class _ContrtiesState extends State<Contrties>
     chatModel.sort((a, b) => a.time.compareTo(b.time));
   }
 
-  void goToCountryRoom() async {
-    bool other = true;
-    final QuerySnapshot result =
-        await Firestore.instance.collection('countries').getDocuments();
-    final List<DocumentSnapshot> documents = result.documents;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    documents.forEach((data) {
-      for (var i = 0; i < data['all'].length; i++) {
-        if (prefs.getString('country') == data['all'][i]['code']) {
-          other = false;
 
-          Fireebase().addCountry(widget.email, widget.gender, widget.name,
-              widget.password, widget.image, data['all'][i]['country'], code);
-
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (BuildContext context) => UsersScreen(
-                name: widget.name,
-                email: widget.email,
-                image: widget.image,
-                gender: widget.gender,
-                password: widget.password,
-                current: data['all'][i]['country'],
-              ),
-            ),
-          );
-        }
-      }
-    });
-
-    if (other) {
-      Fireebase().addCountry(widget.email, widget.gender, widget.name,
-          widget.password, widget.image, 'أخرى', code);
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (BuildContext context) => UsersScreen(
-            name: widget.name,
-            email: widget.email,
-            image: widget.image,
-            gender: widget.gender,
-            password: widget.password,
-            current: 'أخرى',
-          ),
-        ),
-      );
-    }
-  }
 
   String code;
   void getCountry() async {
@@ -139,7 +93,7 @@ class _ContrtiesState extends State<Contrties>
     whoChattingWithMe();
     getCountry();
     countHomeManyUserInRoom();
-    goToCountryRoom();
+ 
     super.initState();
     _controller = TabController(length: 2, vsync: this);
   }
@@ -160,7 +114,7 @@ class _ContrtiesState extends State<Contrties>
           indicatorColor: Colors.white,
           tabs: [
             Tab(
-              text: 'الدول',
+              text: 'جميع الدول',
             ),
             Tab(
               text: 'الرسائل',
