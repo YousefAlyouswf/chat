@@ -12,18 +12,15 @@ class StartScreen extends StatefulWidget {
 class _StartScreenState extends State<StartScreen>
     with SingleTickerProviderStateMixin {
   TabController _controller;
-  
 
   @override
   void initState() {
-  
     super.initState();
     _controller = TabController(length: 2, vsync: this);
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text("سوالف"),
@@ -36,10 +33,10 @@ class _StartScreenState extends State<StartScreen>
           indicatorColor: Colors.white,
           tabs: [
             Tab(
-              text: 'تسجيل',
+              text: 'دخول',
             ),
             Tab(
-              text: 'دخول',
+              text: 'تسجيل',
             ),
           ],
           controller: _controller,
@@ -49,11 +46,11 @@ class _StartScreenState extends State<StartScreen>
         children: <Widget>[
           Container(
             color: Colors.white,
-            child: SignUp(),
+            child: Login(),
           ),
           Container(
             color: Colors.white,
-            child: Login(),
+            child: SignUp(),
           ),
         ],
         controller: _controller,

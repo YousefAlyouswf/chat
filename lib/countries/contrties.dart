@@ -1,6 +1,5 @@
 import 'package:chatting/models/chat_model.dart';
-import 'package:chatting/models/firebase.dart';
-import 'package:chatting/users_screen/mainUsersScreen.dart';
+
 import 'package:chatting/users_screen/message_recive.dart';
 import 'package:flutter/material.dart';
 import '../drawer.dart';

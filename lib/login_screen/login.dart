@@ -1,4 +1,4 @@
-import 'package:chatting/countries/contrties.dart';
+import 'package:chatting/models/app_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -64,17 +64,7 @@ class _LoginState extends State<Login> {
                       prefs.setString('image', data['usersData'][i]['image']);
                       prefs.setString(
                           'password', data['usersData'][i]['password']);
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (BuildContext context) => Contrties(
-                            name: data['usersData'][i]['name'],
-                            email: data['usersData'][i]['email'],
-                            gender: data['usersData'][i]['gender'],
-                            image: data['usersData'][i]['image'],
-                            password: data['usersData'][i]['password'],
-                          ),
-                        ),
-                      );
+                      AppFunctions().goToCountryRoom(context);
                       break;
                     }
                   }
