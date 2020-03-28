@@ -4,9 +4,11 @@ import 'package:chatting/models/firebase.dart';
 import 'package:chatting/users_screen/current_users.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../drawer.dart';
 import 'message_recive.dart';
+import 'dart:async';
 
 class UsersScreen extends StatefulWidget {
   final String name;
@@ -49,7 +51,8 @@ class _UsersScreenState extends State<UsersScreen>
 
         if (this.mounted) {
           setState(() {
-            chatModel.add(ChatModel(
+            chatModel.add(
+              ChatModel(
                 data['from'],
                 data['to'],
                 date['time'],
@@ -57,7 +60,13 @@ class _UsersScreenState extends State<UsersScreen>
                 data['image'],
                 data['code'],
                 data['name'],
-                date['content']));
+                date['content'],
+                data['name2'],
+                data['gender2'],
+                data['image2'],
+                data['code2'],
+              ),
+            );
           });
         }
       }
@@ -96,7 +105,37 @@ class _UsersScreenState extends State<UsersScreen>
     switch (state) {
       case AppLifecycleState.paused:
         print('paused');
-        Fireebase().removeCountry(
+
+        int _start = 5;
+        const oneSec = const Duration(seconds: 1);
+        new Timer.periodic(
+          oneSec,
+          (Timer timer) => setState(
+            () {
+              if (_start < 1) {
+                Fireebase().logOut(
+                  widget.email,
+                  widget.gender,
+                  widget.name,
+                  widget.password,
+                  widget.image,
+                  widget.current,
+                  widget.code,
+                );
+                timer.cancel();
+              } else {
+                _start = _start - 1;
+              }
+            },
+          ),
+        );
+
+        //    Navigator.of(context).pop();
+        break;
+      case AppLifecycleState.resumed:
+        print('resumed');
+
+        Fireebase().resume(
           widget.email,
           widget.gender,
           widget.name,
@@ -105,11 +144,6 @@ class _UsersScreenState extends State<UsersScreen>
           widget.current,
           widget.code,
         );
-
-        Navigator.of(context).pop();
-        break;
-      case AppLifecycleState.resumed:
-        print('resumed');
         break;
       case AppLifecycleState.inactive:
         print('inactive');
@@ -129,7 +163,7 @@ class _UsersScreenState extends State<UsersScreen>
     return WillPopScope(
       onWillPop: () async {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        Fireebase().removeCountry(
+        Fireebase().logOut(
           widget.email,
           widget.gender,
           widget.name,
@@ -138,17 +172,7 @@ class _UsersScreenState extends State<UsersScreen>
           widget.current,
           prefs.getString('code'),
         );
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (BuildContext context) => Contrties(
-              name: prefs.getString('username'),
-              email: prefs.getString('email'),
-              gender: prefs.getString('gender'),
-              image: prefs.getString('image'),
-              password: prefs.getString('password'),
-            ),
-          ),
-        );
+        SystemChannels.platform.invokeMethod('SystemNavigator.pop');
         return false;
       },
       child: Scaffold(
@@ -208,6 +232,9 @@ class _UsersScreenState extends State<UsersScreen>
                 email: widget.email,
                 image: widget.image,
                 code: widget.code,
+                name: widget.name,
+                gender: widget.gender,
+                
               ),
             ),
             Container(

@@ -1,26 +1,24 @@
 import 'package:chatting/chatScreen/chatScreen.dart';
-import 'package:chatting/models/firebase.dart';
 import 'package:chatting/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class CurrentUsers extends StatelessWidget {
   final String current;
   final String email;
   final String image;
   final String code;
+  final String name;
+  final String gender;
   CurrentUsers({
     Key key,
     this.current,
     this.email,
     this.image,
     this.code,
+    this.name,
+    this.gender,
   }) : super(key: key);
-
-  void showAllUsersInSameRoom(List<User> _user, snapshot) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,59 +57,23 @@ class CurrentUsers extends StatelessWidget {
                         onTap: _user[index].email == email
                             ? null
                             : () async {
-                                var now = DateTime.now().millisecondsSinceEpoch;
-
-                                final QuerySnapshot result = await Firestore
-                                    .instance
-                                    .collection('chat')
-                                    .getDocuments();
-                                final List<DocumentSnapshot> documents =
-                                    result.documents;
-                                bool found = false;
-                                documents.forEach((data) {
-                                  if (data['from'] == email &&
-                                          data['to'] == _user[index].email ||
-                                      data['to'] == email &&
-                                          data['from'] == _user[index].email) {
-                                    found = true;
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            ChatScreen(
-                                          userName: _user[index].name,
-                                          userEmail: _user[index].email,
-                                          myEmail: email,
-                                          image: _user[index].image == ''
-                                              ? _user[index].gender
-                                              : _user[index].image,
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                });
-                                if (!found) {
-                                  Fireebase().addToChatCollections(
-                                    email,
-                                    _user[index].email,
-                                    now,
-                                    _user[index].gender,
-                                    _user[index].image,
-                                    _user[index].code,
-                                    _user[index].name,
-                                  );
-
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          ChatScreen(
-                                        userName: _user[index].name,
-                                        userEmail: _user[index].email,
-                                        myEmail: email,
-                                        image: _user[index].image,
-                                      ),
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        ChatScreen(
+                                      name: name,
+                                      email: email,
+                                      image: image,
+                                      code: code,
+                                      gender: gender,
+                                      email2: _user[index].email,
+                                      gender2: _user[index].gender,
+                                      name2: _user[index].name,
+                                      code2: _user[index].code,
+                                      image2: _user[index].image,
                                     ),
-                                  );
-                                }
+                                  ),
+                                );
                               },
                         child: Card(
                           color: _user[index].email == email

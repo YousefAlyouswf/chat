@@ -1,15 +1,34 @@
 import 'dart:async';
 
+import 'package:chatting/models/firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
-  final String userName;
-  final String userEmail;
-  final String myEmail;
+  final String email;
   final String image;
-  ChatScreen({Key key, this.userName, this.userEmail, this.myEmail, this.image})
-      : super(key: key);
+  final String code;
+  final String name;
+  final String gender;
+  final String email2;
+  final String image2;
+  final String code2;
+  final String name2;
+  final String gender2;
+
+  const ChatScreen({
+    Key key,
+    this.email,
+    this.image,
+    this.code,
+    this.name,
+    this.gender,
+    this.email2,
+    this.image2,
+    this.code2,
+    this.name2,
+    this.gender2,
+  }) : super(key: key);
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -24,8 +43,8 @@ class _ChatScreenState extends State<ChatScreen> {
         await Firestore.instance.collection('chat').getDocuments();
     final List<DocumentSnapshot> documents = result.documents;
     documents.forEach((data) {
-      if (data['from'] == widget.myEmail && data['to'] == widget.userEmail ||
-          data['to'] == widget.myEmail && data['from'] == widget.userEmail) {
+      if (data['from'] == widget.email && data['to'] == widget.email2 ||
+          data['to'] == widget.email && data['from'] == widget.email2) {
         setState(() {
           chattingID = data.documentID;
         });
@@ -42,6 +61,7 @@ class _ChatScreenState extends State<ChatScreen> {
   String genderImage;
   @override
   Widget build(BuildContext context) {
+    getMsgId();
     if (widget.image == '1' || widget.image == '2') {
       if (widget.image == '1') {
         setState(() {
@@ -57,7 +77,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.userName),
+        title: Text(widget.name),
         backgroundColor: Colors.purple[900],
         centerTitle: true,
         actions: <Widget>[
@@ -95,7 +115,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               padding: const EdgeInsets.all(8.0),
                               child: Card(
                                   child: ListTile(
-                                title: from == widget.myEmail
+                                title: from == widget.email
                                     ? Text(
                                         snapshot.data['messages'][index]
                                             ['content'],
@@ -108,14 +128,14 @@ class _ChatScreenState extends State<ChatScreen> {
                                         textDirection: TextDirection.ltr,
                                         style: TextStyle(color: Colors.blue),
                                       ),
-                                trailing: from == widget.myEmail
+                                trailing: from == widget.email
                                     ? Image(
                                         image:
                                             AssetImage('assets/images/ph.png'),
                                         fit: BoxFit.fill,
                                       )
                                     : null,
-                                leading: from != widget.myEmail
+                                leading: from != widget.email
                                     ? Image(
                                         image:
                                             AssetImage('assets/images/ph.png'),
@@ -158,20 +178,39 @@ class _ChatScreenState extends State<ChatScreen> {
                       icon: Icon(Icons.send),
                       onPressed: () async {
                         var now = DateTime.now().millisecondsSinceEpoch;
+                        if (chattingID == null) {
+                          Fireebase().addToChatCollections(
+                            widget.email,
+                            widget.email2,
+                            now,
+                            widget.gender,
+                            widget.image,
+                            widget.code,
+                            widget.name,
+                            widget.name2,
+                            widget.gender2,
+                            widget.image2,
+                            widget.code2,
+                            _txtController.text,
+                          );
+                        } else {
+                          Fireebase().updateToChatCollections(
+                            widget.email,
+                            widget.email2,
+                            now,
+                            widget.gender,
+                            widget.image,
+                            widget.code,
+                            widget.name,
+                            widget.name2,
+                            widget.gender2,
+                            widget.image2,
+                            widget.code2,
+                            _txtController.text,
+                            chattingID,
+                          );
+                        }
 
-                        await Firestore.instance
-                            .collection('chat')
-                            .document(chattingID)
-                            .updateData({
-                          'messages': FieldValue.arrayUnion([
-                            {
-                              'content': _txtController.text,
-                              'from': widget.myEmail,
-                              'to': widget.userEmail,
-                              'time': now,
-                            },
-                          ]),
-                        });
                         setState(() {
                           _txtController.text = '';
                         });

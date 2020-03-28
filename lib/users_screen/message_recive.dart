@@ -23,39 +23,66 @@ class MessageRecive extends StatelessWidget {
             return InkWell(
               onTap: () {},
               child: Card(
-                color: chatModel[index].gender == '2'
-                    ? Colors.pink[100]
-                    : Colors.blue[100],
+                color: chatModel[index].to == email
+                    ? chatModel[index].gender2 == '2'
+                        ? Colors.pink[100]
+                        : Colors.blue[100]
+                    : chatModel[index].gender == '2'
+                        ? Colors.pink[100]
+                        : Colors.blue[100],
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ListTile(
-                    leading: Image.asset(
-                      'icons/flags/png/${chatModel[index].code}.png',
-                      package: 'country_icons',
-                      height: 60,
-                      width: 60,
-                    ),
+                    leading: chatModel[index].to == email
+                        ? Image.asset(
+                            'icons/flags/png/${chatModel[index].code2}.png',
+                            package: 'country_icons',
+                            height: 60,
+                            width: 60,
+                          )
+                        : Image.asset(
+                            'icons/flags/png/${chatModel[index].code}.png',
+                            package: 'country_icons',
+                            height: 60,
+                            width: 60,
+                          ),
                     title: Text(
                       chatModel[index].msg,
                       textAlign: TextAlign.center,
                     ),
                     subtitle: Text(
-                      chatModel[index].name,
+                      chatModel[index].to == email
+                          ? chatModel[index].name2
+                          : chatModel[index].name,
                       textAlign: TextAlign.end,
                     ),
-                    trailing: Image(
-                      image: chatModel[index].image == null ||
-                              chatModel[index].image == ''
-                          ? chatModel[index].gender == '1'
-                              ? NetworkImage(
-                                  'https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-7/64/x-01-512.png')
-                              : NetworkImage(
-                                  'https://cdn1.iconfinder.com/data/icons/business-planning-management-set-2/64/x-90-512.png')
-                          : NetworkImage(chatModel[index].image),
-                      fit: BoxFit.fitWidth,
-                      height: 60,
-                      width: 60,
-                    ),
+                    trailing: chatModel[index].to == email
+                        ? Image(
+                            image: chatModel[index].image2 == null ||
+                                    chatModel[index].image2 == ''
+                                ? chatModel[index].gender2 == '1'
+                                    ? NetworkImage(
+                                        'https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-7/64/x-01-512.png')
+                                    : NetworkImage(
+                                        'https://cdn1.iconfinder.com/data/icons/business-planning-management-set-2/64/x-90-512.png')
+                                : NetworkImage(chatModel[index].image2),
+                            fit: BoxFit.fitWidth,
+                            height: 60,
+                            width: 60,
+                          )
+                        : Image(
+                            image: chatModel[index].image == null ||
+                                    chatModel[index].image == ''
+                                ? chatModel[index].gender == '1'
+                                    ? NetworkImage(
+                                        'https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-7/64/x-01-512.png')
+                                    : NetworkImage(
+                                        'https://cdn1.iconfinder.com/data/icons/business-planning-management-set-2/64/x-90-512.png')
+                                : NetworkImage(chatModel[index].image),
+                            fit: BoxFit.fitWidth,
+                            height: 60,
+                            width: 60,
+                          ),
                   ),
                 ),
               ),

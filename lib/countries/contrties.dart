@@ -49,6 +49,10 @@ class _ContrtiesState extends State<Contrties> {
               data['code'],
               data['name'],
               date['content'],
+              data['name2'],
+              data['gender2'],
+              data['image2'],
+              data['code2'],
             ));
           });
         }
