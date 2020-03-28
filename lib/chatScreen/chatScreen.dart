@@ -45,9 +45,11 @@ class _ChatScreenState extends State<ChatScreen> {
     documents.forEach((data) {
       if (data['from'] == widget.email && data['to'] == widget.email2 ||
           data['to'] == widget.email && data['from'] == widget.email2) {
-        setState(() {
-          chattingID = data.documentID;
-        });
+        if (this.mounted) {
+          setState(() {
+            chattingID = data.documentID;
+          });
+        }
       }
     });
   }
@@ -77,17 +79,17 @@ class _ChatScreenState extends State<ChatScreen> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.name),
+        title: Text(widget.name2),
         backgroundColor: Colors.purple[900],
         centerTitle: true,
-        actions: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: Image.network(widget.image == '1' || widget.image == '2'
-                ? genderImage
-                : widget.image),
-          ),
-        ],
+        // actions: <Widget>[
+        //   Padding(
+        //     padding: const EdgeInsets.only(right: 8.0),
+        //     child: Image.network(widget.image == '1' || widget.image == '2'
+        //         ? genderImage
+        //         : widget.image),
+        //   ),
+        // ],
       ),
       body: SingleChildScrollView(
         child: Column(
