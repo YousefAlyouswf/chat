@@ -106,21 +106,35 @@ class Fireebase {
     String gender2,
     String image2,
     String code2,
-  ) {
-    Firestore.instance.collection('chat').document().setData(
-      {
-        'from': email,
-        'to': userEmail,
-        'gender': gender2,
-        'image': image2,
-        'code': code2,
-        'name': name2,
-        'name2': name,
-        'gender2': gender,
-        'image2': image,
-        'code2': code,
+  ) async {
+    final QuerySnapshot result =
+        await Firestore.instance.collection('chat').getDocuments();
+    final List<DocumentSnapshot> documents = result.documents;
+    bool thereIsChatting = false;
+    documents.forEach(
+      (data) {
+        if (data['from'] == email && data['to'] == userEmail ||
+            data['to'] == email && data['from'] == userEmail) {
+          thereIsChatting = true;
+        }
       },
     );
+    if (thereIsChatting == false) {
+      Firestore.instance.collection('chat').document().setData(
+        {
+          'from': email,
+          'to': userEmail,
+          'gender': gender2,
+          'image': image2,
+          'code': code2,
+          'name': name2,
+          'name2': name,
+          'gender2': gender,
+          'image2': image,
+          'code2': code,
+        },
+      );
+    }
   }
 
   void updateToChatCollections(

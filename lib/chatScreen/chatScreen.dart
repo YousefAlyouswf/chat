@@ -2,6 +2,7 @@ import 'package:chatting/models/app_functions.dart';
 import 'package:chatting/models/firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:bubble/bubble.dart';
 
 class ChatScreen extends StatefulWidget {
   final String email;
@@ -34,6 +35,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  double width = 0, height = 60;
   String chattingID;
   var _txtController = TextEditingController();
   ScrollController _controller = ScrollController();
@@ -64,7 +66,10 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     try {
       getMsgId();
-      AppFunctions().goDownFunction(_controller);
+      if (width == 0) {
+        width = MediaQuery.of(context).size.width;
+      }
+      // AppFunctions().goDownFunction(_controller);
     } catch (e) {}
 
     return Scaffold(
@@ -98,35 +103,62 @@ class _ChatScreenState extends State<ChatScreen> {
                             String from =
                                 snapshot.data.documents[index]['from'];
 
-                            return Card(
-                              child: ListTile(
-                                title: from == widget.email
-                                    ? Text(
-                                        snapshot.data.documents[index]
-                                            ['content'],
-                                        textDirection: TextDirection.rtl,
-                                        style: TextStyle(color: Colors.red),
-                                      )
-                                    : Text(
-                                        snapshot.data.documents[index]
-                                            ['content'],
-                                        textDirection: TextDirection.ltr,
-                                        style: TextStyle(color: Colors.blue),
+                            return Container(
+                              child: Row(
+                                children: <Widget>[
+                                  from != widget.email
+                                      ? Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Container(
+                                            width: 60.0,
+                                            height: 60.0,
+                                            decoration: new BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              image: new DecorationImage(
+                                                fit: BoxFit.fill,
+                                                image: new AssetImage(
+                                                    'assets/images/ph.png'),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      : Container(),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Bubble(
+                                        margin: BubbleEdges.only(top: 10),
+                                        stick: true,
+                                        nip: from == widget.email
+                                            ? BubbleNip.rightTop
+                                            : BubbleNip.leftTop,
+                                        color:
+                                            Color.fromRGBO(225, 255, 199, 1.0),
+                                        child: Text(
+                                            snapshot.data.documents[index]
+                                                ['content'],
+                                            textAlign: from == widget.email
+                                                ? TextAlign.right
+                                                : TextAlign.left),
                                       ),
-                                trailing: from == widget.email
-                                    ? Image(
-                                        image:
-                                            AssetImage('assets/images/ph.png'),
-                                        fit: BoxFit.fill,
-                                      )
-                                    : null,
-                                leading: from != widget.email
-                                    ? Image(
-                                        image:
-                                            AssetImage('assets/images/ph.png'),
-                                        fit: BoxFit.fill,
-                                      )
-                                    : null,
+                                    ),
+                                  ),
+                                  from == widget.email
+                                      ? Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Container(
+                                              width: 60.0,
+                                              height: 60.0,
+                                              decoration: new BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  image: new DecorationImage(
+                                                    fit: BoxFit.fill,
+                                                    image: new AssetImage(
+                                                        'assets/images/ph.png'),
+                                                  ))),
+                                        )
+                                      : Container(),
+                                ],
                               ),
                             );
                           },
