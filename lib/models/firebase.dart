@@ -96,44 +96,8 @@ class Fireebase {
   }
 
   void addToChatCollections(
-      String email,
-      String userEmail,
-      var now,
-      String gender,
-      String image,
-      String code,
-      String name,
-      String name2,
-      String gender2,
-      String image2,
-      String code2,
-      String msg) {
-    Firestore.instance.collection('chat').document().setData({
-      'from': email,
-      'to': userEmail,
-      'gender': gender2,
-      'image': image2,
-      'code': code2,
-      'name': name2,
-      'name2': name,
-      'gender2': gender,
-      'image2': image,
-      'code2': code,
-      'messages': FieldValue.arrayUnion([
-        {
-          'from': email,
-          'to': userEmail,
-          'content': msg,
-          'time': now,
-        },
-      ]),
-    });
-  }
-
-  void updateToChatCollections(
     String email,
     String userEmail,
-    var now,
     String gender,
     String image,
     String code,
@@ -142,28 +106,40 @@ class Fireebase {
     String gender2,
     String image2,
     String code2,
+  ) {
+    Firestore.instance.collection('chat').document().setData(
+      {
+        'from': email,
+        'to': userEmail,
+        'gender': gender2,
+        'image': image2,
+        'code': code2,
+        'name': name2,
+        'name2': name,
+        'gender2': gender,
+        'image2': image,
+        'code2': code,
+      },
+    );
+  }
+
+  void updateToChatCollections(
+    String email,
+    String userEmail,
+    var now,
     String msg,
     String id,
   ) {
-    Firestore.instance.collection('chat').document(id).updateData({
+    Firestore.instance
+        .collection('chat')
+        .document(id)
+        .collection('messages')
+        .document(now.toString())
+        .setData({
       'from': email,
       'to': userEmail,
-      'gender': gender2,
-      'image': image2,
-      'code': code2,
-      'name': name2,
-      'name2': name,
-      'gender2': gender,
-      'image2': image,
-      'code2': code,
-      'messages': FieldValue.arrayUnion([
-        {
-          'from': email,
-          'to': userEmail,
-          'content': msg,
-          'time': now,
-        },
-      ]),
+      'content': msg,
+      'time': now,
     });
   }
 

@@ -46,30 +46,30 @@ class _UsersScreenState extends State<UsersScreen>
     final List<DocumentSnapshot> documents = result.documents;
     chatModel = new List();
     documents.forEach((data) {
-      if (data['from'] == widget.email || data['to'] == widget.email) {
-        var date = data['messages'].last;
+      // if (data['from'] == widget.email || data['to'] == widget.email) {
+      //   var date = data['messages'].last;
 
-        if (this.mounted) {
-          setState(() {
-            chatModel.add(
-              ChatModel(
-                data['from'],
-                data['to'],
-                date['time'],
-                data['gender'],
-                data['image'],
-                data['code'],
-                data['name'],
-                date['content'],
-                data['name2'],
-                data['gender2'],
-                data['image2'],
-                data['code2'],
-              ),
-            );
-          });
-        }
-      }
+      //   if (this.mounted) {
+      //     setState(() {
+      //       chatModel.add(
+      //         ChatModel(
+      //           data['from'],
+      //           data['to'],
+      //           date['time'],
+      //           data['gender'],
+      //           data['image'],
+      //           data['code'],
+      //           data['name'],
+      //           date['content'],
+      //           data['name2'],
+      //           data['gender2'],
+      //           data['image2'],
+      //           data['code2'],
+      //         ),
+      //       );
+      //     });
+      //   }
+      // }
     });
     chatModel.sort((a, b) => a.time.compareTo(b.time));
   }

@@ -1,4 +1,5 @@
 import 'package:chatting/chatScreen/chatScreen.dart';
+import 'package:chatting/models/firebase.dart';
 import 'package:chatting/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -57,6 +58,9 @@ class CurrentUsers extends StatelessWidget {
                         onTap: _user[index].email == email
                             ? null
                             : () async {
+                              Fireebase().addToChatCollections(email,_user[index].email,gender, image, code,name,
+                            _user[index].name,_user[index].gender,_user[index].image,
+                             _user[index].code, );
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: (BuildContext context) =>

@@ -88,4 +88,25 @@ class AppFunctions {
       prefs.setString('countryName', 'أخرى');
     }
   }
+
+// Start chatScreen
+
+  void goDownFunction(ScrollController _controller) {
+    _controller.animateTo(0.0,
+        duration: Duration(milliseconds: 300), curve: Curves.easeOut);
+  }
+
+  static void getMsgId(String email, String email2, String chattingID) async {
+    final QuerySnapshot result =
+        await Firestore.instance.collection('chat').getDocuments();
+    final List<DocumentSnapshot> documents = result.documents;
+    documents.forEach((data) {
+      if (data['from'] == email && data['to'] == email2 ||
+          data['to'] == email && data['from'] == email2) {
+        chattingID = data.documentID;
+      }
+    });
+  }
+
+  //End chatScreen
 }

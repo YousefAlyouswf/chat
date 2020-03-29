@@ -1,5 +1,4 @@
-import 'dart:async';
-
+import 'package:chatting/models/app_functions.dart';
 import 'package:chatting/models/firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -63,33 +62,16 @@ class _ChatScreenState extends State<ChatScreen> {
   String genderImage;
   @override
   Widget build(BuildContext context) {
-    getMsgId();
-    if (widget.image == '1' || widget.image == '2') {
-      if (widget.image == '1') {
-        setState(() {
-          genderImage =
-              'https://www.pngitem.com/pimgs/m/184-1842706_transparent-like-a-boss-clipart-man-icon-png.png';
-        });
-      } else {
-        setState(() {
-          genderImage =
-              'https://www.nicepng.com/png/detail/207-2074651_png-file-woman-person-icon-png.png';
-        });
-      }
-    }
+    try {
+      getMsgId();
+      AppFunctions().goDownFunction(_controller);
+    } catch (e) {}
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.name2),
         backgroundColor: Colors.purple[900],
         centerTitle: true,
-        // actions: <Widget>[
-        //   Padding(
-        //     padding: const EdgeInsets.only(right: 8.0),
-        //     child: Image.network(widget.image == '1' || widget.image == '2'
-        //         ? genderImage
-        //         : widget.image),
-        //   ),
-        // ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -100,6 +82,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   stream: Firestore.instance
                       .collection('chat')
                       .document(chattingID)
+                      .collection('messages')
+                      .orderBy('time', descending: true)
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {
@@ -107,25 +91,24 @@ class _ChatScreenState extends State<ChatScreen> {
                     } else {
                       try {
                         return ListView.builder(
-                          itemCount: snapshot.data['messages'].length,
+                          reverse: true,
+                          itemCount: snapshot.data.documents.length,
                           controller: _controller,
                           itemBuilder: (BuildContext context, int index) {
                             String from =
-                                snapshot.data['messages'][index]['from'];
+                                snapshot.data.documents[index]['from'];
 
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Card(
-                                  child: ListTile(
+                            return Card(
+                              child: ListTile(
                                 title: from == widget.email
                                     ? Text(
-                                        snapshot.data['messages'][index]
+                                        snapshot.data.documents[index]
                                             ['content'],
                                         textDirection: TextDirection.rtl,
                                         style: TextStyle(color: Colors.red),
                                       )
                                     : Text(
-                                        snapshot.data['messages'][index]
+                                        snapshot.data.documents[index]
                                             ['content'],
                                         textDirection: TextDirection.ltr,
                                         style: TextStyle(color: Colors.blue),
@@ -144,12 +127,12 @@ class _ChatScreenState extends State<ChatScreen> {
                                         fit: BoxFit.fill,
                                       )
                                     : null,
-                              )),
+                              ),
                             );
                           },
                         );
                       } catch (e) {
-                        return Text("لا توجد محادثات");
+                        return Text("");
                       }
                     }
                   }),
@@ -170,58 +153,15 @@ class _ChatScreenState extends State<ChatScreen> {
                           border: InputBorder.none,
                           hintText: 'أكتب هنا',
                         ),
-                        onSubmitted: (v) {},
+                        onEditingComplete: callback,
+                        textInputAction: TextInputAction.send,
                       ),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: IconButton(
-                      icon: Icon(Icons.send),
-                      onPressed: () async {
-                        var now = DateTime.now().millisecondsSinceEpoch;
-                        if (chattingID == null) {
-                          Fireebase().addToChatCollections(
-                            widget.email,
-                            widget.email2,
-                            now,
-                            widget.gender,
-                            widget.image,
-                            widget.code,
-                            widget.name,
-                            widget.name2,
-                            widget.gender2,
-                            widget.image2,
-                            widget.code2,
-                            _txtController.text,
-                          );
-                        } else {
-                          Fireebase().updateToChatCollections(
-                            widget.email,
-                            widget.email2,
-                            now,
-                            widget.gender,
-                            widget.image,
-                            widget.code,
-                            widget.name,
-                            widget.name2,
-                            widget.gender2,
-                            widget.image2,
-                            widget.code2,
-                            _txtController.text,
-                            chattingID,
-                          );
-                        }
-
-                        setState(() {
-                          _txtController.text = '';
-                        });
-                        Timer(
-                            Duration(milliseconds: 300),
-                            () => _controller
-                                .jumpTo(_controller.position.maxScrollExtent));
-                      },
-                    ),
+                    child:
+                        IconButton(icon: Icon(Icons.send), onPressed: callback),
                   ),
                 ],
               ),
@@ -230,5 +170,20 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> callback() async {
+    var now = DateTime.now().millisecondsSinceEpoch;
+
+    Fireebase().updateToChatCollections(
+      widget.email,
+      widget.email2,
+      now,
+      _txtController.text,
+      chattingID,
+    );
+
+    _txtController.clear();
+    AppFunctions().goDownFunction(_controller);
   }
 }
