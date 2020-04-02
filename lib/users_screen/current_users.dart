@@ -58,9 +58,18 @@ class CurrentUsers extends StatelessWidget {
                         onTap: _user[index].email == email
                             ? null
                             : () async {
-                              Fireebase().addToChatCollections(email,_user[index].email,gender, image, code,name,
-                            _user[index].name,_user[index].gender,_user[index].image,
-                             _user[index].code, );
+                                Fireebase().addToChatCollections(
+                                  email,
+                                  _user[index].email,
+                                  gender,
+                                  image,
+                                  code,
+                                  name,
+                                  _user[index].name,
+                                  _user[index].gender,
+                                  _user[index].image,
+                                  _user[index].code,
+                                );
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: (BuildContext context) =>
@@ -97,6 +106,7 @@ class CurrentUsers extends StatelessWidget {
                               title: Text(
                                 _user[index].name,
                                 textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.title,
                               ),
                               trailing: Image(
                                 image: _user[index].image == null ||

@@ -1,4 +1,5 @@
-
+import 'package:chatting/models/app_functions.dart';
+import 'package:chatting/models/firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
@@ -193,12 +194,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: IconButton(
-                        icon: Icon(Icons.send),
-                        onPressed: () async {
-                         await CloudFunctions.instance
-                              .getHttpsCallable(functionName: 'addUser')
-                              .call({"name": 'blabla', "email": 'blabla'});
-                        }),
+                      icon: Icon(Icons.send),
+                      onPressed: callback,
+                    ),
                   ),
                 ],
               ),
@@ -210,17 +208,17 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> callback() async {
-    // var now = DateTime.now().millisecondsSinceEpoch;
+    var now = DateTime.now().millisecondsSinceEpoch;
 
-    // Fireebase().updateToChatCollections(
-    //   widget.email,
-    //   widget.email2,
-    //   now,
-    //   _txtController.text,
-    //   chattingID,
-    // );
+    Fireebase().updateToChatCollections(
+      widget.email,
+      widget.email2,
+      now,
+      _txtController.text,
+      chattingID,
+    );
 
-    // _txtController.clear();
-    // AppFunctions().goDownFunction(_controller);
+    _txtController.clear();
+    AppFunctions().goDownFunction(_controller);
   }
 }

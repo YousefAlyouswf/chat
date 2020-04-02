@@ -12,7 +12,15 @@ class DrawerPage extends StatelessWidget {
   final String current;
   final String code;
 
-  const DrawerPage({Key key, this.name, this.email, this.image, this.gender, this.password, this.current, this.code})
+  const DrawerPage(
+      {Key key,
+      this.name,
+      this.email,
+      this.image,
+      this.gender,
+      this.password,
+      this.current,
+      this.code})
       : super(key: key);
 
   @override
@@ -25,8 +33,12 @@ class DrawerPage extends StatelessWidget {
             Container(
               height: 200,
               child: UserAccountsDrawerHeader(
-                accountEmail: Text(email),
-                accountName: Text(name),
+                accountEmail: Text(
+                  email,
+                  style: Theme.of(context).textTheme.headline,
+                ),
+                accountName:
+                    Text(name, style: Theme.of(context).textTheme.headline),
                 otherAccountsPictures: <Widget>[
                   Image.asset(gender == "1"
                       ? 'assets/images/male.png'
@@ -104,7 +116,8 @@ class DrawerPage extends StatelessWidget {
                   prefs.setString('username', null);
                   prefs.setString('password', null);
 
-Fireebase().logOut(email, gender, name, password, image, current, code);
+                  Fireebase().logOut(
+                      email, gender, name, password, image, current, code);
 
                   Navigator.of(context).push(
                     MaterialPageRoute(
