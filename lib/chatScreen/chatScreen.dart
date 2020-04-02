@@ -1,5 +1,4 @@
-import 'package:chatting/models/app_functions.dart';
-import 'package:chatting/models/firebase.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
@@ -76,7 +75,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.name2),
-        backgroundColor: Colors.purple[900],
+        backgroundColor: Theme.of(context).primaryColor,
         centerTitle: true,
       ),
       body: SingleChildScrollView(

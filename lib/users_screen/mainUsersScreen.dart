@@ -177,7 +177,7 @@ class _UsersScreenState extends State<UsersScreen>
       },
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.purple[900],
+          backgroundColor: Theme.of(context).primaryColor,
           title: Text(newCurrent == null ? '1' : newCurrent),
           centerTitle: true,
           bottom: TabBar(
