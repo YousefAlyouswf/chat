@@ -48,7 +48,7 @@ class _MyAppState extends State<MyApp> {
       setState(() {
         appColor = new Color(valueApp);
         headlineColor = new Color(valueHeadline);
-        titleColor= new Color(valuetitleColor);
+        titleColor = new Color(valuetitleColor);
       });
     });
   }
@@ -62,8 +62,14 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primaryColor: appColor,
         textTheme: TextTheme(
-          headline: TextStyle(fontSize: headline,color: headlineColor, fontWeight: FontWeight.bold),
-          title: TextStyle(fontSize: titleFontSize,color: titleColor, fontStyle: FontStyle.italic),
+          headline: TextStyle(
+              fontSize: headline,
+              color: headlineColor,
+              fontWeight: FontWeight.bold),
+          title: TextStyle(
+              fontSize: titleFontSize,
+              color: titleColor,
+              fontStyle: FontStyle.italic),
           body1: TextStyle(fontSize: 14.0),
         ),
       ),

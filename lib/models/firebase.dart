@@ -140,7 +140,7 @@ class Fireebase {
   void updateToChatCollections(
     String email,
     String userEmail,
-    var now,
+    int now,
     String msg,
     String id,
   ) {

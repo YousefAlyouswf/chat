@@ -1,7 +1,6 @@
 import 'package:chatting/models/app_functions.dart';
 import 'package:chatting/models/firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:bubble/bubble.dart';
 
@@ -207,9 +206,25 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  int now;
   Future<void> callback() async {
-    var now = DateTime.now().millisecondsSinceEpoch;
-
+    if (now != null) {
+      now = now - 1;
+    }
+    final QuerySnapshot result = await Firestore.instance
+        .collection('chat/$chattingID/messages')
+        .orderBy('time')
+        .where('time', isGreaterThan: now)
+        .getDocuments();
+    final List<DocumentSnapshot> documents = result.documents;
+    documents.forEach((data) {
+      now = data['time'];
+    });
+    if (now == null) {
+      now = 1;
+    } else {
+      now++;
+    }
     Fireebase().updateToChatCollections(
       widget.email,
       widget.email2,
