@@ -30,7 +30,7 @@ dependencies:
   country_icons: ^1.1.1
   bubble: ^1.1.9+1
   cloud_functions: ^0.4.2+3
-
+  flutter_sound: ^3.0.0
 
   
 dev_dependencies:

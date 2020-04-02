@@ -171,33 +171,55 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
 
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            Container(
-              color: Colors.white10,
-              child: Row(
-                children: <Widget>[
-                  Flexible(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: TextField(
-                        controller: _txtController,
-                        textAlign: TextAlign.end,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'أكتب هنا',
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                color: Colors.white10,
+                child: Row(
+                  children: <Widget>[
+                    IconButton(icon: Icon(Icons.image), onPressed: () {}),
+                    Flexible(
+                      child: Container(
+                        decoration: new BoxDecoration(
+                            color: Colors.orange,
+                            borderRadius: new BorderRadius.all(
+                              const Radius.circular(40.0),
+                            )),
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: TextField(
+                            keyboardType: TextInputType.multiline,
+                            maxLines: null,
+                            controller: _txtController,
+                            textAlign: TextAlign.end,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: 'أكتب هنا',
+                            ),
+                            onChanged: (v) {},
+                            onEditingComplete: callback,
+                            textInputAction: TextInputAction.send,
+                          ),
                         ),
-                        onEditingComplete: callback,
-                        textInputAction: TextInputAction.send,
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: IconButton(
-                      icon: Icon(Icons.send),
-                      onPressed: callback,
-                    ),
-                  ),
-                ],
+                    _txtController.text != ''
+                        ? Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: IconButton(
+                              icon: Icon(Icons.send),
+                              onPressed: callback,
+                            ),
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: IconButton(
+                              icon: Icon(Icons.mic),
+                              onPressed: () {},
+                            ),
+                          ),
+                  ],
+                ),
               ),
             ),
           ],
