@@ -79,6 +79,10 @@ class Fireebase {
         'online': '0',
       });
     });
+
+    prefs.setString('username', null);
+    prefs.setString('password', null);
+    prefs.setString('image', null);
     prefs.setString('userID', null);
   }
 

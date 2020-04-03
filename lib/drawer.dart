@@ -62,7 +62,7 @@ class _DrawerPageState extends State<DrawerPage> {
                   widget.email,
                   style: Theme.of(context).textTheme.headline,
                 ),
-                accountName: Text(widget.name,
+                accountName: Text(widget.name == null ? '' : widget.name,
                     style: Theme.of(context).textTheme.headline),
                 otherAccountsPictures: <Widget>[
                   Image.asset(widget.gender == "1"
@@ -122,18 +122,17 @@ class _DrawerPageState extends State<DrawerPage> {
               padding: const EdgeInsets.all(8.0),
               child: InkWell(
                 onTap: () async {
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  prefs.setString('username', null);
-                  prefs.setString('password', null);
-                  prefs.setString('image', null);
-                  Fireebase().exitFfromChat();
+                  try {
+                    Fireebase().exitFfromChat();
 
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => StartScreen(),
-                    ),
-                  );
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (BuildContext context) => StartScreen(),
+                      ),
+                    );
+                  } catch (e) {
+                    print("error--------------------------------------");
+                  }
                 },
                 child: Card(
                   child: Center(
