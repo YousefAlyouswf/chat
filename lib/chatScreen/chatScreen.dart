@@ -203,7 +203,23 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                       ),
                     ),
-                    _txtController.text != ''
+                    _txtController.text != '' &&
+                            _txtController.text != ' ' &&
+                            _txtController.text != '  ' &&
+                            _txtController.text != '   ' &&
+                            _txtController.text != '    ' &&
+                            _txtController.text != '     ' &&
+                            _txtController.text != '      ' &&
+                            _txtController.text != '       ' &&
+                            _txtController.text != '        ' &&
+                            _txtController.text != '         ' &&
+                            _txtController.text != '          ' &&
+                            _txtController.text != '           ' &&
+                            _txtController.text != '            ' &&
+                            _txtController.text != '             ' &&
+                            _txtController.text != '              ' &&
+                            _txtController.text != '               ' &&
+                            _txtController.text != '                '
                         ? Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: IconButton(
@@ -214,8 +230,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         : Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: IconButton(
-                              icon: Icon(Icons.mic),
-                              onPressed: () {},
+                              icon: Icon(Icons.send),
+                              onPressed: null,
                             ),
                           ),
                   ],

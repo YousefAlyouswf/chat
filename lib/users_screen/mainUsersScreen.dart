@@ -106,44 +106,44 @@ class _UsersScreenState extends State<UsersScreen>
       case AppLifecycleState.paused:
         print('paused');
 
-        int _start = 5;
-        const oneSec = const Duration(seconds: 1);
-        new Timer.periodic(
-          oneSec,
-          (Timer timer) => setState(
-            () {
-              if (_start < 1) {
-                Fireebase().logOut(
-                  widget.email,
-                  widget.gender,
-                  widget.name,
-                  widget.password,
-                  widget.image,
-                  widget.current,
-                  widget.code,
-                );
-                timer.cancel();
-              } else {
-                _start = _start - 1;
-              }
-            },
-          ),
-        );
+        // int _start = 5;
+        // const oneSec = const Duration(seconds: 1);
+        // new Timer.periodic(
+        //   oneSec,
+        //   (Timer timer) => setState(
+        //     () {
+        //       if (_start < 1) {
+        //         Fireebase().logOut(
+        //           widget.email,
+        //           widget.gender,
+        //           widget.name,
+        //           widget.password,
+        //           widget.image,
+        //           widget.current,
+        //           widget.code,
+        //         );
+        //         timer.cancel();
+        //       } else {
+        //         _start = _start - 1;
+        //       }
+        //     },
+        //   ),
+        // );
 
         //    Navigator.of(context).pop();
         break;
       case AppLifecycleState.resumed:
         print('resumed');
 
-        Fireebase().resume(
-          widget.email,
-          widget.gender,
-          widget.name,
-          widget.password,
-          widget.image,
-          widget.current,
-          widget.code,
-        );
+        // Fireebase().resume(
+        //   widget.email,
+        //   widget.gender,
+        //   widget.name,
+        //   widget.password,
+        //   widget.image,
+        //   widget.current,
+        //   widget.code,
+        // );
         break;
       case AppLifecycleState.inactive:
         print('inactive');
