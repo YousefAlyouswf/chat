@@ -22,54 +22,20 @@ class AppFunctions {
     code = prefs.getString('code');
   }
 
-  void goToCountryRoom(BuildContext context) async {
+  void goToChat(BuildContext context) async {
     getCountry();
-    bool other = true;
+
     final QuerySnapshot result =
         await Firestore.instance.collection('countries').getDocuments();
     final List<DocumentSnapshot> documents = result.documents;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     documents.forEach((data) {
-      for (var i = 0; i < data['all'].length; i++) {
-        if (prefs.getString('country') == data['all'][i]['code']) {
-          other = false;
-
-          Fireebase().goToCountryRoom(
-            prefs.getString('email'),
-            prefs.getString('gender'),
-            prefs.getString('username'),
-            prefs.getString('password'),
-            prefs.getString('image'),
-            data['all'][i]['country'],
-            code,
-          );
-
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (BuildContext context) => UsersScreen(
-                name: prefs.getString('username'),
-                email: prefs.getString('email'),
-                image: prefs.getString('image'),
-                gender: prefs.getString('gender'),
-                password: prefs.getString('password'),
-                current: data['all'][i]['country'],
-                code: code,
-              ),
-            ),
-          );
-          //prefs.setString('countryName', data['all'][i]['country']);
-        }
-      }
-    });
-
-    if (other) {
-      Fireebase().goToCountryRoom(
+      Fireebase().enterToChat(
         prefs.getString('email'),
         prefs.getString('gender'),
         prefs.getString('username'),
         prefs.getString('password'),
         prefs.getString('image'),
-        'أخرى',
         code,
       );
 
@@ -81,12 +47,11 @@ class AppFunctions {
             image: prefs.getString('image'),
             gender: prefs.getString('gender'),
             password: prefs.getString('password'),
-            current: 'أخرى',
+            code: code,
           ),
         ),
       );
-      prefs.setString('countryName', 'أخرى');
-    }
+    });
   }
 
 // Start chatScreen

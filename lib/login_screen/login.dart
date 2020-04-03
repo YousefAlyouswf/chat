@@ -46,27 +46,26 @@ class _LoginState extends State<Login> {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
 
                 bool auth = false;
-                final QuerySnapshot result =
-                    await Firestore.instance.collection('users').getDocuments();
+                final QuerySnapshot result = await Firestore.instance
+                    .collection('users')
+                    .document('wauiqt7wiUI283ANx9n1')
+                    .collection('allUsers')
+                    .where('password', isEqualTo: _passwordController.text)
+                    .getDocuments();
                 final List<DocumentSnapshot> documents = result.documents;
                 documents.forEach((data) {
-                  for (var i = 0; i < data['usersData'].length; i++) {
-                    if (data['usersData'][i]['name'] == _nameController.text &&
-                            data['usersData'][i]['password'] ==
-                                _passwordController.text ||
-                        data['usersData'][i]['email'] == _nameController.text &&
-                            data['usersData'][i]['password'] ==
-                                _passwordController.text) {
-                      auth = true;
-                      prefs.setString('username', data['usersData'][i]['name']);
-                      prefs.setString('email', data['usersData'][i]['email']);
-                      prefs.setString('gender', data['usersData'][i]['gender']);
-                      prefs.setString('image', data['usersData'][i]['image']);
-                      prefs.setString(
-                          'password', data['usersData'][i]['password']);
-                      AppFunctions().goToCountryRoom(context);
-                      break;
-                    }
+                  if (data['name'] == _nameController.text &&
+                          data['password'] == _passwordController.text ||
+                      data['email'] == _nameController.text &&
+                          data['password'] == _passwordController.text) {
+                    auth = true;
+                    prefs.setString('username', data['name']);
+                    prefs.setString('email', data['email']);
+                    prefs.setString('gender', data['gender']);
+                    prefs.setString('image', data['image']);
+                    prefs.setString('password', data['password']);
+                    prefs.setString('userID', data.documentID);
+                    AppFunctions().goToChat(context);
                   }
                 });
 

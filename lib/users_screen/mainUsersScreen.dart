@@ -1,4 +1,3 @@
-import 'package:chatting/countries/contrties.dart';
 import 'package:chatting/models/chat_model.dart';
 import 'package:chatting/models/firebase.dart';
 import 'package:chatting/users_screen/current_users.dart';
@@ -8,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../drawer.dart';
 import 'message_recive.dart';
-import 'dart:async';
 
 class UsersScreen extends StatefulWidget {
   final String name;
@@ -16,7 +14,6 @@ class UsersScreen extends StatefulWidget {
   final String image;
   final String gender;
   final String password;
-  final String current;
   final String code;
 
   const UsersScreen({
@@ -26,7 +23,6 @@ class UsersScreen extends StatefulWidget {
     this.image,
     this.gender,
     this.password,
-    this.current,
     this.code,
   }) : super(key: key);
 
@@ -74,20 +70,12 @@ class _UsersScreenState extends State<UsersScreen>
     chatModel.sort((a, b) => a.time.compareTo(b.time));
   }
 
-  String newCurrent;
-  void changeCurrentCountry() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      newCurrent = prefs.getString('countryName');
-    });
-  }
 
   @override
   void initState() {
-    changeCurrentCountry();
     super.initState();
-    _controller = TabController(length: 3, vsync: this);
-    _controller.index = 1;
+    _controller = TabController(length: 2, vsync: this);
+    _controller.index = 0;
     whoChattingWithMe();
 
     WidgetsBinding.instance.addObserver(this);
@@ -159,7 +147,6 @@ class _UsersScreenState extends State<UsersScreen>
   @override
   Widget build(BuildContext context) {
     whoChattingWithMe();
-    changeCurrentCountry();
     return WillPopScope(
       onWillPop: () async {
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -169,7 +156,6 @@ class _UsersScreenState extends State<UsersScreen>
           widget.name,
           widget.password,
           widget.image,
-          widget.current,
           prefs.getString('code'),
         );
         SystemChannels.platform.invokeMethod('SystemNavigator.pop');
@@ -178,7 +164,7 @@ class _UsersScreenState extends State<UsersScreen>
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Theme.of(context).primaryColor,
-          title: Text(newCurrent == null ? '1' : newCurrent),
+          title: Text("سوالف"),
           centerTitle: true,
           bottom: TabBar(
             labelColor: Colors.white,
@@ -186,9 +172,7 @@ class _UsersScreenState extends State<UsersScreen>
             unselectedLabelColor: Colors.grey,
             indicatorColor: Colors.white,
             tabs: [
-              Tab(
-                text: 'الدول',
-              ),
+             
               Tab(
                 text: 'الأعضاء',
               ),
@@ -204,31 +188,17 @@ class _UsersScreenState extends State<UsersScreen>
           email: widget.email,
           image: widget.image,
           password: widget.password,
-          current: newCurrent,
           code: widget.code,
           gender: widget.gender,
         ),
         body: TabBarView(
           children: <Widget>[
-            //--------------------------------
-            Container(
-              color: Colors.white,
-              child: Contrties(
-                name: widget.name,
-                email: widget.email,
-                gender: widget.gender,
-                image: widget.image,
-                password: widget.password,
-                controller: _controller,
-                current: newCurrent,
-              ),
-            ),
+           
 
             //------------------------------
             Container(
               color: Colors.white,
               child: CurrentUsers(
-                current: newCurrent,
                 email: widget.email,
                 image: widget.image,
                 code: widget.code,
@@ -240,7 +210,6 @@ class _UsersScreenState extends State<UsersScreen>
             Container(
               color: Colors.white,
               child: MessageRecive(
-                current: newCurrent,
                 email: widget.email,
                 chatModel: chatModel,
               ),

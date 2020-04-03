@@ -14,7 +14,7 @@ class _LoadingState extends State<Loading> {
     String userName = prefs.getString('username');
     String password = prefs.getString('password');
     if (userName != null && password != null) {
-      AppFunctions().goToCountryRoom(context);
+      AppFunctions().goToChat(context);
     } else {
       Navigator.of(context).push(
         MaterialPageRoute(
@@ -28,7 +28,6 @@ class _LoadingState extends State<Loading> {
 
   @override
   void initState() {
-    AppFunctions().getCountry();
     userAlreadyLogin();
     super.initState();
   }

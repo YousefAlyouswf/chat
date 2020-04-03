@@ -14,7 +14,6 @@ class DrawerPage extends StatefulWidget {
   final String image;
   final String gender;
   final String password;
-  final String current;
   final String code;
 
   const DrawerPage(
@@ -24,7 +23,6 @@ class DrawerPage extends StatefulWidget {
       this.image,
       this.gender,
       this.password,
-      this.current,
       this.code})
       : super(key: key);
 
@@ -47,6 +45,7 @@ class _DrawerPageState extends State<DrawerPage> {
         _image = image;
       });
       uploadImage();
+      Navigator.pop(context);
     }
 
     return Drawer(
@@ -125,15 +124,8 @@ class _DrawerPageState extends State<DrawerPage> {
                       await SharedPreferences.getInstance();
                   prefs.setString('username', null);
                   prefs.setString('password', null);
-
-                  Fireebase().logOut(
-                      widget.email,
-                      widget.gender,
-                      widget.name,
-                      widget.password,
-                      widget.image,
-                      widget.current,
-                      widget.code);
+                  prefs.setString('image', null);
+                  Fireebase().exitFfromChat();
 
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -163,19 +155,34 @@ class _DrawerPageState extends State<DrawerPage> {
 
   Future updateSection(String image) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<Map<String, dynamic>> maplistremove;
+    String imageName = prefs.getString('image');
+    if (imageName == null || imageName == '') {
+      maplistremove = [
+        {
+          'email': widget.email,
+          'gender': widget.gender,
+          'name': widget.name,
+          'password': widget.password,
+          'image': '',
+          'code': widget.code,
+          'online': '1',
+        },
+      ];
+    } else {
+      maplistremove = [
+        {
+          'email': widget.email,
+          'gender': widget.gender,
+          'name': widget.name,
+          'password': widget.password,
+          'image': imageName,
+          'code': widget.code,
+          'online': '1',
+        },
+      ];
+    }
 
-    List<Map<String, dynamic>> maplistremove = [
-      {
-        'email': widget.email,
-        'gender': widget.gender,
-        'name': widget.name,
-        'password': widget.password,
-        'image': prefs.getString('image'),
-        'current': widget.current,
-        'code': widget.code,
-        'online': '1',
-      },
-    ];
     await Firestore.instance
         .collection('users')
         .document('wauiqt7wiUI283ANx9n1')
@@ -189,7 +196,6 @@ class _DrawerPageState extends State<DrawerPage> {
         'name': widget.name,
         'password': widget.password,
         'image': image,
-        'current': widget.current,
         'code': widget.code,
         'online': '1',
       },
@@ -208,8 +214,7 @@ class _DrawerPageState extends State<DrawerPage> {
     String fileName = '${DateTime.now()}.png';
     StorageReference firebaseStorage =
         FirebaseStorage.instance.ref().child(fileName);
-    StorageUploadTask uploadTask = firebaseStorage.putFile(_image);
-    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+    firebaseStorage.putFile(_image);
     url = await firebaseStorage.getDownloadURL() as String;
 
     if (url.isNotEmpty) {

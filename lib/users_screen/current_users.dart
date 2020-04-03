@@ -5,7 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class CurrentUsers extends StatelessWidget {
-  final String current;
   final String email;
   final String image;
   final String code;
@@ -13,7 +12,6 @@ class CurrentUsers extends StatelessWidget {
   final String gender;
   CurrentUsers({
     Key key,
-    this.current,
     this.email,
     this.image,
     this.code,
@@ -37,7 +35,7 @@ class CurrentUsers extends StatelessWidget {
               } else {
                 List<User> _user = new List();
                 for (var i = 0; i < snapshot.data['usersData'].length; i++) {
-                  if (snapshot.data['usersData'][i]['current'] == current &&
+                  if (
                       snapshot.data['usersData'][i]['online'] == '1') {
                     _user.add(User(
                       snapshot.data['usersData'][i]['name'],
@@ -45,7 +43,6 @@ class CurrentUsers extends StatelessWidget {
                       snapshot.data['usersData'][i]['image'],
                       snapshot.data['usersData'][i]['gender'],
                       snapshot.data['usersData'][i]['password'],
-                      snapshot.data['usersData'][i]['current'],
                       snapshot.data['usersData'][i]['code'],
                     ));
                   }
