@@ -151,7 +151,7 @@ class CurrentUsers extends StatelessWidget {
                                               height: 20.0,
                                               decoration: new BoxDecoration(
                                                 shape: BoxShape.circle,
-                                                color: Colors.green,
+                                                color: Colors.lightGreenAccent[400],
                                               ),
                                             )
                                           : Container(
