@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'models/firebase.dart';
+
 class DrawerPage extends StatefulWidget {
   final String name;
   final String email;
@@ -155,58 +157,8 @@ class _DrawerPageState extends State<DrawerPage> {
 
   Future updateSection(String image) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<Map<String, dynamic>> maplistremove;
     String imageName = prefs.getString('image');
-    if (imageName == null || imageName == '') {
-      maplistremove = [
-        {
-          'email': widget.email,
-          'gender': widget.gender,
-          'name': widget.name,
-          'password': widget.password,
-          'image': '',
-          'code': widget.code,
-          'online': '1',
-        },
-      ];
-    } else {
-      maplistremove = [
-        {
-          'email': widget.email,
-          'gender': widget.gender,
-          'name': widget.name,
-          'password': widget.password,
-          'image': imageName,
-          'code': widget.code,
-          'online': '1',
-        },
-      ];
-    }
-
-    await Firestore.instance
-        .collection('users')
-        .document('wauiqt7wiUI283ANx9n1')
-        .updateData({
-      'usersData': FieldValue.arrayRemove(maplistremove),
-    });
-    List<Map<String, dynamic>> maplistadd = [
-      {
-        'email': widget.email,
-        'gender': widget.gender,
-        'name': widget.name,
-        'password': widget.password,
-        'image': image,
-        'code': widget.code,
-        'online': '1',
-      },
-    ];
-
-    await Firestore.instance
-        .collection('users')
-        .document('wauiqt7wiUI283ANx9n1')
-        .updateData({
-      'usersData': FieldValue.arrayUnion(maplistadd),
-    });
+    Fireebase().uploadUserImage(image);
     prefs.setString('image', image);
   }
 
@@ -214,7 +166,8 @@ class _DrawerPageState extends State<DrawerPage> {
     String fileName = '${DateTime.now()}.png';
     StorageReference firebaseStorage =
         FirebaseStorage.instance.ref().child(fileName);
-    firebaseStorage.putFile(_image);
+    StorageUploadTask uploadTask = firebaseStorage.putFile(_image);
+    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
     url = await firebaseStorage.getDownloadURL() as String;
 
     if (url.isNotEmpty) {

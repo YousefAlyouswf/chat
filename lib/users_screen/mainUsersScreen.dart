@@ -70,13 +70,11 @@ class _UsersScreenState extends State<UsersScreen>
     chatModel.sort((a, b) => a.time.compareTo(b.time));
   }
 
-
   @override
   void initState() {
     super.initState();
     _controller = TabController(length: 2, vsync: this);
     _controller.index = 0;
-    whoChattingWithMe();
 
     WidgetsBinding.instance.addObserver(this);
   }
@@ -149,15 +147,7 @@ class _UsersScreenState extends State<UsersScreen>
     whoChattingWithMe();
     return WillPopScope(
       onWillPop: () async {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        Fireebase().logOut(
-          widget.email,
-          widget.gender,
-          widget.name,
-          widget.password,
-          widget.image,
-          prefs.getString('code'),
-        );
+        Fireebase().exitFfromChat();
         SystemChannels.platform.invokeMethod('SystemNavigator.pop');
         return false;
       },
@@ -172,7 +162,6 @@ class _UsersScreenState extends State<UsersScreen>
             unselectedLabelColor: Colors.grey,
             indicatorColor: Colors.white,
             tabs: [
-             
               Tab(
                 text: 'الأعضاء',
               ),
@@ -193,8 +182,6 @@ class _UsersScreenState extends State<UsersScreen>
         ),
         body: TabBarView(
           children: <Widget>[
-           
-
             //------------------------------
             Container(
               color: Colors.white,
@@ -204,7 +191,6 @@ class _UsersScreenState extends State<UsersScreen>
                 code: widget.code,
                 name: widget.name,
                 gender: widget.gender,
-                
               ),
             ),
             Container(

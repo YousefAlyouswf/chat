@@ -82,6 +82,21 @@ class Fireebase {
     prefs.setString('userID', null);
   }
 
+  void uploadUserImage(String image) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String userID = prefs.getString('userID');
+    DocumentReference documentReference = Firestore.instance
+        .collection('users')
+        .document('wauiqt7wiUI283ANx9n1')
+        .collection('allUsers')
+        .document(userID);
+    Firestore.instance.runTransaction((transaction) async {
+      await transaction.update(documentReference, {
+        'image': image,
+      });
+    });
+  }
+
   void addToChatCollections(
     String email,
     String userEmail,
@@ -165,48 +180,6 @@ class Fireebase {
       'name': name,
       'online': '0',
       'password': password,
-    });
-  }
-
-  void logOut(
-    String email,
-    String gender,
-    String name,
-    String password,
-    String image,
-    String code,
-  ) async {
-    await Firestore.instance
-        .collection('users')
-        .document('wauiqt7wiUI283ANx9n1')
-        .updateData({
-      'usersData': FieldValue.arrayRemove([
-        {
-          'email': email,
-          'gender': gender,
-          'name': name,
-          'password': password,
-          'image': image,
-          'code': code,
-          'online': '1',
-        },
-      ]),
-    });
-    await Firestore.instance
-        .collection('users')
-        .document('wauiqt7wiUI283ANx9n1')
-        .updateData({
-      'usersData': FieldValue.arrayUnion([
-        {
-          'email': email,
-          'gender': gender,
-          'name': name,
-          'password': password,
-          'image': image,
-          'code': code,
-          'online': '0',
-        },
-      ]),
     });
   }
 
