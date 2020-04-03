@@ -1,6 +1,5 @@
 import 'package:chatting/chatScreen/chatScreen.dart';
 import 'package:chatting/models/firebase.dart';
-import 'package:chatting/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -28,44 +27,31 @@ class CurrentUsers extends StatelessWidget {
             stream: Firestore.instance
                 .collection('users')
                 .document('wauiqt7wiUI283ANx9n1')
+                .collection('allUsers')
                 .snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return Text("");
               } else {
-                List<User> _user = new List();
-                for (var i = 0; i < snapshot.data['usersData'].length; i++) {
-                  if (
-                      snapshot.data['usersData'][i]['online'] == '1') {
-                    _user.add(User(
-                      snapshot.data['usersData'][i]['name'],
-                      snapshot.data['usersData'][i]['email'],
-                      snapshot.data['usersData'][i]['image'],
-                      snapshot.data['usersData'][i]['gender'],
-                      snapshot.data['usersData'][i]['password'],
-                      snapshot.data['usersData'][i]['code'],
-                    ));
-                  }
-                }
                 try {
                   return ListView.builder(
-                    itemCount: _user.length,
+                    itemCount: snapshot.data.documents.length,
                     itemBuilder: (BuildContext context, int index) {
                       return InkWell(
-                        onTap: _user[index].email == email
+                        onTap: snapshot.data.documents[index]['email'] == email
                             ? null
                             : () async {
                                 Fireebase().addToChatCollections(
                                   email,
-                                  _user[index].email,
+                                  snapshot.data.documents[index]['email'],
                                   gender,
                                   image,
                                   code,
                                   name,
-                                  _user[index].name,
-                                  _user[index].gender,
-                                  _user[index].image,
-                                  _user[index].code,
+                                  snapshot.data.documents[index]['name'],
+                                  snapshot.data.documents[index]['gender'],
+                                  snapshot.data.documents[index]['image'],
+                                  snapshot.data.documents[index]['code'],
                                 );
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
@@ -76,44 +62,58 @@ class CurrentUsers extends StatelessWidget {
                                       image: image,
                                       code: code,
                                       gender: gender,
-                                      email2: _user[index].email,
-                                      gender2: _user[index].gender,
-                                      name2: _user[index].name,
-                                      code2: _user[index].code,
-                                      image2: _user[index].image,
+                                      email2: snapshot.data.documents[index]
+                                          ['email'],
+                                      gender2: snapshot.data.documents[index]
+                                          ['gender'],
+                                      name2: snapshot.data.documents[index]
+                                          ['name'],
+                                      code2: snapshot.data.documents[index]
+                                          ['code'],
+                                      image2: snapshot.data.documents[index]
+                                          ['image'],
                                     ),
                                   ),
                                 );
                               },
                         child: Card(
-                          color: _user[index].email == email
+                          color: snapshot.data.documents[index]['email'] ==
+                                  email
                               ? Colors.grey
-                              : _user[index].gender == '2'
+                              : snapshot.data.documents[index]['gender'] == '2'
                                   ? Colors.pink[100]
                                   : Colors.blue[100],
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: ListTile(
                               leading: Image.asset(
-                                'icons/flags/png/${_user[index].code}.png',
+                                'icons/flags/png/${snapshot.data.documents[index]['code']}.png',
                                 package: 'country_icons',
                                 height: 60,
                                 width: 60,
                               ),
                               title: Text(
-                                _user[index].name,
+                                snapshot.data.documents[index]['name'],
                                 textAlign: TextAlign.center,
                                 style: Theme.of(context).textTheme.title,
                               ),
                               trailing: Image(
-                                image: _user[index].image == null ||
-                                        _user[index].image == ''
-                                    ? _user[index].gender == '1'
+                                image: snapshot.data.documents[index]
+                                                ['image'] ==
+                                            null ||
+                                        snapshot.data.documents[index]
+                                                ['image'] ==
+                                            ''
+                                    ? snapshot.data.documents[index]
+                                                ['gender'] ==
+                                            '1'
                                         ? NetworkImage(
                                             'https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-7/64/x-01-512.png')
                                         : NetworkImage(
                                             'https://cdn1.iconfinder.com/data/icons/business-planning-management-set-2/64/x-90-512.png')
-                                    : NetworkImage(_user[index].image),
+                                    : NetworkImage(
+                                        snapshot.data.documents[index]['image'],
+                                      ),
                                 fit: BoxFit.fitWidth,
                                 height: 60,
                                 width: 60,
