@@ -1,11 +1,17 @@
+import 'package:chatting/chatScreen/chatScreen.dart';
+import 'package:chatting/models/firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MessageRecive extends StatelessWidget {
-  final String email;
+  final String email, gender, image, code, name;
   MessageRecive({
     Key key,
     this.email,
+    this.gender,
+    this.image,
+    this.code,
+    this.name,
   }) : super(key: key);
 
   @override
@@ -31,8 +37,89 @@ class MessageRecive extends StatelessWidget {
                           snapshot.data.documents[index]['to'] == email
                       ? snapshot.data.documents[index]['text'] != ''
                           ? InkWell(
-                              onTap: () {},
+                              onTap: () async {
+                                if (snapshot.data.documents[index]['from'] ==
+                                    email) {
+                                  Fireebase().addToChatCollections(
+                                    email,
+                                    snapshot.data.documents[index]['to'],
+                                    gender,
+                                    image,
+                                    code,
+                                    name,
+                                    snapshot.data.documents[index]['name'],
+                                    snapshot.data.documents[index]['gender'],
+                                    snapshot.data.documents[index]['image'],
+                                    snapshot.data.documents[index]['code'],
+                                    snapshot.data.documents[index]['onlineTo'],
+                                  );
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          ChatScreen(
+                                        name: name,
+                                        email: email,
+                                        image: image,
+                                        code: code,
+                                        gender: gender,
+                                        email2: snapshot.data.documents[index]
+                                            ['to'],
+                                        gender2: snapshot.data.documents[index]
+                                            ['gender'],
+                                        name2: snapshot.data.documents[index]
+                                            ['name'],
+                                        code2: snapshot.data.documents[index]
+                                            ['code'],
+                                        image2: snapshot.data.documents[index]
+                                            ['image'],
+                                        online2: snapshot.data.documents[index]
+                                            ['onlineTo'],
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  Fireebase().addToChatCollections(
+                                    email,
+                                    snapshot.data.documents[index]['from'],
+                                    gender,
+                                    image,
+                                    code,
+                                    name,
+                                    snapshot.data.documents[index]['name2'],
+                                    snapshot.data.documents[index]['gender2'],
+                                    snapshot.data.documents[index]['image2'],
+                                    snapshot.data.documents[index]['code2'],
+                                    snapshot.data.documents[index]
+                                        ['onlineFrom'],
+                                  );
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          ChatScreen(
+                                        name: name,
+                                        email: email,
+                                        image: image,
+                                        code: code,
+                                        gender: gender,
+                                        email2: snapshot.data.documents[index]
+                                            ['from'],
+                                        gender2: snapshot.data.documents[index]
+                                            ['gender2'],
+                                        name2: snapshot.data.documents[index]
+                                            ['name2'],
+                                        code2: snapshot.data.documents[index]
+                                            ['code2'],
+                                        image2: snapshot.data.documents[index]
+                                            ['image2'],
+                                        online2: snapshot.data.documents[index]
+                                            ['onlineFrom'],
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
                               child: Card(
+                                color: Colors.white,
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Row(
@@ -223,8 +310,8 @@ class MessageRecive extends StatelessWidget {
                                                           ['onlineFrom'] ==
                                                       '1'
                                                   ? Container(
-                                                      width: 20.0,
-                                                      height: 20.0,
+                                                      width: 15.0,
+                                                      height: 15.0,
                                                       decoration:
                                                           new BoxDecoration(
                                                         shape: BoxShape.circle,
@@ -234,8 +321,8 @@ class MessageRecive extends StatelessWidget {
                                                       ),
                                                     )
                                                   : Container(
-                                                      width: 20.0,
-                                                      height: 20.0,
+                                                      width: 15.0,
+                                                      height: 15.0,
                                                       decoration:
                                                           new BoxDecoration(
                                                         shape: BoxShape.circle,
@@ -246,8 +333,8 @@ class MessageRecive extends StatelessWidget {
                                                           ['onlineTo'] ==
                                                       '1'
                                                   ? Container(
-                                                      width: 20.0,
-                                                      height: 20.0,
+                                                      width: 15.0,
+                                                      height: 15.0,
                                                       decoration:
                                                           new BoxDecoration(
                                                         shape: BoxShape.circle,
@@ -257,8 +344,8 @@ class MessageRecive extends StatelessWidget {
                                                       ),
                                                     )
                                                   : Container(
-                                                      width: 20.0,
-                                                      height: 20.0,
+                                                      width: 15.0,
+                                                      height: 15.0,
                                                       decoration:
                                                           new BoxDecoration(
                                                         shape: BoxShape.circle,

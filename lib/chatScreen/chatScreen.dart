@@ -15,6 +15,7 @@ class ChatScreen extends StatefulWidget {
   final String code2;
   final String name2;
   final String gender2;
+  final String online2;
 
   const ChatScreen({
     Key key,
@@ -28,6 +29,7 @@ class ChatScreen extends StatefulWidget {
     this.code2,
     this.name2,
     this.gender2,
+    this.online2,
   }) : super(key: key);
 
   @override
@@ -109,17 +111,43 @@ class _ChatScreenState extends State<ChatScreen> {
                                   from != widget.email
                                       ? Padding(
                                           padding: const EdgeInsets.all(8.0),
-                                          child: Container(
-                                            width: 60.0,
-                                            height: 60.0,
-                                            decoration: new BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              image: new DecorationImage(
-                                                fit: BoxFit.fill,
-                                                image: new AssetImage(
-                                                    'assets/images/ph.png'),
+                                          child: Stack(
+                                            alignment: Alignment.bottomLeft,
+                                            children: <Widget>[
+                                              Container(
+                                                width: 60.0,
+                                                height: 60.0,
+                                                decoration: new BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  image: new DecorationImage(
+                                                    fit: BoxFit.fill,
+                                                    image: NetworkImage(
+                                                        widget.image2),
+                                                  ),
+                                                ),
                                               ),
-                                            ),
+                                              widget.online2 == '1'
+                                                  ? Container(
+                                                      width: 15.0,
+                                                      height: 15.0,
+                                                      decoration:
+                                                          new BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: Colors
+                                                                .lightGreenAccent[
+                                                            400],
+                                                      ),
+                                                    )
+                                                  : Container(
+                                                      width: 15.0,
+                                                      height: 15.0,
+                                                      decoration:
+                                                          new BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: Colors.grey,
+                                                      ),
+                                                    )
+                                            ],
                                           ),
                                         )
                                       : Container(),
@@ -127,16 +155,25 @@ class _ChatScreenState extends State<ChatScreen> {
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Bubble(
-                                        margin: BubbleEdges.only(top: 10),
+                                        margin: from == widget.email
+                                            ? BubbleEdges.only(
+                                                top: 20, left: 40)
+                                            : BubbleEdges.only(
+                                                top: 20, right: 40),
+                                        padding: BubbleEdges.all(16.0),
                                         stick: true,
                                         nip: from == widget.email
                                             ? BubbleNip.rightTop
                                             : BubbleNip.leftTop,
-                                        color:
-                                            Color.fromRGBO(225, 255, 199, 1.0),
+                                        color: from == widget.email
+                                            ? Theme.of(context).cardColor
+                                            : Colors.grey[300],
                                         child: Text(
                                             snapshot.data.documents[index]
                                                 ['content'],
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .body1,
                                             textAlign: from == widget.email
                                                 ? TextAlign.right
                                                 : TextAlign.left),
@@ -147,15 +184,16 @@ class _ChatScreenState extends State<ChatScreen> {
                                       ? Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: Container(
-                                              width: 60.0,
-                                              height: 60.0,
-                                              decoration: new BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  image: new DecorationImage(
-                                                    fit: BoxFit.fill,
-                                                    image: new AssetImage(
-                                                        'assets/images/ph.png'),
-                                                  ))),
+                                            width: 60.0,
+                                            height: 60.0,
+                                            decoration: new BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              image: new DecorationImage(
+                                                  fit: BoxFit.fill,
+                                                  image: NetworkImage(
+                                                      widget.image)),
+                                            ),
+                                          ),
                                         )
                                       : Container(),
                                 ],

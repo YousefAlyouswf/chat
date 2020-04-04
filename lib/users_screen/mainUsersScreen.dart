@@ -173,6 +173,10 @@ class _UsersScreenState extends State<UsersScreen>
               color: Colors.white,
               child: MessageRecive(
                 email: widget.email,
+                image: widget.image,
+                code: widget.code,
+                name: widget.name,
+                gender: widget.gender,
               ),
             ),
           ],

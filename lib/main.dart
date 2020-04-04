@@ -31,6 +31,7 @@ class _MyAppState extends State<MyApp> {
   Color titleColor;
   double headline;
   Color headlineColor;
+  Color chatColor;
   void colors() async {
     final QuerySnapshot result =
         await Firestore.instance.collection('colors').getDocuments();
@@ -40,15 +41,19 @@ class _MyAppState extends State<MyApp> {
       String valueAppColor = data['appColor'];
       String valueHeadLineColor = data['headlineColor'];
       String valueTitle = data['titleColor'];
+      String valueChat = data['chatColor'];
       int valueApp = int.parse(valueAppColor, radix: 16);
       int valueHeadline = int.parse(valueHeadLineColor, radix: 16);
       int valuetitleColor = int.parse(valueTitle, radix: 16);
+      int valuechatColor = int.parse(valueChat, radix: 16);
       titleFontSize = double.parse(data['titleFontSize']);
       headline = double.parse(data['headline']);
+
       setState(() {
         appColor = new Color(valueApp);
         headlineColor = new Color(valueHeadline);
         titleColor = new Color(valuetitleColor);
+        chatColor = new Color(valuechatColor);
       });
     });
   }
@@ -61,6 +66,7 @@ class _MyAppState extends State<MyApp> {
       title: 'Flutter Demo',
       theme: ThemeData(
         primaryColor: appColor,
+        cardColor: chatColor,
         textTheme: TextTheme(
           headline: TextStyle(
               fontSize: headline,
@@ -70,7 +76,7 @@ class _MyAppState extends State<MyApp> {
               fontSize: titleFontSize,
               color: titleColor,
               fontStyle: FontStyle.italic),
-          body1: TextStyle(fontSize: 18.0),
+          body1: TextStyle(fontSize: 20.0),
         ),
       ),
       home: Loading(),

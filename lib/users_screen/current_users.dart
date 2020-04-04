@@ -76,6 +76,8 @@ class CurrentUsers extends StatelessWidget {
                                             ['code'],
                                         image2: snapshot.data.documents[index]
                                             ['image'],
+                                        online2: snapshot.data.documents[index]
+                                            ['online'],
                                       ),
                                     ),
                                   );
@@ -84,7 +86,7 @@ class CurrentUsers extends StatelessWidget {
                             color:
                                 snapshot.data.documents[index]['email'] == email
                                     ? Colors.grey
-                                    : null,
+                                    : Colors.white,
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Row(
@@ -170,8 +172,8 @@ class CurrentUsers extends StatelessWidget {
                                                   ['online'] ==
                                               '1'
                                           ? Container(
-                                              width: 20.0,
-                                              height: 20.0,
+                                              width: 15.0,
+                                              height: 15.0,
                                               decoration: new BoxDecoration(
                                                 shape: BoxShape.circle,
                                                 color: Colors
@@ -179,8 +181,8 @@ class CurrentUsers extends StatelessWidget {
                                               ),
                                             )
                                           : Container(
-                                              width: 20.0,
-                                              height: 20.0,
+                                              width: 15.0,
+                                              height: 15.0,
                                               decoration: new BoxDecoration(
                                                 shape: BoxShape.circle,
                                                 color: Colors.grey,

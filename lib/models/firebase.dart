@@ -198,6 +198,8 @@ class Fireebase {
           'gender2': gender,
           'image2': image,
           'code2': code,
+          'onlineFrom': '1',
+          'onlineTo': online,
         },
       );
 
@@ -232,6 +234,7 @@ class Fireebase {
     String id,
     String lastTextId,
     int lastMsg,
+ 
   ) {
     Firestore.instance
         .collection('chat')
@@ -243,6 +246,7 @@ class Fireebase {
       'to': userEmail,
       'content': msg,
       'time': now,
+
     });
 
     DocumentReference documentReference = Firestore.instance
