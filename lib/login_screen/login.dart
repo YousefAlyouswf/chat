@@ -81,7 +81,7 @@ class _LoginState extends State<Login> {
                 }
               },
               child: Container(
-                color: Colors.purple,
+                color: Theme.of(context).primaryColor,
                 width: double.infinity,
                 height: 50,
                 child: Center(

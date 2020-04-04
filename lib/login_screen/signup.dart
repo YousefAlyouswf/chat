@@ -73,16 +73,15 @@ class _SignUpState extends State<SignUp> {
             ),
             InkWell(
               onTap: () async {
-
-                Fireebase().signUp(_emailController.text,
-                group.toString(),
-                _nameController.text,
-                 _passwordController.text,
+                Fireebase().signUp(
+                  _emailController.text,
+                  group.toString(),
+                  _nameController.text,
+                  _passwordController.text,
                 );
-                
               },
               child: Container(
-                color: Colors.purple,
+                color: Theme.of(context).primaryColor,
                 width: double.infinity,
                 height: 50,
                 child: Center(

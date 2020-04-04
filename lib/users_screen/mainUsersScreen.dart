@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../drawer.dart';
 import 'message_recive.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class UsersScreen extends StatefulWidget {
   final String name;
@@ -30,8 +31,6 @@ class UsersScreen extends StatefulWidget {
 class _UsersScreenState extends State<UsersScreen>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   TabController _controller;
-
-  
 
   @override
   void initState() {
@@ -105,12 +104,27 @@ class _UsersScreenState extends State<UsersScreen>
     }
   }
 
+  int submitExit = 0;
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        Fireebase().exitFfromChat();
-        SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+        if (submitExit == 0) {
+          Fluttertoast.showToast(
+              msg: "لتأكيد الخروج أضغط رجوع مرة أخرى",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.yellow,
+              textColor: Colors.black,
+              fontSize: 16.0);
+          submitExit++;
+        } else {
+          Fireebase().exitFfromChat();
+          SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+          submitExit = 0;
+        }
+
         return false;
       },
       child: Scaffold(

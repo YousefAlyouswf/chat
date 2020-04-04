@@ -25,7 +25,7 @@ class _StartScreenState extends State<StartScreen>
       appBar: AppBar(
         title: Text("سوالف"),
         centerTitle: true,
-        backgroundColor: Colors.purple[900],
+        backgroundColor: Theme.of(context).primaryColor,
         bottom: TabBar(
           labelColor: Colors.white,
           labelStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
