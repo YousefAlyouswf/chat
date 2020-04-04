@@ -55,18 +55,22 @@ class _DrawerPageState extends State<DrawerPage> {
         color: Colors.white,
         child: ListView(
           children: <Widget>[
-            Container(
-              height: 250,
-              decoration: new BoxDecoration(
-          
-                image: new DecorationImage(
-                  fit: BoxFit.fill,
-                  image: new NetworkImage(
-                    widget.image == null
-                        ? widget.gender == '1'
-                            ? 'https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-7/64/x-01-512.png'
-                            : 'https://cdn1.iconfinder.com/data/icons/business-planning-management-set-2/64/x-90-512.png'
-                        : widget.image,
+            InkWell(
+              onTap: getImage,
+              child: Container(
+                height: 200,
+                width: 150,
+                decoration: new BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: new DecorationImage(
+                    fit: BoxFit.fitHeight,
+                    image: new NetworkImage(
+                      widget.image == null
+                          ? widget.gender == '1'
+                              ? 'https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-7/64/x-01-512.png'
+                              : 'https://cdn1.iconfinder.com/data/icons/business-planning-management-set-2/64/x-90-512.png'
+                          : widget.image,
+                    ),
                   ),
                 ),
               ),

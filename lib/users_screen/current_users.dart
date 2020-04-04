@@ -27,7 +27,8 @@ class CurrentUsers extends StatelessWidget {
             stream: Firestore.instance
                 .collection('users')
                 .document('wauiqt7wiUI283ANx9n1')
-                .collection('allUsers').orderBy('online', descending: true)
+                .collection('allUsers')
+                .orderBy('online', descending: true)
                 .snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
@@ -79,11 +80,10 @@ class CurrentUsers extends StatelessWidget {
                                   );
                                 },
                           child: Card(
-                            color: snapshot.data.documents[index]
-                                        ['email'] ==
-                                    email
-                                ? Colors.grey
-                                : null,
+                            color:
+                                snapshot.data.documents[index]['email'] == email
+                                    ? Colors.grey
+                                    : null,
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Row(
@@ -91,11 +91,35 @@ class CurrentUsers extends StatelessWidget {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
-                                  Image.asset(
-                                    'icons/flags/png/${snapshot.data.documents[index]['code']}.png',
-                                    package: 'country_icons',
-                                    height: 60,
-                                    width: 60,
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: <Widget>[
+                                      Image.asset(
+                                        'icons/flags/png/${snapshot.data.documents[index]['code']}.png',
+                                        package: 'country_icons',
+                                        height: 40,
+                                        width: 40,
+                                      ),
+                                      SizedBox(
+                                        width: 20,
+                                      ),
+                                      snapshot.data.documents[index]
+                                                  ['gender'] ==
+                                              '1'
+                                          ? Image.asset(
+                                              'assets/images/male.png',
+                                              height: 20,
+                                              width: 20,
+                                            )
+                                          : Image.asset(
+                                              'assets/images/female.png',
+                                              height: 20,
+                                              width: 20,
+                                            ),
+                                    ],
                                   ),
                                   Text(
                                     snapshot.data.documents[index]['name'],
@@ -110,25 +134,23 @@ class CurrentUsers extends StatelessWidget {
                                               snapshot.data.documents[index]
                                                       ['image'] ==
                                                   ''
-                                          ?Container(
+                                          ? Container(
                                               width: 75.0,
                                               height: 75.0,
                                               decoration: new BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                image: new DecorationImage(
-                                                  fit: BoxFit.fill,
-                                                   image: snapshot.data
-                                                              .documents[index]
-                                                          ['gender'] ==
-                                                      '1'
-                                                  ? NetworkImage(
-                                                      'https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-7/64/x-01-512.png')
-                                                  : NetworkImage(
-                                                      'https://cdn1.iconfinder.com/data/icons/business-planning-management-set-2/64/x-90-512.png'))
-                                         
-                                                ),
-                                              )
-                                            : Container(
+                                                  shape: BoxShape.circle,
+                                                  image: new DecorationImage(
+                                                      fit: BoxFit.fill,
+                                                      image: snapshot.data.documents[
+                                                                      index]
+                                                                  ['gender'] ==
+                                                              '1'
+                                                          ? NetworkImage(
+                                                              'https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-7/64/x-01-512.png')
+                                                          : NetworkImage(
+                                                              'https://cdn1.iconfinder.com/data/icons/business-planning-management-set-2/64/x-90-512.png'))),
+                                            )
+                                          : Container(
                                               width: 75.0,
                                               height: 75.0,
                                               decoration: new BoxDecoration(
@@ -151,7 +173,8 @@ class CurrentUsers extends StatelessWidget {
                                               height: 20.0,
                                               decoration: new BoxDecoration(
                                                 shape: BoxShape.circle,
-                                                color: Colors.lightGreenAccent[400],
+                                                color: Colors
+                                                    .lightGreenAccent[400],
                                               ),
                                             )
                                           : Container(
