@@ -263,12 +263,26 @@ class _ChatScreenState extends State<ChatScreen> {
     } else {
       now++;
     }
+    String lastTextId;
+    final QuerySnapshot textId = await Firestore.instance
+        .collection('textMe')
+        .document('JzCPQt7TQZTZDMa5jfYq')
+        .collection('lastText')
+        .getDocuments();
+    final List<DocumentSnapshot> documentstextId = textId.documents;
+    documentstextId.forEach((data) {
+      if (data['from'] == widget.email && data['to'] == widget.email2 ||
+          data['to'] == widget.email && data['from'] == widget.email2) {
+        lastTextId = data.documentID;
+      }
+    });
     Fireebase().updateToChatCollections(
       widget.email,
       widget.email2,
       now,
       _txtController.text,
       chattingID,
+      lastTextId,
     );
 
     _txtController.clear();

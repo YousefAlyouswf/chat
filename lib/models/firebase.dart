@@ -138,18 +138,32 @@ class Fireebase {
           'gender2': gender,
           'image2': image,
           'code2': code,
+         
         },
       );
+
+      await Firestore.instance
+          .collection('textMe')
+          .document('JzCPQt7TQZTZDMa5jfYq')
+          .collection('lastText')
+          .add({
+        'from': email,
+        'to': userEmail,
+        'gender': gender2,
+        'image': image2,
+        'code': code2,
+        'name': name2,
+        'name2': name,
+        'gender2': gender,
+        'image2': image,
+        'code2': code,
+        'text': '',
+      });
     }
   }
 
-  void updateToChatCollections(
-    String email,
-    String userEmail,
-    int now,
-    String msg,
-    String id,
-  ) {
+  void updateToChatCollections(String email, String userEmail, int now,
+      String msg, String id, String lastTextId) {
     Firestore.instance
         .collection('chat')
         .document(id)
@@ -160,6 +174,17 @@ class Fireebase {
       'to': userEmail,
       'content': msg,
       'time': now,
+    });
+
+    DocumentReference documentReference = Firestore.instance
+        .collection('textMe')
+        .document('JzCPQt7TQZTZDMa5jfYq')
+        .collection('lastText')
+        .document(lastTextId);
+    Firestore.instance.runTransaction((transaction) async {
+      await transaction.update(documentReference, {
+        'text': msg,
+      });
     });
   }
 
