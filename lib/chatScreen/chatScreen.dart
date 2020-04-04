@@ -36,7 +36,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   double width = 0, height = 60;
-  String chattingID;
+  String chattingID, startTyping;
   var _txtController = TextEditingController();
   ScrollController _controller = ScrollController();
   void getMsgId() async {
@@ -53,8 +53,10 @@ class _ChatScreenState extends State<ChatScreen> {
         }
         if (data['from'] == widget.email) {
           online = data['onlineTo'];
+          startTyping = data['typingTo'];
         } else {
           online = data['onlineFrom'];
+          startTyping = data['typingFrom'];
         }
       }
     });
@@ -62,10 +64,58 @@ class _ChatScreenState extends State<ChatScreen> {
 
   String online;
 
+  void isTyping() async {
+    final QuerySnapshot result =
+        await Firestore.instance.collection('chat').getDocuments();
+    final List<DocumentSnapshot> documents = result.documents;
+    documents.forEach((data) {
+      if (data['from'] == widget.email && data['to'] == widget.email2 ||
+          data['to'] == widget.email && data['from'] == widget.email2) {
+        if (data['from'] == widget.email) {
+          if (_txtController.text != '') {
+            DocumentReference documentReference =
+                Firestore.instance.collection('chat').document(chattingID);
+            Firestore.instance.runTransaction((transaction) async {
+              await transaction.update(documentReference, {
+                'typingFrom': '1',
+              });
+            });
+          } else {
+            DocumentReference documentReference =
+                Firestore.instance.collection('chat').document(chattingID);
+            Firestore.instance.runTransaction((transaction) async {
+              await transaction.update(documentReference, {
+                'typingFrom': '0',
+              });
+            });
+          }
+        } else {
+          if (_txtController.text != '') {
+            DocumentReference documentReference =
+                Firestore.instance.collection('chat').document(chattingID);
+            Firestore.instance.runTransaction((transaction) async {
+              await transaction.update(documentReference, {
+                'typingTo': '1',
+              });
+            });
+          } else {
+            DocumentReference documentReference =
+                Firestore.instance.collection('chat').document(chattingID);
+            Firestore.instance.runTransaction((transaction) async {
+              await transaction.update(documentReference, {
+                'typingTo': '0',
+              });
+            });
+          }
+        }
+      }
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    _txtController.addListener(isTyping);
     getMsgId();
   }
 
@@ -79,7 +129,20 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.name2),
+        title: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            startTyping == '1'
+                ? Image.network(
+                    'https://media.giphy.com/media/Zx0gTTVNOvRrLxKgc8/giphy.gif',
+                    height: 40,
+                    width: 40,
+                  )
+                : Text(''),
+            Text(widget.name2),
+          ],
+        ),
         backgroundColor: Theme.of(context).primaryColor,
         centerTitle: true,
         actions: <Widget>[
@@ -102,7 +165,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       color: Colors.grey,
                     ),
                   ),
-          )
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -214,9 +277,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                             decoration: new BoxDecoration(
                                               shape: BoxShape.circle,
                                               image: new DecorationImage(
-                                                  fit: BoxFit.fill,
-                                                  image: NetworkImage(
-                                                      widget.image)),
+                                                fit: BoxFit.fill,
+                                                image:
+                                                    NetworkImage(widget.image),
+                                              ),
                                             ),
                                           ),
                                         )
@@ -259,7 +323,6 @@ class _ChatScreenState extends State<ChatScreen> {
                               border: InputBorder.none,
                               hintText: 'أكتب هنا',
                             ),
-                            onChanged: (v) {},
                             onEditingComplete: callback,
                             textInputAction: TextInputAction.send,
                           ),

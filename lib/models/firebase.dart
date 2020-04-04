@@ -228,6 +228,8 @@ class Fireebase {
           'code2': code,
           'onlineFrom': '1',
           'onlineTo': online,
+          'typingFrom': '',
+          'typingTo': '',
         },
       );
 
