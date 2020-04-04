@@ -79,7 +79,37 @@ class Fireebase {
         'online': '0',
       });
     });
+//------------------------------ make yourseld online
 
+    Firestore.instance
+        .collection('textMe')
+        .document("JzCPQt7TQZTZDMa5jfYq")
+        .collection('lastText')
+        .where('from', isEqualTo: prefs.getString('email'))
+        .getDocuments()
+        .then((snapshot) {
+      for (DocumentSnapshot ds in snapshot.documents) {
+        ds.reference.updateData({
+          'onlineFrom': '0',
+        });
+      }
+    });
+
+    Firestore.instance
+        .collection('textMe')
+        .document("JzCPQt7TQZTZDMa5jfYq")
+        .collection('lastText')
+        .where('to', isEqualTo: prefs.getString('email'))
+        .getDocuments()
+        .then((snapshot) {
+      for (DocumentSnapshot ds in snapshot.documents) {
+        ds.reference.updateData({
+          'onlineTo': '0',
+        });
+      }
+    });
+
+//-----------------------------------------
     prefs.setString('username', null);
     prefs.setString('password', null);
     prefs.setString('image', null);
@@ -141,6 +171,7 @@ class Fireebase {
     String gender2,
     String image2,
     String code2,
+    String online,
   ) async {
     final QuerySnapshot result =
         await Firestore.instance.collection('chat').getDocuments();
@@ -187,6 +218,8 @@ class Fireebase {
         'code2': code,
         'text': '',
         'lastMsg': 0,
+        'onlineFrom': '1',
+        'onlineTo': online,
       });
     }
   }

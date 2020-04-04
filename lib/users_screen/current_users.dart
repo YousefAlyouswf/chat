@@ -55,6 +55,7 @@ class CurrentUsers extends StatelessWidget {
                                     snapshot.data.documents[index]['gender'],
                                     snapshot.data.documents[index]['image'],
                                     snapshot.data.documents[index]['code'],
+                                    snapshot.data.documents[index]['online'],
                                   );
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
