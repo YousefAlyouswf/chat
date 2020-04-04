@@ -18,7 +18,7 @@ class MessageRecive extends StatelessWidget {
             stream: Firestore.instance
                 .collection('textMe')
                 .document('JzCPQt7TQZTZDMa5jfYq')
-                .collection('lastText')
+                .collection('lastText').orderBy('lastMsg', descending: true)
                 .snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {

@@ -245,6 +245,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   int now;
+  int lastMsg;
   Future<void> callback() async {
     if (now != null) {
       now = now - 1;
@@ -263,6 +264,28 @@ class _ChatScreenState extends State<ChatScreen> {
     } else {
       now++;
     }
+
+    //----------------------------------------------- Show last message
+
+    if (lastMsg != null) {
+      lastMsg--;
+    }
+    final QuerySnapshot lastMessages = await Firestore.instance
+        .collection('textMe/JzCPQt7TQZTZDMa5jfYq/lastText')
+        .orderBy('lastMsg')
+        .where('lastMsg', isGreaterThan: lastMsg)
+        .getDocuments();
+    final List<DocumentSnapshot> documentsOfLastMessage =
+        lastMessages.documents;
+    documentsOfLastMessage.forEach((data) {
+      lastMsg = data['lastMsg'];
+    });
+    if (lastMsg == 0) {
+      lastMsg = 1;
+    } else {
+      lastMsg++;
+    }
+
     String lastTextId;
     final QuerySnapshot textId = await Firestore.instance
         .collection('textMe')
@@ -276,6 +299,8 @@ class _ChatScreenState extends State<ChatScreen> {
         lastTextId = data.documentID;
       }
     });
+
+    //------------------------- this the firestore function
     Fireebase().updateToChatCollections(
       widget.email,
       widget.email2,
@@ -283,6 +308,7 @@ class _ChatScreenState extends State<ChatScreen> {
       _txtController.text,
       chattingID,
       lastTextId,
+      lastMsg,
     );
 
     _txtController.clear();
