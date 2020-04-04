@@ -68,6 +68,32 @@ class AppFunctions {
         }
       });
 
+      //-------------------- chat collection
+
+      Firestore.instance
+          .collection('chat')
+          .where('to', isEqualTo: prefs.getString('email'))
+          .getDocuments()
+          .then((snapshot) {
+        for (DocumentSnapshot ds in snapshot.documents) {
+          ds.reference.updateData({
+            'onlineTo': '1',
+          });
+        }
+      });
+      Firestore.instance
+          .collection('chat')
+          .where('from', isEqualTo: prefs.getString('email'))
+          .getDocuments()
+          .then((snapshot) {
+        for (DocumentSnapshot ds in snapshot.documents) {
+          ds.reference.updateData({
+            'onlineFrom': '1',
+          });
+        }
+      });
+      //----------------------
+
 //-----------------------------------------
       Navigator.of(context).push(
         MaterialPageRoute(

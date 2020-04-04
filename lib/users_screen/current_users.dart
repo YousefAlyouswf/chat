@@ -79,8 +79,7 @@ class CurrentUsers extends StatelessWidget {
                                             ['code'],
                                         image2: snapshot.data.documents[index]
                                             ['image'],
-                                        online2: snapshot.data.documents[index]
-                                            ['online'],
+                                
                                       ),
                                     ),
                                   );

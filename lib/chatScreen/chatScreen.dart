@@ -15,7 +15,6 @@ class ChatScreen extends StatefulWidget {
   final String code2;
   final String name2;
   final String gender2;
-  final String online2;
 
   const ChatScreen({
     Key key,
@@ -29,7 +28,6 @@ class ChatScreen extends StatefulWidget {
     this.code2,
     this.name2,
     this.gender2,
-    this.online2,
   }) : super(key: key);
 
   @override
@@ -53,9 +51,17 @@ class _ChatScreenState extends State<ChatScreen> {
             chattingID = data.documentID;
           });
         }
+        if (data['from'] == widget.email) {
+          online = data['onlineTo'];
+        } else {
+          online = data['onlineFrom'];
+        }
       }
     });
   }
+
+  String online;
+
 
   @override
   void initState() {
@@ -68,9 +74,6 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     try {
       getMsgId();
-      if (width == 0) {
-        width = MediaQuery.of(context).size.width;
-      }
       // AppFunctions().goDownFunction(_controller);
     } catch (e) {}
 
@@ -79,6 +82,28 @@ class _ChatScreenState extends State<ChatScreen> {
         title: Text(widget.name2),
         backgroundColor: Theme.of(context).primaryColor,
         centerTitle: true,
+        actions: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(right: 32.0),
+            child: online == '1'
+                ? Container(
+                    width: 15.0,
+                    height: 15.0,
+                    decoration: new BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.lightGreenAccent[400],
+                    ),
+                  )
+                : Container(
+                    width: 15.0,
+                    height: 15.0,
+                    decoration: new BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey,
+                    ),
+                  ),
+          )
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -126,7 +151,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                   ),
                                                 ),
                                               ),
-                                              widget.online2 == '1'
+                                              online == '1'
                                                   ? Container(
                                                       width: 15.0,
                                                       height: 15.0,

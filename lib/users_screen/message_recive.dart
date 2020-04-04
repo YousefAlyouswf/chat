@@ -72,8 +72,6 @@ class MessageRecive extends StatelessWidget {
                                             ['code'],
                                         image2: snapshot.data.documents[index]
                                             ['image'],
-                                        online2: snapshot.data.documents[index]
-                                            ['onlineTo'],
                                       ),
                                     ),
                                   );
@@ -111,8 +109,6 @@ class MessageRecive extends StatelessWidget {
                                             ['code2'],
                                         image2: snapshot.data.documents[index]
                                             ['image2'],
-                                        online2: snapshot.data.documents[index]
-                                            ['onlineFrom'],
                                       ),
                                     ),
                                   );

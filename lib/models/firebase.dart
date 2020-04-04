@@ -81,6 +81,7 @@ class Fireebase {
     });
 //------------------------------ make yourseld online
 
+//-------------- textMe collection
     Firestore.instance
         .collection('textMe')
         .document("JzCPQt7TQZTZDMa5jfYq")
@@ -108,6 +109,33 @@ class Fireebase {
         });
       }
     });
+    //---------------------
+
+    //-------------------- chat collection
+
+    Firestore.instance
+        .collection('chat')
+        .where('to', isEqualTo: prefs.getString('email'))
+        .getDocuments()
+        .then((snapshot) {
+      for (DocumentSnapshot ds in snapshot.documents) {
+        ds.reference.updateData({
+          'onlineTo': '0',
+        });
+      }
+    });
+    Firestore.instance
+        .collection('chat')
+        .where('from', isEqualTo: prefs.getString('email'))
+        .getDocuments()
+        .then((snapshot) {
+      for (DocumentSnapshot ds in snapshot.documents) {
+        ds.reference.updateData({
+          'onlineFrom': '0',
+        });
+      }
+    });
+    //----------------------
 
 //-----------------------------------------
     prefs.setString('username', null);
@@ -234,7 +262,6 @@ class Fireebase {
     String id,
     String lastTextId,
     int lastMsg,
- 
   ) {
     Firestore.instance
         .collection('chat')
@@ -246,7 +273,6 @@ class Fireebase {
       'to': userEmail,
       'content': msg,
       'time': now,
-
     });
 
     DocumentReference documentReference = Firestore.instance
