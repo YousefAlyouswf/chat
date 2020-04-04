@@ -9,6 +9,7 @@ class CurrentUsers extends StatelessWidget {
   final String code;
   final String name;
   final String gender;
+  final int limit;
   CurrentUsers({
     Key key,
     this.email,
@@ -16,6 +17,7 @@ class CurrentUsers extends StatelessWidget {
     this.code,
     this.name,
     this.gender,
+    this.limit,
   }) : super(key: key);
 
   @override
@@ -29,6 +31,7 @@ class CurrentUsers extends StatelessWidget {
                 .document('wauiqt7wiUI283ANx9n1')
                 .collection('allUsers')
                 .orderBy('online', descending: true)
+                .limit(limit)
                 .snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
