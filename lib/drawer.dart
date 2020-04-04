@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:chatting/login_screen/mainStartScreen.dart';
 import 'package:chatting/models/firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -152,11 +151,9 @@ class _DrawerPageState extends State<DrawerPage> {
   File _image;
   bool isSuccess = false;
   String url;
-
   Future updateSection(String image) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String imageName = prefs.getString('image');
-    Fireebase().uploadUserImage(image);
+    Fireebase().uploadUserImage(image, widget.email);
     prefs.setString('image', image);
   }
 
@@ -165,22 +162,11 @@ class _DrawerPageState extends State<DrawerPage> {
     StorageReference firebaseStorage =
         FirebaseStorage.instance.ref().child(fileName);
     StorageUploadTask uploadTask = firebaseStorage.putFile(_image);
-    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+    await uploadTask.onComplete;
     url = await firebaseStorage.getDownloadURL() as String;
 
     if (url.isNotEmpty) {
       updateSection(url);
-
-      // firestoreService.UpdateSection(sectionName, url);
-      // Fluttertoast.showToast(
-      //     msg: "تمت أظافة القسم",
-      //     toastLength: Toast.LENGTH_LONG,
-      //     gravity: ToastGravity.BOTTOM,
-      //     timeInSecForIos: 1,
-      //     backgroundColor: Colors.green[200],
-      //     textColor: Colors.white,
-      //     fontSize: 16.0);
-
     }
   }
 }

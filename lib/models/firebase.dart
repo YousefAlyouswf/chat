@@ -86,7 +86,7 @@ class Fireebase {
     prefs.setString('userID', null);
   }
 
-  void uploadUserImage(String image) async {
+  void uploadUserImage(String image, String email) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String userID = prefs.getString('userID');
     DocumentReference documentReference = Firestore.instance
@@ -98,6 +98,35 @@ class Fireebase {
       await transaction.update(documentReference, {
         'image': image,
       });
+    });
+//----------------------------- recivedMessage screen
+
+    await Firestore.instance
+        .collection('textMe')
+        .document("JzCPQt7TQZTZDMa5jfYq")
+        .collection('lastText')
+        .where('from', isEqualTo: email)
+        .getDocuments()
+        .then((snapshot) {
+      for (DocumentSnapshot ds in snapshot.documents) {
+        ds.reference.updateData({
+          'image2': image,
+        });
+      }
+    });
+
+    await Firestore.instance
+        .collection('textMe')
+        .document("JzCPQt7TQZTZDMa5jfYq")
+        .collection('lastText')
+        .where('to', isEqualTo: email)
+        .getDocuments()
+        .then((snapshot) {
+      for (DocumentSnapshot ds in snapshot.documents) {
+        ds.reference.updateData({
+          'image': image,
+        });
+      }
     });
   }
 

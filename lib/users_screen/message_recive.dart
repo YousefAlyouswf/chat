@@ -1,4 +1,3 @@
-import 'package:chatting/models/chat_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -92,6 +91,8 @@ class MessageRecive extends StatelessWidget {
                                           ],
                                         ),
                                         Column(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          crossAxisAlignment: CrossAxisAlignment.end,
                                           children: <Widget>[
                                             Text(
                                               snapshot.data.documents[index]
@@ -112,6 +113,7 @@ class MessageRecive extends StatelessWidget {
                                               child: Text(
                                                 snapshot.data.documents[index]
                                                     ['text'],
+                                                    textDirection: TextDirection.rtl,
                                                 overflow: TextOverflow.ellipsis,
                                                 maxLines: 1,
                                               ),
@@ -163,7 +165,7 @@ class MessageRecive extends StatelessWidget {
                                                                 new NetworkImage(
                                                               snapshot.data
                                                                       .documents[
-                                                                  index]['image2'],
+                                                                  index]['image'],
                                                             ),
                                                           ),
                                                         ),

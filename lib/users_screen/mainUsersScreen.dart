@@ -1,10 +1,7 @@
-import 'package:chatting/models/chat_model.dart';
 import 'package:chatting/models/firebase.dart';
 import 'package:chatting/users_screen/current_users.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../drawer.dart';
 import 'message_recive.dart';
 
@@ -33,42 +30,8 @@ class UsersScreen extends StatefulWidget {
 class _UsersScreenState extends State<UsersScreen>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   TabController _controller;
-  List<ChatModel> chatModel = new List();
 
-  void whoChattingWithMe() async {
-    //chatModel = new List();
-    final QuerySnapshot result =
-        await Firestore.instance.collection('chat').getDocuments();
-    final List<DocumentSnapshot> documents = result.documents;
-    chatModel = new List();
-    documents.forEach((data) {
-      if (data['from'] == widget.email || data['to'] == widget.email) {
-        // var date = data['messages'].last;
-
-        // if (this.mounted) {
-        //   setState(() {
-        //     chatModel.add(
-        //       ChatModel(
-        //         data['from'],
-        //         data['to'],
-        //         date['time'],
-        //         data['gender'],
-        //         data['image'],
-        //         data['code'],
-        //         data['name'],
-        //         date['content'],
-        //         data['name2'],
-        //         data['gender2'],
-        //         data['image2'],
-        //         data['code2'],
-        //       ),
-        //     );
-        //   });
-        // }
-      }
-    });
-    chatModel.sort((a, b) => a.time.compareTo(b.time));
-  }
+  
 
   @override
   void initState() {
@@ -144,7 +107,6 @@ class _UsersScreenState extends State<UsersScreen>
 
   @override
   Widget build(BuildContext context) {
-    whoChattingWithMe();
     return WillPopScope(
       onWillPop: () async {
         Fireebase().exitFfromChat();
