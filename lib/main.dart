@@ -82,7 +82,7 @@ class _MyAppState extends State<MyApp> {
               fontSize: titleFontSize,
               color: titleColor,
               fontStyle: FontStyle.italic),
-          body1: TextStyle(fontSize: 20.0),
+          body1: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
         ),
       ),
       home: Loading(),

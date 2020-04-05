@@ -180,27 +180,78 @@ class MessageRecive extends StatelessWidget {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.end,
                                         children: <Widget>[
-                                          Text(
-                                            snapshot.data.documents[index]
-                                                        ['from'] ==
-                                                    email
-                                                ? snapshot.data.documents[index]
-                                                    ['name']
-                                                : snapshot.data.documents[index]
-                                                    ['name2'],
-                                            textAlign: TextAlign.center,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .body1,
+                                          Row(
+                                            children: <Widget>[
+                                              snapshot.data.documents[index]
+                                                          ['typing'] ==
+                                                      '1'
+                                                  ? Image.network(
+                                                      'https://media.giphy.com/media/THksdFc9bFRAQcIc13/giphy.gif',
+                                                      height: 40,
+                                                      width: 40,
+                                                    )
+                                                  : Text(''),
+                                              Text(
+                                                snapshot.data.documents[index]
+                                                            ['from'] ==
+                                                        email
+                                                    ? snapshot.data
+                                                            .documents[index]
+                                                        ['name']
+                                                    : snapshot.data
+                                                            .documents[index]
+                                                        ['name2'],
+                                                textAlign: TextAlign.center,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .body1,
+                                              ),
+                                            ],
                                           ),
                                           Container(
                                             width: 150,
-                                            child: Text(
-                                              snapshot.data.documents[index]
-                                                  ['text'],
-                                              textDirection: TextDirection.rtl,
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 1,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: <Widget>[
+                                                snapshot.data.documents[index]
+                                                            ['emailID'] ==
+                                                        email
+                                                    ? snapshot.data.documents[
+                                                                    index]
+                                                                ['read'] ==
+                                                            '0'
+                                                        ? Image.network(
+                                                            'http://getdrawings.com/free-icon/email-icon-transparent-63.png',
+                                                            height: 25,
+                                                            width: 25,
+                                                          )
+                                                        : Image.network(
+                                                            'https://images.vexels.com/media/users/3/157932/isolated/preview/951a617272553f49e75548e212ed947f-curved-check-mark-icon-by-vexels.png',
+                                                            height: 25,
+                                                            width: 25,
+                                                          )
+                                                    : Text(''),
+                                                SizedBox(
+                                                  width: 20,
+                                                ),
+                                                Flexible(
+                                                  child: Text(
+                                                    snapshot.data
+                                                            .documents[index]
+                                                        ['text'],
+                                                    textDirection:
+                                                        TextDirection.rtl,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 1,
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           )
                                         ],
@@ -220,20 +271,23 @@ class MessageRecive extends StatelessWidget {
                                                   ? Container(
                                                       width: 75.0,
                                                       height: 75.0,
-                                                      decoration: new BoxDecoration(
-                                                          shape:
-                                                              BoxShape.circle,
-                                                          image: new DecorationImage(
-                                                              fit: BoxFit.fill,
-                                                              image: snapshot.data
-                                                                              .documents[index]
-                                                                          [
-                                                                          'gender'] ==
-                                                                      '1'
-                                                                  ? NetworkImage(
-                                                                      'https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-7/64/x-01-512.png')
-                                                                  : NetworkImage(
-                                                                      'https://cdn1.iconfinder.com/data/icons/business-planning-management-set-2/64/x-90-512.png'))),
+                                                      decoration:
+                                                          new BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        image:
+                                                            new DecorationImage(
+                                                          fit: BoxFit.fill,
+                                                          image: snapshot.data.documents[
+                                                                          index]
+                                                                      [
+                                                                      'gender'] ==
+                                                                  '1'
+                                                              ? NetworkImage(
+                                                                  'https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-7/64/x-01-512.png')
+                                                              : NetworkImage(
+                                                                  'https://cdn1.iconfinder.com/data/icons/business-planning-management-set-2/64/x-90-512.png'),
+                                                        ),
+                                                      ),
                                                     )
                                                   : Container(
                                                       width: 75.0,

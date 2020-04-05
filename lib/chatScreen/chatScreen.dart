@@ -63,6 +63,20 @@ class _ChatScreenState extends State<ChatScreen> {
         }
       }
     });
+    final QuerySnapshot textId = await Firestore.instance
+        .collection('textMe')
+        .document('JzCPQt7TQZTZDMa5jfYq')
+        .collection('lastText')
+        .getDocuments();
+    final List<DocumentSnapshot> documentstextId = textId.documents;
+    documentstextId.forEach((data) {
+      if (data['from'] == widget.email && data['to'] == widget.email2 ||
+          data['to'] == widget.email && data['from'] == widget.email2) {
+        setState(() {
+          lastTextId = data.documentID;
+        });
+      }
+    });
   }
 
   String online;
@@ -115,19 +129,62 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  void typingInReveivingMsg() {
+    if (_txtController.text == '' || _txtController.text == null) {
+      DocumentReference documentReference = Firestore.instance
+          .collection('textMe')
+          .document('JzCPQt7TQZTZDMa5jfYq')
+          .collection('lastText')
+          .document(lastTextId);
+      Firestore.instance.runTransaction((transaction) async {
+        await transaction.update(documentReference, {
+          'typing': '0',
+        });
+      });
+    } else {
+      DocumentReference documentReference = Firestore.instance
+          .collection('textMe')
+          .document('JzCPQt7TQZTZDMa5jfYq')
+          .collection('lastText')
+          .document(lastTextId);
+      Firestore.instance.runTransaction((transaction) async {
+        await transaction.update(documentReference, {
+          'typing': '1',
+        });
+      });
+    }
+  }
+
+  bool hang = false;
+  void checkMsgFromAnotherUser() async {
+    var document = Firestore.instance
+        .collection('textMe')
+        .document('JzCPQt7TQZTZDMa5jfYq')
+        .collection('lastText')
+        .document(lastTextId);
+    document.get().then((data) {
+      String emailID = data['emailID'];
+      if (emailID != widget.email && hang) {
+        Fireebase().readFromRecive(lastTextId);
+      }
+    });
+    hang = true;
+  }
+
   @override
   void initState() {
     super.initState();
     _txtController.addListener(isTyping);
+    _txtController.addListener(typingInReveivingMsg);
     getMsgId();
-    //  Fireebase().userReadit(chattingID, widget.email);
+    Fireebase().userReadit(chattingID, widget.email);
   }
 
   File _image;
   String genderImage;
   @override
   Widget build(BuildContext context) {
-    getMsgId();
+     getMsgId();
 
     Future getImage() async {
       var image = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -138,9 +195,15 @@ class _ChatScreenState extends State<ChatScreen> {
       Navigator.pop(context);
     }
 
-    Fireebase().userReadit(chattingID, widget.email);
-    try {} catch (e) {}
+    //
+    // print(lastTextId);
+    Fireebase().userReadit(
+      chattingID,
+      widget.email,
+    );
+    checkMsgFromAnotherUser();
 
+    print('object');
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -286,9 +349,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                                       top: 10, left: 10)
                                                   : BubbleEdges.only(
                                                       top: 10, right: 10),
-                                              padding:from == widget.email?
-                                                  BubbleEdges.only(left: 32.0):
-                                                   BubbleEdges.only(right: 32.0),
+                                              padding: BubbleEdges.only(
+                                                  right: 16.0, left: 16.0),
                                               stick: true,
                                               nip: from == widget.email
                                                   ? BubbleNip.rightTop
@@ -297,15 +359,15 @@ class _ChatScreenState extends State<ChatScreen> {
                                                   ? Theme.of(context).cardColor
                                                   : Colors.grey[300],
                                               child: Text(
-                                                  snapshot.data.documents[index]
-                                                      ['content'],
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .body1,
-                                                  textAlign:
-                                                      from == widget.email
-                                                          ? TextAlign.right
-                                                          : TextAlign.left),
+                                                snapshot.data.documents[index]
+                                                    ['content'],
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.normal),
+                                                textAlign: TextAlign.right,
+                                                textDirection:
+                                                    TextDirection.rtl,
+                                              ),
                                             ),
                                           ),
                                         ],
@@ -414,6 +476,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  String lastTextId;
   int now;
   int lastMsg;
   Future<void> callback() async {
@@ -455,20 +518,6 @@ class _ChatScreenState extends State<ChatScreen> {
     } else {
       lastMsg++;
     }
-
-    String lastTextId;
-    final QuerySnapshot textId = await Firestore.instance
-        .collection('textMe')
-        .document('JzCPQt7TQZTZDMa5jfYq')
-        .collection('lastText')
-        .getDocuments();
-    final List<DocumentSnapshot> documentstextId = textId.documents;
-    documentstextId.forEach((data) {
-      if (data['from'] == widget.email && data['to'] == widget.email2 ||
-          data['to'] == widget.email && data['from'] == widget.email2) {
-        lastTextId = data.documentID;
-      }
-    });
 
     //------------------------- this the firestore function
     Fireebase().updateToChatCollections(

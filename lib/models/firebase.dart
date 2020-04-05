@@ -252,11 +252,17 @@ class Fireebase {
         'lastMsg': 0,
         'onlineFrom': '1',
         'onlineTo': online,
+        'typing': '0',
+        'read': '0',
+        'emailID': '',
       });
     }
   }
 
-  void userReadit(String id, String email) {
+  void userReadit(
+    String id,
+    String email,
+  ) {
     Firestore.instance
         .collection('chat')
         .document(id)
@@ -269,6 +275,19 @@ class Fireebase {
           'read': '1',
         });
       }
+    });
+  }
+
+  void readFromRecive(String lastTextId) {
+    DocumentReference documentReference = Firestore.instance
+        .collection('textMe')
+        .document('JzCPQt7TQZTZDMa5jfYq')
+        .collection('lastText')
+        .document(lastTextId);
+    Firestore.instance.runTransaction((transaction) async {
+      await transaction.update(documentReference, {
+        'read': '1',
+      });
     });
   }
 
@@ -303,6 +322,8 @@ class Fireebase {
       await transaction.update(documentReference, {
         'text': msg,
         'lastMsg': lastMsg,
+        'emailID': email,
+        'read': '0',
       });
     });
   }
@@ -324,7 +345,9 @@ class Fireebase {
       'code': code,
       'email': email,
       'gender': gender,
-      'image': '',
+      'image': gender == '1'
+          ? 'https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-7/64/x-01-512.png'
+          : 'https://cdn1.iconfinder.com/data/icons/business-planning-management-set-2/64/x-90-512.png',
       'name': name,
       'online': '0',
       'password': password,
