@@ -19,17 +19,15 @@ class AppFunctions {
   String code;
   void getCountry() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    code = prefs.getString('code');
+    code = 'us';
   }
 
   void goToChat(BuildContext context) async {
     getCountry();
-
-    final QuerySnapshot result =
-        await Firestore.instance.collection('countries').getDocuments();
-    final List<DocumentSnapshot> documents = result.documents;
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    documents.forEach((data) {
+
+    
+   
       Fireebase().enterToChat(
         prefs.getString('email'),
         prefs.getString('gender'),
@@ -107,7 +105,7 @@ class AppFunctions {
           ),
         ),
       );
-    });
+   
   }
 
 // Start chatScreen
@@ -117,7 +115,7 @@ class AppFunctions {
         duration: Duration(milliseconds: 300), curve: Curves.easeOut);
   }
 
-  static void getMsgId(String email, String email2, String chattingID) async {
+  void getMsgId(String email, String email2, String chattingID) async {
     final QuerySnapshot result =
         await Firestore.instance.collection('chat').getDocuments();
     final List<DocumentSnapshot> documents = result.documents;

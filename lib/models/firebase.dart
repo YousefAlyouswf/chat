@@ -256,6 +256,22 @@ class Fireebase {
     }
   }
 
+  void userReadit(String id, String email) {
+    Firestore.instance
+        .collection('chat')
+        .document(id)
+        .collection('messages')
+        .where('to', isEqualTo: email)
+        .getDocuments()
+        .then((snapshot) {
+      for (DocumentSnapshot ds in snapshot.documents) {
+        ds.reference.updateData({
+          'read': '1',
+        });
+      }
+    });
+  }
+
   void updateToChatCollections(
     String email,
     String userEmail,
@@ -275,6 +291,7 @@ class Fireebase {
       'to': userEmail,
       'content': msg,
       'time': now,
+      'read': '0'
     });
 
     DocumentReference documentReference = Firestore.instance

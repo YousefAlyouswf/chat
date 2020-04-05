@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ipfinder/ipfinder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'loading.dart';
+import 'users_screen/mainUsersScreen.dart';
 
 void main() {
   getCountry();
@@ -59,8 +60,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     colors();
+  }
+
+  @override
+  Widget build(BuildContext context) {
 
     return MaterialApp(
       title: 'Flutter Demo',

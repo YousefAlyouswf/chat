@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:chatting/models/app_functions.dart';
 import 'package:chatting/models/firebase.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:bubble/bubble.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ChatScreen extends StatefulWidget {
   final String email;
@@ -72,15 +75,7 @@ class _ChatScreenState extends State<ChatScreen> {
       if (data['from'] == widget.email && data['to'] == widget.email2 ||
           data['to'] == widget.email && data['from'] == widget.email2) {
         if (data['from'] == widget.email) {
-          if (_txtController.text != '') {
-            DocumentReference documentReference =
-                Firestore.instance.collection('chat').document(chattingID);
-            Firestore.instance.runTransaction((transaction) async {
-              await transaction.update(documentReference, {
-                'typingFrom': '1',
-              });
-            });
-          } else {
+          if (_txtController.text == '' || _txtController.text == null) {
             DocumentReference documentReference =
                 Firestore.instance.collection('chat').document(chattingID);
             Firestore.instance.runTransaction((transaction) async {
@@ -88,14 +83,22 @@ class _ChatScreenState extends State<ChatScreen> {
                 'typingFrom': '0',
               });
             });
-          }
-        } else {
-          if (_txtController.text != '') {
+          } else {
             DocumentReference documentReference =
                 Firestore.instance.collection('chat').document(chattingID);
             Firestore.instance.runTransaction((transaction) async {
               await transaction.update(documentReference, {
-                'typingTo': '1',
+                'typingFrom': '1',
+              });
+            });
+          }
+        } else {
+          if (_txtController.text == '' || _txtController.text == null) {
+            DocumentReference documentReference =
+                Firestore.instance.collection('chat').document(chattingID);
+            Firestore.instance.runTransaction((transaction) async {
+              await transaction.update(documentReference, {
+                'typingTo': '0',
               });
             });
           } else {
@@ -103,7 +106,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 Firestore.instance.collection('chat').document(chattingID);
             Firestore.instance.runTransaction((transaction) async {
               await transaction.update(documentReference, {
-                'typingTo': '0',
+                'typingTo': '1',
               });
             });
           }
@@ -117,15 +120,26 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     _txtController.addListener(isTyping);
     getMsgId();
+    //  Fireebase().userReadit(chattingID, widget.email);
   }
 
+  File _image;
   String genderImage;
   @override
   Widget build(BuildContext context) {
-    try {
-      getMsgId();
-      // AppFunctions().goDownFunction(_controller);
-    } catch (e) {}
+    getMsgId();
+
+    Future getImage() async {
+      var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+      setState(() {
+        _image = image;
+      });
+
+      Navigator.pop(context);
+    }
+
+    Fireebase().userReadit(chattingID, widget.email);
+    try {} catch (e) {}
 
     return Scaffold(
       appBar: AppBar(
@@ -192,9 +206,11 @@ class _ChatScreenState extends State<ChatScreen> {
                           itemBuilder: (BuildContext context, int index) {
                             String from =
                                 snapshot.data.documents[index]['from'];
-
+                            String read =
+                                snapshot.data.documents[index]['read'];
                             return Container(
                               child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
                                   from != widget.email
                                       ? Padding(
@@ -234,37 +250,65 @@ class _ChatScreenState extends State<ChatScreen> {
                                                         shape: BoxShape.circle,
                                                         color: Colors.grey,
                                                       ),
-                                                    )
+                                                    ),
                                             ],
                                           ),
                                         )
                                       : Container(),
-                                  Expanded(
+                                  Flexible(
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Bubble(
-                                        margin: from == widget.email
-                                            ? BubbleEdges.only(
-                                                top: 20, left: 40)
-                                            : BubbleEdges.only(
-                                                top: 20, right: 40),
-                                        padding: BubbleEdges.all(16.0),
-                                        stick: true,
-                                        nip: from == widget.email
-                                            ? BubbleNip.rightTop
-                                            : BubbleNip.leftTop,
-                                        color: from == widget.email
-                                            ? Theme.of(context).cardColor
-                                            : Colors.grey[300],
-                                        child: Text(
-                                            snapshot.data.documents[index]
-                                                ['content'],
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .body1,
-                                            textAlign: from == widget.email
-                                                ? TextAlign.right
-                                                : TextAlign.left),
+                                      child: Row(
+                                        mainAxisAlignment: from == widget.email
+                                            ? MainAxisAlignment.end
+                                            : MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: <Widget>[
+                                          from == widget.email
+                                              ? read == '0'
+                                                  ? Image.network(
+                                                      'http://getdrawings.com/free-icon/email-icon-transparent-63.png',
+                                                      height: 25,
+                                                      width: 25,
+                                                    )
+                                                  : Image.network(
+                                                      'https://images.vexels.com/media/users/3/157932/isolated/preview/951a617272553f49e75548e212ed947f-curved-check-mark-icon-by-vexels.png',
+                                                      height: 25,
+                                                      width: 25,
+                                                    )
+                                              : Text(''),
+                                          //-------------------- end of user read
+                                          Flexible(
+                                            child: Bubble(
+                                              margin: from == widget.email
+                                                  ? BubbleEdges.only(
+                                                      top: 10, left: 10)
+                                                  : BubbleEdges.only(
+                                                      top: 10, right: 10),
+                                              padding:from == widget.email?
+                                                  BubbleEdges.only(left: 32.0):
+                                                   BubbleEdges.only(right: 32.0),
+                                              stick: true,
+                                              nip: from == widget.email
+                                                  ? BubbleNip.rightTop
+                                                  : BubbleNip.leftTop,
+                                              color: from == widget.email
+                                                  ? Theme.of(context).cardColor
+                                                  : Colors.grey[300],
+                                              child: Text(
+                                                  snapshot.data.documents[index]
+                                                      ['content'],
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .body1,
+                                                  textAlign:
+                                                      from == widget.email
+                                                          ? TextAlign.right
+                                                          : TextAlign.left),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
@@ -301,17 +345,17 @@ class _ChatScreenState extends State<ChatScreen> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Container(
-                color: Colors.white10,
+                decoration: new BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: new BorderRadius.all(
+                    const Radius.circular(16.0),
+                  ),
+                ),
                 child: Row(
                   children: <Widget>[
-                    IconButton(icon: Icon(Icons.image), onPressed: () {}),
+                    IconButton(icon: Icon(Icons.image), onPressed: getImage),
                     Flexible(
                       child: Container(
-                        decoration: new BoxDecoration(
-                            color: Colors.orange,
-                            borderRadius: new BorderRadius.all(
-                              const Radius.circular(40.0),
-                            )),
                         child: Padding(
                           padding: const EdgeInsets.only(right: 8.0),
                           child: TextField(

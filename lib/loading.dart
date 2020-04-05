@@ -35,10 +35,10 @@ class _LoadingState extends State<Loading> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xffE4F0F0),
       body: Center(
         child: Image.network(
-          'https://media.giphy.com/media/52qtwCtj9OLTi/giphy.gif',
+          'https://media.giphy.com/media/xTk9ZvMnbIiIew7IpW/giphy.gif',
           fit: BoxFit.fitHeight,
         ),
       ),
