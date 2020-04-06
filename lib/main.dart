@@ -1,9 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ipfinder/ipfinder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'loading.dart';
-import 'users_screen/mainUsersScreen.dart';
 
 void main() {
   getCountry();
@@ -34,29 +32,29 @@ class _MyAppState extends State<MyApp> {
   Color headlineColor;
   Color chatColor;
   void colors() async {
-    final QuerySnapshot result =
-        await Firestore.instance.collection('colors').getDocuments();
-    final List<DocumentSnapshot> documents = result.documents;
+    // final QuerySnapshot result =
+    //     await Firestore.instance.collection('colors').getDocuments();
+    // final List<DocumentSnapshot> documents = result.documents;
 
-    documents.forEach((data) {
-      String valueAppColor = data['appColor'];
-      String valueHeadLineColor = data['headlineColor'];
-      String valueTitle = data['titleColor'];
-      String valueChat = data['chatColor'];
-      int valueApp = int.parse(valueAppColor, radix: 16);
-      int valueHeadline = int.parse(valueHeadLineColor, radix: 16);
-      int valuetitleColor = int.parse(valueTitle, radix: 16);
-      int valuechatColor = int.parse(valueChat, radix: 16);
-      titleFontSize = double.parse(data['titleFontSize']);
-      headline = double.parse(data['headline']);
+    // documents.forEach((data) {
+    //   String valueAppColor = data['appColor'];
+    //   String valueHeadLineColor = data['headlineColor'];
+    //   String valueTitle = data['titleColor'];
+    //   String valueChat = data['chatColor'];
+    //   int valueApp = int.parse(valueAppColor, radix: 16);
+    //   int valueHeadline = int.parse(valueHeadLineColor, radix: 16);
+    //   int valuetitleColor = int.parse(valueTitle, radix: 16);
+    //   int valuechatColor = int.parse(valueChat, radix: 16);
+    //   titleFontSize = double.parse(data['titleFontSize']);
+    //   headline = double.parse(data['headline']);
 
-      setState(() {
-        appColor = new Color(valueApp);
-        headlineColor = new Color(valueHeadline);
-        titleColor = new Color(valuetitleColor);
-        chatColor = new Color(valuechatColor);
-      });
-    });
+    //   setState(() {
+    //     appColor = new Color(valueApp);
+    //     headlineColor = new Color(valueHeadline);
+    //     titleColor = new Color(valuetitleColor);
+    //     chatColor = new Color(valuechatColor);
+    //   });
+    // });
   }
 
   @override
@@ -69,6 +67,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         primaryColor: appColor,

@@ -1,4 +1,4 @@
-import 'package:chatting/models/firebase.dart';
+import 'package:chatting/mysql/mysql_functions.dart';
 import 'package:flutter/material.dart';
 
 class SignUp extends StatefulWidget {
@@ -73,11 +73,11 @@ class _SignUpState extends State<SignUp> {
             ),
             InkWell(
               onTap: () async {
-                Fireebase().signUp(
-                  _emailController.text,
-                  group.toString(),
+                Mysql().regUser(
                   _nameController.text,
                   _passwordController.text,
+                  _emailController.text,
+                  group.toString(),
                 );
               },
               child: Container(
