@@ -73,12 +73,27 @@ class _SignUpState extends State<SignUp> {
             ),
             InkWell(
               onTap: () async {
-                Mysql().regUser(
-                  _nameController.text,
+                // Mysql().regUser(
+                //   _nameController.text,
+                //   _passwordController.text,
+                //   _emailController.text,
+                //   group.toString(),
+                //   context,
+                // );
+
+                Mysql().addUser(
+                      _nameController.text,
                   _passwordController.text,
                   _emailController.text,
                   group.toString(),
-                );
+                  context,
+                )
+        .then((result) {
+      if ('success' == result) {
+        // _getEmployees(); // Refresh the List after adding each employee...
+        // _clearValues();
+      }
+    });
               },
               child: Container(
                 color: Theme.of(context).primaryColor,

@@ -1,4 +1,6 @@
 import 'package:chatting/models/firebase.dart';
+import 'package:chatting/models/user_model.dart';
+import 'package:chatting/mysql/mysql_functions.dart';
 import 'package:chatting/users_screen/current_users.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +16,7 @@ class UsersScreen extends StatefulWidget {
   final String gender;
   final String password;
   final String code;
-
+  final String title = 'سوالف';
   const UsersScreen({
     Key key,
     this.name,
@@ -32,6 +34,38 @@ class UsersScreen extends StatefulWidget {
 class _UsersScreenState extends State<UsersScreen>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   TabController _controller;
+//-------- this all function to fet data from mysql
+  List<Users> _users;
+  GlobalKey<ScaffoldState> _scaffoldKey;
+  String _titleProgress;
+
+  _getUsers() {
+    _showProgress('Loading Users...');
+    Mysql().getUsers().then((users) {
+      setState(() {
+        _users = users;
+      });
+      _showProgress(widget.title); // Reset the title...
+      print("Length ${users.length}");
+    });
+  }
+
+  _refresh() {}
+// Method to update title in the AppBar Title
+  _showProgress(String message) {
+    setState(() {
+      _titleProgress = message;
+    });
+  }
+
+  _showSnackBar(context, message) {
+    _scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
+  //--------END of sql
 
   @override
   void initState() {
@@ -40,6 +74,10 @@ class _UsersScreenState extends State<UsersScreen>
     _controller.index = 0;
     usersLimit();
     WidgetsBinding.instance.addObserver(this);
+    _users = [];
+    _scaffoldKey = GlobalKey();
+    _getUsers();
+    _titleProgress = widget.title;
   }
 
   @override
@@ -109,16 +147,14 @@ class _UsersScreenState extends State<UsersScreen>
 
   int limit;
   void usersLimit() async {
-    final QuerySnapshot result =
-        await Firestore.instance.collection('colors').getDocuments();
-    final List<DocumentSnapshot> documents = result.documents;
+    // final QuerySnapshot result =
+    //     await Firestore.instance.collection('colors').getDocuments();
+    // final List<DocumentSnapshot> documents = result.documents;
 
-    documents.forEach((data) {
-      limit = int.parse(data['limit']);
-    });
+    // documents.forEach((data) {
+    //   limit = int.parse(data['limit']);
+    // });
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -146,7 +182,7 @@ class _UsersScreenState extends State<UsersScreen>
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Theme.of(context).primaryColor,
-          title: Text("سوالف"),
+          title: Text(_titleProgress),
           centerTitle: true,
           bottom: TabBar(
             labelColor: Colors.white,
@@ -184,6 +220,7 @@ class _UsersScreenState extends State<UsersScreen>
                 name: widget.name,
                 gender: widget.gender,
                 limit: limit,
+                users: _users,
               ),
             ),
             Container(

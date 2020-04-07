@@ -25,7 +25,7 @@ class _LoginState extends State<Login> {
               textAlign: TextAlign.end,
               decoration: InputDecoration(
                 border: InputBorder.none,
-                hintText: 'أسم المستخدم أو البريد الاكتروني',
+                hintText: 'البريد الاكتروني',
               ),
             ),
             TextField(
@@ -41,8 +41,13 @@ class _LoginState extends State<Login> {
             ),
             InkWell(
               onTap: () async {
-                Mysql().loginUser(
-                    _nameController.text, _passwordController.text, context);
+                // Mysql().loginUser(
+                //     _nameController.text, _passwordController.text, context);
+                Mysql().login(
+                  _nameController.text,
+                  _passwordController.text,
+                  context,
+                );
               },
               child: Container(
                 color: Theme.of(context).primaryColor,
