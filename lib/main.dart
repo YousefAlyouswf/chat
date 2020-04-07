@@ -9,13 +9,19 @@ void main() {
 }
 
 void getCountry() async {
-  Ipfinder ipfinder = Ipfinder('b22bfa0edbe8bf00fe3cde41e567fa824fc33688');
-  IpResponse auth = await ipfinder.authentication();
-  // print(auth.toJson());
-  print(auth.countryName);
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  prefs.setString('country', auth.countryName.toString());
-  prefs.setString('code', auth.countryCode.toLowerCase());
+  try {
+    Ipfinder ipfinder = Ipfinder('b22bfa0edbe8bf00fe3cde41e567fa824fc33688');
+    IpResponse auth = await ipfinder.authentication();
+    // print(auth.toJson());
+    print(auth.countryName);
+    print(auth.ip);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('country', auth.countryName.toString());
+    prefs.setString('code', auth.countryCode.toLowerCase());
+    prefs.setString('ip', auth.ip);
+  } catch (e) {
+    print('error network');
+  }
 }
 
 class MyApp extends StatefulWidget {
@@ -65,7 +71,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',

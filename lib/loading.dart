@@ -24,8 +24,6 @@ class _LoadingState extends State<Loading> {
     }
   }
 
-  String code;
-
   @override
   void initState() {
     userAlreadyLogin();

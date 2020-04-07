@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:chatting/login_screen/mainStartScreen.dart';
 import 'package:chatting/models/firebase.dart';
+import 'package:chatting/mysql/mysql_functions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -36,6 +37,16 @@ class _DrawerPageState extends State<DrawerPage> {
   bool isLoading;
 
   File avatarImageFile;
+  String urlImage;
+  void getNewImage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    urlImage = prefs.getString('image');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +131,7 @@ class _DrawerPageState extends State<DrawerPage> {
               child: InkWell(
                 onTap: () async {
                   try {
-                    Fireebase().exitFfromChat();
+                    Mysql().updateUserOffline(widget.email);
 
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -152,7 +163,7 @@ class _DrawerPageState extends State<DrawerPage> {
   String url;
   Future updateSection(String image) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    Fireebase().uploadUserImage(image, widget.email);
+    Mysql().updateUserImage(widget.email, image);
     prefs.setString('image', image);
   }
 

@@ -12,9 +12,11 @@ class Mysql {
   static const ADD_USER = "ADD_USER";
   static const LOGIN = "LOGIN";
   static const GET_USERS = "GET_USERS";
-  static const UPDATE_STATUS = "UPDATE_STATUS";
+  static const UPDATE_IMAGE = "UPDATE_IMAGE";
   static const DELETE = "DELETE";
-
+  static const UPDATE_USER_INFO = "UPDATE_USER_INFO";
+  static const GET_THIS_USER = "GET_THIS_USER";
+  static const OFFLINE = 'OFFLINE';
   //get all users from mysql to show them in the users screen
 
   Future<List<Users>> getUsers() async {
@@ -34,7 +36,7 @@ class Mysql {
     }
   }
 
- static List<Users> parseResponse(String responseBody) {
+  static List<Users> parseResponse(String responseBody) {
     final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
     return parsed.map<Users>((json) => Users.fromJson(json)).toList();
   }
@@ -87,13 +89,33 @@ class Mysql {
         }
         return response.body;
       } else {
-        return "error";
+        Scaffold.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(
+              'حدث خطأ في الاتصال',
+              textAlign: TextAlign.end,
+            ),
+            duration: Duration(seconds: 3),
+          ),
+        );
       }
     } catch (e) {
-      return "error";
+      Scaffold.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(
+            'لا يوجد إتصال بالشبكه',
+            textAlign: TextAlign.end,
+          ),
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
+    return null;
   }
 
+  List<Users> _user;
   Future<String> login(
       String email, String password, BuildContext context) async {
     try {
@@ -105,30 +127,78 @@ class Mysql {
       print('updateEmployee Response: ${response.body}');
       if (200 == response.statusCode) {
         if (response.body == '1') {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (BuildContext context) => UsersScreen(
-                name: "userName",
-                email: email,
-                image: '',
-                gender: "1",
-                password: password,
-                code: 'sa',
+          updateUserInfo(email);
+
+          getThisUserInfo(email).then((user) {
+            _user = user;
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (BuildContext context) => UsersScreen(
+                  email: email,
+                  password: password,
+                  name: _user[0].name,
+                  image: _user[0].image,
+                  code: _user[0].code,
+                  gender: _user[0].gender,
+                ),
               ),
-            ),
-          );
+            );
+          });
+          //------------------------ Send user to main chat
+
         } else {
           Scaffold.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Colors.red,
               content: Text(
-                'خطأ في المعلومات',
+                'الإيميل أو الباسورد غير صحيح',
                 textAlign: TextAlign.end,
               ),
               duration: Duration(seconds: 3),
             ),
           );
         }
+        return response.body;
+      } else {
+        Scaffold.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(
+              'حدث خطأ في الاتصال',
+              textAlign: TextAlign.end,
+            ),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      // Scaffold.of(context).showSnackBar(
+      //   SnackBar(
+      //     backgroundColor: Colors.red,
+      //     content: Text(
+      //       'لا يوجد إتصال بالشبكه',
+      //       textAlign: TextAlign.end,
+      //     ),
+      //     duration: Duration(seconds: 3),
+      //   ),
+      // );
+      print(e);
+    }
+    return null;
+  }
+
+  Future<String> updateUserImage(
+    String email,
+    String image,
+  ) async {
+    try {
+      var map = Map<String, dynamic>();
+      map['action'] = UPDATE_IMAGE;
+      map['email'] = email;
+      map['image'] = image;
+      final response = await http.post(ROOT, body: map);
+      print('updateEmployee Response: ${response.body}');
+      if (200 == response.statusCode) {
         return response.body;
       } else {
         return "error";
@@ -138,17 +208,15 @@ class Mysql {
     }
   }
 
-  // Method to update an Employee in Database...
-  Future<String> updateUser(
-      String empId, String firstName, String lastName) async {
+  Future<String> updateUserOffline(
+    String email,
+  ) async {
     try {
       var map = Map<String, dynamic>();
-      map['action'] = UPDATE_STATUS;
-      map['emp_id'] = empId;
-      map['first_name'] = firstName;
-      map['last_name'] = lastName;
+      map['action'] = OFFLINE;
+      map['email'] = email;
       final response = await http.post(ROOT, body: map);
-      print('updateEmployee Response: ${response.body}');
+
       if (200 == response.statusCode) {
         return response.body;
       } else {
@@ -176,84 +244,47 @@ class Mysql {
       return "error"; // returning just an "error" string to keep this simple...
     }
   }
-  // Future regUser(
-  //   String userName,
-  //   String password,
-  //   String email,
-  //   String genderToDB,
-  //   BuildContext context,
-  // ) async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   String countreyCode = prefs.getString('code');
-  //   var url =
-  //       'http://gewscrap.com/testchat/get.php?user=$userName&email=$email&gender=$genderToDB&password=$password&code=$countreyCode';
-  //   Response response = await get(url);
-  //   if (response.body.toString() == '1') {
-  //     Scaffold.of(context).showSnackBar(
-  //       SnackBar(
-  //         backgroundColor: Colors.red,
-  //         content: Text(
-  //           'البريد الاكتروني مسجل على حساب اخر',
-  //           textAlign: TextAlign.end,
-  //         ),
-  //         duration: Duration(seconds: 3),
-  //       ),
-  //     );
-  //   } else {
-  //     Scaffold.of(context).showSnackBar(
-  //       SnackBar(
-  //         backgroundColor: Colors.green,
-  //         content: Text(
-  //           'تم التسجيل بنجاح',
-  //           textAlign: TextAlign.end,
-  //         ),
-  //         duration: Duration(seconds: 3),
-  //       ),
-  //     );
-  //     Navigator.of(context).push(
-  //       MaterialPageRoute(
-  //         builder: (BuildContext context) => UsersScreen(
-  //           name: 'Admin',
-  //           email: 'Admin@admin.com',
-  //           image: '',
-  //           gender: '1',
-  //           password: '1',
-  //           code: 'us',
-  //         ),
-  //       ),
-  //     );
-  //   }
-  // }
 
-  // Future loginUser(
-  //     String userName, String password, BuildContext context) async {
-  //   var url =
-  //       'http://gewscrap.com/testchat/login.php?user=$userName&password=$password';
-  //   Response response = await get(url);
-  //   print(response.body.toString());
+  Future<String> updateUserInfo(String email) async {
+    try {
+      //First  we gonna update user info
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String country = prefs.getString('country');
+      String code = prefs.getString('code');
+      String ip = prefs.getString('ip');
+      var map = Map<String, dynamic>();
+      map['action'] = UPDATE_USER_INFO;
+      map['email'] = email;
+      map['code'] = code;
+      map['ip'] = ip;
+      map['country'] = country;
+      final response = await http.post(ROOT, body: map);
+      print('updateEmployee Response: ${response.body}');
+      if (200 == response.statusCode) {
+        return response.body;
+      } else {
+        return "error";
+      }
+    } catch (e) {
+      return "error";
+    }
+  }
 
-  //   if (response.body.toString() == '1') {
-  //     Navigator.of(context).push(
-  //       MaterialPageRoute(
-  //         builder: (BuildContext context) => UsersScreen(
-  //           name: 'Admin',
-  //           email: 'Admin@admin.com',
-  //           image: '',
-  //           gender: '1',
-  //           password: '1',
-  //           code: 'us',
-  //         ),
-  //       ),
-  //     );
-  //   } else {
-  //     Scaffold.of(context).showSnackBar(SnackBar(
-  //       backgroundColor: Colors.red,
-  //       content: Text(
-  //         'أسم المستخدم أو كلمة المرور غير صحيحة',
-  //         textAlign: TextAlign.end,
-  //       ),
-  //       duration: Duration(seconds: 3),
-  //     ));
-  //   }
-  // }
+  Future<List<Users>> getThisUserInfo(String email) async {
+    try {
+      var map = Map<String, dynamic>();
+      map['action'] = GET_THIS_USER;
+      map['email'] = email;
+      final response = await http.post(ROOT, body: map);
+      print('getEmployees Response: ${response.body}');
+      if (200 == response.statusCode) {
+        List<Users> list = parseResponse(response.body);
+        return list;
+      } else {
+        return List<Users>();
+      }
+    } catch (e) {
+      return List<Users>();
+    }
+  }
 }

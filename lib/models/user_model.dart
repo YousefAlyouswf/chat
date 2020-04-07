@@ -7,6 +7,8 @@ class Users {
   String image;
   String code;
   String online;
+  String country;
+  String ip;
 
   Users({
     this.id,
@@ -17,6 +19,8 @@ class Users {
     this.image,
     this.code,
     this.online,
+    this.country,
+    this.ip,
   });
 
   factory Users.fromJson(Map<String, dynamic> json) {
@@ -29,6 +33,8 @@ class Users {
       image: json['image'] as String,
       code: json['code'] as String,
       online: json['online'] as String,
+      country: json['country'] as String,
+      ip: json['ip'] as String,
     );
   }
 }

@@ -1,8 +1,8 @@
+import 'dart:async';
 import 'package:chatting/models/firebase.dart';
 import 'package:chatting/models/user_model.dart';
 import 'package:chatting/mysql/mysql_functions.dart';
 import 'package:chatting/users_screen/current_users.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../drawer.dart';
@@ -65,6 +65,7 @@ class _UsersScreenState extends State<UsersScreen>
       ),
     );
   }
+
   //--------END of sql
 
   @override
@@ -72,12 +73,14 @@ class _UsersScreenState extends State<UsersScreen>
     super.initState();
     _controller = TabController(length: 2, vsync: this);
     _controller.index = 0;
-    usersLimit();
     WidgetsBinding.instance.addObserver(this);
     _users = [];
     _scaffoldKey = GlobalKey();
     _getUsers();
     _titleProgress = widget.title;
+    Timer.periodic(new Duration(seconds: 30), (timer) {
+      _getUsers();
+    });
   }
 
   @override
@@ -100,15 +103,7 @@ class _UsersScreenState extends State<UsersScreen>
         //   (Timer timer) => setState(
         //     () {
         //       if (_start < 1) {
-        //         Fireebase().logOut(
-        //           widget.email,
-        //           widget.gender,
-        //           widget.name,
-        //           widget.password,
-        //           widget.image,
-        //           widget.current,
-        //           widget.code,
-        //         );
+        //
         //         timer.cancel();
         //       } else {
         //         _start = _start - 1;
@@ -122,15 +117,6 @@ class _UsersScreenState extends State<UsersScreen>
       case AppLifecycleState.resumed:
         print('resumed');
 
-        // Fireebase().resume(
-        //   widget.email,
-        //   widget.gender,
-        //   widget.name,
-        //   widget.password,
-        //   widget.image,
-        //   widget.current,
-        //   widget.code,
-        // );
         break;
       case AppLifecycleState.inactive:
         print('inactive');
@@ -145,20 +131,8 @@ class _UsersScreenState extends State<UsersScreen>
 
   int submitExit = 0;
 
-  int limit;
-  void usersLimit() async {
-    // final QuerySnapshot result =
-    //     await Firestore.instance.collection('colors').getDocuments();
-    // final List<DocumentSnapshot> documents = result.documents;
-
-    // documents.forEach((data) {
-    //   limit = int.parse(data['limit']);
-    // });
-  }
-
   @override
   Widget build(BuildContext context) {
-    usersLimit();
     return WillPopScope(
       onWillPop: () async {
         if (submitExit == 0) {
@@ -219,8 +193,8 @@ class _UsersScreenState extends State<UsersScreen>
                 code: widget.code,
                 name: widget.name,
                 gender: widget.gender,
-                limit: limit,
                 users: _users,
+                getUsers: _getUsers,
               ),
             ),
             Container(
