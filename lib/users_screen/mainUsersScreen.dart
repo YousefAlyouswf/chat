@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:chatting/models/chat_model.dart';
 import 'package:chatting/models/firebase.dart';
 import 'package:chatting/models/user_model.dart';
 import 'package:chatting/mysql/mysql_functions.dart';
@@ -36,35 +37,34 @@ class _UsersScreenState extends State<UsersScreen>
   TabController _controller;
 //-------- this all function to fet data from mysql
   List<Users> _users;
+  List<Chat> _chat;
   GlobalKey<ScaffoldState> _scaffoldKey;
-  String _titleProgress;
+ 
 
   _getUsers() {
-    _showProgress('Loading Users...');
+   
     Mysql().getUsers().then((users) {
       setState(() {
         _users = users;
       });
-      _showProgress(widget.title); // Reset the title...
+    
       print("Length ${users.length}");
     });
   }
 
-  _refresh() {}
-// Method to update title in the AppBar Title
-  _showProgress(String message) {
-    setState(() {
-      _titleProgress = message;
+  _getChatFromMysql() {
+   
+    Mysql().getChat().then((chat) {
+      setState(() {
+        _chat = chat;
+      });
+     
     });
   }
 
-  _showSnackBar(context, message) {
-    _scaffoldKey.currentState.showSnackBar(
-      SnackBar(
-        content: Text(message),
-      ),
-    );
-  }
+
+
+ 
 
   //--------END of sql
 
@@ -77,9 +77,12 @@ class _UsersScreenState extends State<UsersScreen>
     _users = [];
     _scaffoldKey = GlobalKey();
     _getUsers();
-    _titleProgress = widget.title;
-    Timer.periodic(new Duration(seconds: 30), (timer) {
+    _getChatFromMysql();
+
+
+    Timer.periodic(new Duration(seconds: 10), (timer) {
       _getUsers();
+      _getChatFromMysql();
     });
   }
 
@@ -156,7 +159,7 @@ class _UsersScreenState extends State<UsersScreen>
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Theme.of(context).primaryColor,
-          title: Text(_titleProgress),
+          title: Text('سوالف'),
           centerTitle: true,
           bottom: TabBar(
             labelColor: Colors.white,
@@ -205,6 +208,8 @@ class _UsersScreenState extends State<UsersScreen>
                 code: widget.code,
                 name: widget.name,
                 gender: widget.gender,
+                chat: _chat,
+                getChat: _getChatFromMysql,
               ),
             ),
           ],

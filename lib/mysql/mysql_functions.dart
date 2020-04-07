@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:chatting/models/chat_model.dart';
 import 'package:chatting/users_screen/mainUsersScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,8 @@ class Mysql {
   static const UPDATE_USER_INFO = "UPDATE_USER_INFO";
   static const GET_THIS_USER = "GET_THIS_USER";
   static const OFFLINE = 'OFFLINE';
+  static const ADD_TO_CHAT = 'ADD_TO_CHAT';
+  static const GET_CHAT = "GET_CHAT";
   //get all users from mysql to show them in the users screen
 
   Future<List<Users>> getUsers() async {
@@ -276,7 +279,6 @@ class Mysql {
       map['action'] = GET_THIS_USER;
       map['email'] = email;
       final response = await http.post(ROOT, body: map);
-      print('getEmployees Response: ${response.body}');
       if (200 == response.statusCode) {
         List<Users> list = parseResponse(response.body);
         return list;
@@ -286,5 +288,68 @@ class Mysql {
     } catch (e) {
       return List<Users>();
     }
+  }
+
+  //-------------->> Chat options <<-----------------
+  Future<String> addToChatTable(
+    String yourEmail,
+    String hisEmail,
+    String yourGender,
+    String hisGender,
+    String yourImage,
+    String hisImage,
+    String yourOnline,
+    String hisOnline,
+    String yourCode,
+    String hisCode,
+    String yourName,
+    String hisName,
+  ) async {
+    try {
+      var map = Map<String, dynamic>();
+      map['action'] = ADD_TO_CHAT;
+      map['yourEmail'] = yourEmail;
+      map['hisEmail'] = hisEmail;
+      map['yourGender'] = yourGender;
+      map['hisGender'] = hisGender;
+      map['yourImage'] = yourImage;
+      map['hisImage'] = hisImage;
+      map['yourOnline'] = yourOnline;
+      map['hisOnline'] = hisOnline;
+      map['yourCode'] = yourCode;
+      map['hisCode'] = hisCode;
+      map['yourName'] = yourName;
+      map['hisName'] = hisName;
+
+      final response = await http.post(ROOT, body: map);
+      print('addUser Response: ${response.body}');
+      if (200 == response.statusCode) {
+        if (response.body == '1') {
+        } else {}
+        return response.body;
+      } else {}
+    } catch (e) {}
+  }
+
+  Future<List<Chat>> getChat() async {
+    try {
+      var map = Map<String, dynamic>();
+      map['action'] = GET_CHAT;
+      final response = await http.post(ROOT, body: map);
+
+      if (200 == response.statusCode) {
+        List<Chat> list = parseResponseForChat(response.body);
+        return list;
+      } else {
+        return List<Chat>();
+      }
+    } catch (e) {
+      return List<Chat>();
+    }
+  }
+
+  static List<Chat> parseResponseForChat(String responseBody) {
+    final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
+    return parsed.map<Chat>((json) => Chat.fromJson(json)).toList();
   }
 }

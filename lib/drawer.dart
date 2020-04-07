@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models/firebase.dart';
+import 'models/user_model.dart';
 
 class DrawerPage extends StatefulWidget {
   final String name;
@@ -37,15 +38,25 @@ class _DrawerPageState extends State<DrawerPage> {
   bool isLoading;
 
   File avatarImageFile;
-  String urlImage;
-  void getNewImage() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    urlImage = prefs.getString('image');
+  List<Users> _user = new List();
+
+  void updateImage() {
+    _user.add(Users(image: 'https://media.giphy.com/media/swhRkVYLJDrCE/giphy.gif'));
+    try {
+      Mysql().getThisUserInfo(widget.email).then((image) {
+      setState(() {
+        _user = image;
+      });
+    });
+    } catch (e) {
+    }
+    
   }
 
   @override
   void initState() {
     super.initState();
+    updateImage();
   }
 
   @override
@@ -70,15 +81,15 @@ class _DrawerPageState extends State<DrawerPage> {
                 height: 200,
                 width: 150,
                 decoration: new BoxDecoration(
-                  shape: BoxShape.circle,
+                 
                   image: new DecorationImage(
-                    fit: BoxFit.fitHeight,
+                    fit: BoxFit.contain,
                     image: new NetworkImage(
-                      widget.image == null
+                      _user[0].image == null
                           ? widget.gender == '1'
                               ? 'https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-7/64/x-01-512.png'
                               : 'https://cdn1.iconfinder.com/data/icons/business-planning-management-set-2/64/x-90-512.png'
-                          : widget.image,
+                          : _user[0].image,
                     ),
                   ),
                 ),
