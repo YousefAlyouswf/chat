@@ -1,13 +1,15 @@
 import 'dart:async';
 import 'dart:io';
-
+import 'package:firebase_database/firebase_database.dart';
 import 'package:chatting/models/app_functions.dart';
 import 'package:chatting/models/firebase.dart';
 import 'package:chatting/mysql/mysql_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:bubble/bubble.dart';
 import 'package:image_picker/image_picker.dart';
+import '../models/firebase_model.dart';
 
 class ChatScreen extends StatefulWidget {
   final String email;
@@ -43,11 +45,13 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  double width = 0, height = 60;
-  String chattingID;
-  var _txtController = TextEditingController();
+  //Firebase Realtime <-------------------------------------
+  List<RealTimeFirebase> _realTime = new List();
+  DatabaseReference itemRef;
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  RealTimeFirebase realTimeFirebase;
+  // End <-----------------------------------------------
   ScrollController _controller = ScrollController();
-
   void isTyping() async {
     // final QuerySnapshot result =
     //     await Firestore.instance.collection('chat').getDocuments();
@@ -99,30 +103,51 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    _txtController.addListener(isTyping);
+    //------------------------------ TEST
+    realTimeFirebase = RealTimeFirebase('', '', '', '', '', '');
+    final FirebaseDatabase database = FirebaseDatabase.instance;
+    itemRef = database.reference().child(widget.chatID);
+    itemRef.onChildAdded.listen(_onEntryAdded);
+    itemRef.onChildChanged.listen(_onEntryChanged);
+    //------------------------------ TEST
   }
 
-  bool startTyping = false;
-  File _image;
-  String genderImage;
+//------------------------------ TEST
+  _onEntryAdded(Event event) {
+    if (mounted) {
+      setState(() {
+        _realTime.add(RealTimeFirebase.fromSnapshot(event.snapshot));
+      });
+    }
+  }
+
+  _onEntryChanged(Event event) {
+    var old = _realTime.singleWhere((entry) {
+      return entry.key == event.snapshot.key;
+    });
+    setState(() {
+      _realTime[_realTime.indexOf(old)] =
+          RealTimeFirebase.fromSnapshot(event.snapshot);
+    });
+  }
+
+  void handleSubmit() {
+    final FormState form = formKey.currentState;
+
+    if (form.validate()) {
+      form.save();
+      form.reset();
+      realTimeFirebase.email1 = widget.email;
+      realTimeFirebase.email2 = widget.email2;
+      itemRef.push().set(realTimeFirebase.toJson());
+      AppFunctions().goDownFunction(_controller);
+    }
+  }
+
+  //------------------------------ TEST
+  String startTyping = '0';
   @override
   Widget build(BuildContext context) {
-    Future getImage() async {
-      var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-      setState(() {
-        _image = image;
-      });
-
-      Navigator.pop(context);
-    }
-
-    //
-    // print(lastTextId);
-    // Fireebase().userReadit(
-    //   chattingID,
-    //   widget.email,
-    // );
-
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -164,264 +189,166 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            Container(
-              height: MediaQuery.of(context).size.height * .79,
-              child: StreamBuilder(
-                  stream: Firestore.instance
-                      .collection('chat')
-                      .document(widget.chatID)
-                      .collection('messages')
-                      .orderBy('time', descending: true)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return Text("");
-                    } else {
-                      try {
-                        return ListView.builder(
-                          reverse: true,
-                          itemCount: snapshot.data.documents.length,
-                          controller: _controller,
-                          itemBuilder: (BuildContext context, int index) {
-                            String from =
-                                snapshot.data.documents[index]['from'];
-                            String read =
-                                snapshot.data.documents[index]['read'];
-                            return Container(
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  from != widget.email
-                                      ? Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Stack(
-                                            alignment: Alignment.bottomLeft,
-                                            children: <Widget>[
-                                              Container(
-                                                width: 60.0,
-                                                height: 60.0,
-                                                decoration: new BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  image: new DecorationImage(
-                                                    fit: BoxFit.fill,
-                                                    image: NetworkImage(
-                                                        widget.image2),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      : Container(),
-                                  Flexible(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Row(
-                                        mainAxisAlignment: from == widget.email
-                                            ? MainAxisAlignment.end
-                                            : MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: <Widget>[
-                                          from == widget.email
-                                              ? read == '0'
-                                                  ? Image.network(
-                                                      'http://getdrawings.com/free-icon/email-icon-transparent-63.png',
-                                                      height: 25,
-                                                      width: 25,
-                                                    )
-                                                  : Image.network(
-                                                      'https://images.vexels.com/media/users/3/157932/isolated/preview/951a617272553f49e75548e212ed947f-curved-check-mark-icon-by-vexels.png',
-                                                      height: 25,
-                                                      width: 25,
-                                                    )
-                                              : Text(''),
-                                          //-------------------- end of user read
-                                          Flexible(
-                                            child: Bubble(
-                                              margin: from == widget.email
-                                                  ? BubbleEdges.only(
-                                                      top: 10, left: 10)
-                                                  : BubbleEdges.only(
-                                                      top: 10, right: 10),
-                                              padding: BubbleEdges.only(
-                                                  right: 16.0, left: 16.0),
-                                              stick: true,
-                                              nip: from == widget.email
-                                                  ? BubbleNip.rightTop
-                                                  : BubbleNip.leftTop,
-                                              color: from == widget.email
-                                                  ? Theme.of(context).cardColor
-                                                  : Colors.grey[300],
-                                              child: Text(
-                                                snapshot.data.documents[index]
-                                                    ['content'],
-                                                style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.normal),
-                                                textAlign: TextAlign.right,
-                                                textDirection:
-                                                    TextDirection.rtl,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
+      //   resizeToAvoidBottomPadding: false,
+      body: Column(
+        children: <Widget>[
+          Flexible(
+            child: FirebaseAnimatedList(
+                reverse: false,
+                controller: _controller,
+                query: itemRef,
+                itemBuilder: (BuildContext context, DataSnapshot snapshot,
+                    Animation<double> animation, int index) {
+                  return Container(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        _realTime[index].email1 != widget.email
+                            ? Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Stack(
+                                  alignment: Alignment.bottomLeft,
+                                  children: <Widget>[
+                                    Container(
+                                      width: 60.0,
+                                      height: 60.0,
+                                      decoration: new BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: new DecorationImage(
+                                          fit: BoxFit.fill,
+                                          image: NetworkImage(widget.image2),
+                                        ),
                                       ),
                                     ),
+                                  ],
+                                ),
+                              )
+                            : Container(),
+                        Flexible(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment:
+                                  _realTime[index].email1 == widget.email
+                                      ? MainAxisAlignment.end
+                                      : MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: <Widget>[
+                                _realTime[index].email1 == widget.email
+                                    ? _realTime[index].read == '0'
+                                        ? Image.network(
+                                            'http://getdrawings.com/free-icon/email-icon-transparent-63.png',
+                                            height: 25,
+                                            width: 25,
+                                          )
+                                        : Image.network(
+                                            'https://images.vexels.com/media/users/3/157932/isolated/preview/951a617272553f49e75548e212ed947f-curved-check-mark-icon-by-vexels.png',
+                                            height: 25,
+                                            width: 25,
+                                          )
+                                    : Text(''),
+                                //-------------------- end of user read
+                                Flexible(
+                                  child: Bubble(
+                                    margin: _realTime[index].email1 ==
+                                            widget.email
+                                        ? BubbleEdges.only(top: 10, left: 10)
+                                        : BubbleEdges.only(top: 10, right: 10),
+                                    padding: BubbleEdges.only(
+                                        right: 16.0, left: 16.0),
+                                    stick: true,
+                                    nip: _realTime[index].email1 == widget.email
+                                        ? BubbleNip.rightTop
+                                        : BubbleNip.leftTop,
+                                    color:
+                                        _realTime[index].email1 == widget.email
+                                            ? Theme.of(context).cardColor
+                                            : Colors.grey[300],
+                                    child: Text(
+                                      _realTime[index].text,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.normal),
+                                      textAlign: TextAlign.right,
+                                      textDirection: TextDirection.rtl,
+                                    ),
                                   ),
-                                  from == widget.email
-                                      ? Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Container(
-                                            width: 60.0,
-                                            height: 60.0,
-                                            decoration: new BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              image: new DecorationImage(
-                                                fit: BoxFit.fill,
-                                                image:
-                                                    NetworkImage(widget.image),
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                      : Container(),
-                                ],
-                              ),
-                            );
-                          },
-                        );
-                      } catch (e) {
-                        return Text("");
-                      }
-                    }
-                  }),
-            ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        _realTime[index].email1 == widget.email
+                            ? Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  width: 60.0,
+                                  height: 60.0,
+                                  decoration: new BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: new DecorationImage(
+                                      fit: BoxFit.fill,
+                                      image: NetworkImage(widget.image),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Container(),
+                      ],
+                    ),
+                  );
+                }),
+          ),
 
-            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                decoration: new BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  borderRadius: new BorderRadius.all(
-                    const Radius.circular(16.0),
-                  ),
+          //------------> here you type message
+          Flexible(
+            flex: 0,
+            child: Container(
+              decoration: new BoxDecoration(
+                color: Theme.of(context).primaryColor,
+                borderRadius: new BorderRadius.all(
+                  const Radius.circular(16.0),
                 ),
-                child: Row(
-                  children: <Widget>[
-                    IconButton(icon: Icon(Icons.image), onPressed: getImage),
-                    Flexible(
-                      child: Container(
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: TextField(
-                            onChanged: (text) {
-                              if (!startTyping) {
-                                //  Mysql().updateReadMsg(widget.email, widget.email2);
-                                Fireebase().userReadit(
-                                  widget.chatID,
-                                  widget.email,
-                                );
-                                startTyping = true;
-                              }
-                            },
+              ),
+              child: Row(
+                children: <Widget>[
+                  IconButton(icon: Icon(Icons.image), onPressed: null),
+                  Flexible(
+                    child: Container(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Form(
+                          key: formKey,
+                          child: TextFormField(
                             keyboardType: TextInputType.multiline,
                             maxLines: null,
-                            controller: _txtController,
                             textAlign: TextAlign.end,
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: 'أكتب هنا',
                             ),
-                            onEditingComplete: callback,
+                            onEditingComplete: handleSubmit,
                             textInputAction: TextInputAction.send,
+                            initialValue: '',
+                            onSaved: (val) => realTimeFirebase.text = val,
+                            validator: (val) => val == "" ? val : null,
                           ),
                         ),
                       ),
                     ),
-                    _txtController.text != '' &&
-                            _txtController.text != ' ' &&
-                            _txtController.text != '  ' &&
-                            _txtController.text != '   ' &&
-                            _txtController.text != '    ' &&
-                            _txtController.text != '     ' &&
-                            _txtController.text != '      ' &&
-                            _txtController.text != '       ' &&
-                            _txtController.text != '        ' &&
-                            _txtController.text != '         ' &&
-                            _txtController.text != '          ' &&
-                            _txtController.text != '           ' &&
-                            _txtController.text != '            ' &&
-                            _txtController.text != '             ' &&
-                            _txtController.text != '              ' &&
-                            _txtController.text != '               ' &&
-                            _txtController.text != '                '
-                        ? Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: IconButton(
-                              icon: Icon(Icons.send),
-                              onPressed: callback,
-                            ),
-                          )
-                        : Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: IconButton(
-                              icon: Icon(Icons.send),
-                              onPressed: callback,
-                            ),
-                          ),
-                  ],
-                ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: IconButton(
+                      icon: Icon(Icons.send),
+                      onPressed: handleSubmit,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
-  }
-
-  String lastTextId;
-  int now;
-  int lastMsg;
-  Future<void> callback() async {
-    startTyping = false;
-    if (now != null) {
-      now = now - 1;
-    }
-    final QuerySnapshot result = await Firestore.instance
-        .collection('chat/${widget.chatID}/messages')
-        .orderBy('time')
-        .where('time', isGreaterThan: now)
-        .getDocuments();
-    final List<DocumentSnapshot> documents = result.documents;
-    documents.forEach((data) {
-      now = data['time'];
-    });
-    if (now == null) {
-      now = 1;
-    } else {
-      now++;
-    }
-
-    //------------------------- this the firestore function
-    Fireebase().updateToChatCollections(
-      widget.email,
-      widget.email2,
-      now,
-      _txtController.text,
-      widget.chatID,
-    );
-
-    Mysql().updateLastMsg(
-      widget.email,
-      widget.email2,
-      _txtController.text,
-    );
-    _txtController.clear();
-    AppFunctions().goDownFunction(_controller);
   }
 }

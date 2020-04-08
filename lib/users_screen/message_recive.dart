@@ -78,39 +78,37 @@ class MessageRecive extends StatelessWidget {
                         onTap: () async {
                           if (chat[index].yourEmail == email) {
                             Mysql().updateReadMsg(email, chat[index].hisEmail);
-                            Fireebase()
-                                .getChatId(email, chat[index].hisEmail)
-                                .then((id) {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (BuildContext context) => ChatScreen(
-                                    name: name,
-                                    email: email,
-                                    image: chat[index].yourImage,
-                                    code: code,
-                                    gender: gender,
-                                    email2: chat[index].hisEmail,
-                                    gender2: chat[index].hisGender,
-                                    name2: chat[index].hisName,
-                                    code2: chat[index].hisCode,
-                                    image2: chat[index].hisImage,
-                                    chatID: id,
-                                    online: chat[index].hisOnline,
-                                  ),
+                            // Fireebase()
+                            //     .getChatId(email, chat[index].hisEmail)
+                            //     .then((id) {
+
+                            // });
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (BuildContext context) => ChatScreen(
+                                  name: name,
+                                  email: email,
+                                  image: chat[index].yourImage,
+                                  code: code,
+                                  gender: gender,
+                                  email2: chat[index].hisEmail,
+                                  gender2: chat[index].hisGender,
+                                  name2: chat[index].hisName,
+                                  code2: chat[index].hisCode,
+                                  image2: chat[index].hisImage,
+                                  chatID: chat[index].id,
+                                  online: chat[index].hisOnline,
                                 ),
-                              );
-                            });
+                              ),
+                            );
                           } else {
                             Mysql().updateReadMsg(email, chat[index].yourEmail);
-                            Fireebase()
-                                .getChatId(email, chat[index].yourEmail)
-                                .then((id) {
-                              Navigator.of(context).push(
+                           Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (BuildContext context) => ChatScreen(
                                     name: name,
                                     email: email,
-                                    image: chat[index].hisEmail,
+                                    image: chat[index].hisImage,
                                     code: code,
                                     gender: gender,
                                     email2: chat[index].yourEmail,
@@ -118,12 +116,11 @@ class MessageRecive extends StatelessWidget {
                                     name2: chat[index].yourName,
                                     code2: chat[index].yourCode,
                                     image2: chat[index].yourImage,
-                                    chatID: id,
+                                    chatID: chat[index].id,
                                     online: chat[index].yourOnline,
                                   ),
                                 ),
                               );
-                            });
                           }
                         },
                         child: Card(

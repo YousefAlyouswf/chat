@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:chatting/users_screen/mainUsersScreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -26,70 +28,52 @@ class AppFunctions {
     getCountry();
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    
-   
+    //-------------------- chat collection
 
-
-
-      //-------------------- chat collection
-
-      Firestore.instance
-          .collection('chat')
-          .where('to', isEqualTo: prefs.getString('email'))
-          .getDocuments()
-          .then((snapshot) {
-        for (DocumentSnapshot ds in snapshot.documents) {
-          ds.reference.updateData({
-            'onlineTo': '1',
-          });
-        }
-      });
-      Firestore.instance
-          .collection('chat')
-          .where('from', isEqualTo: prefs.getString('email'))
-          .getDocuments()
-          .then((snapshot) {
-        for (DocumentSnapshot ds in snapshot.documents) {
-          ds.reference.updateData({
-            'onlineFrom': '1',
-          });
-        }
-      });
-      //----------------------
+    Firestore.instance
+        .collection('chat')
+        .where('to', isEqualTo: prefs.getString('email'))
+        .getDocuments()
+        .then((snapshot) {
+      for (DocumentSnapshot ds in snapshot.documents) {
+        ds.reference.updateData({
+          'onlineTo': '1',
+        });
+      }
+    });
+    Firestore.instance
+        .collection('chat')
+        .where('from', isEqualTo: prefs.getString('email'))
+        .getDocuments()
+        .then((snapshot) {
+      for (DocumentSnapshot ds in snapshot.documents) {
+        ds.reference.updateData({
+          'onlineFrom': '1',
+        });
+      }
+    });
+    //----------------------
 
 //-----------------------------------------
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (BuildContext context) => UsersScreen(
-            name: prefs.getString('username'),
-            email: prefs.getString('email'),
-            image: prefs.getString('image'),
-            gender: prefs.getString('gender'),
-            password: prefs.getString('password'),
-            code: code,
-          ),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) => UsersScreen(
+          name: prefs.getString('username'),
+          email: prefs.getString('email'),
+          image: prefs.getString('image'),
+          gender: prefs.getString('gender'),
+          password: prefs.getString('password'),
+          code: code,
         ),
-      );
-   
+      ),
+    );
   }
 
 // Start chatScreen
 
   void goDownFunction(ScrollController _controller) {
-    _controller.animateTo(0.0,
-        duration: Duration(milliseconds: 300), curve: Curves.easeOut);
-  }
-
-  void getMsgId(String email, String email2, String chattingID) async {
-    final QuerySnapshot result =
-        await Firestore.instance.collection('chat').getDocuments();
-    final List<DocumentSnapshot> documents = result.documents;
-    documents.forEach((data) {
-      if (data['from'] == email && data['to'] == email2 ||
-          data['to'] == email && data['from'] == email2) {
-        chattingID = data.documentID;
-      }
-    });
+    Timer(Duration(milliseconds: 300),
+        () => _controller.jumpTo(_controller.position.maxScrollExtent + 1));
   }
 
   //End chatScreen

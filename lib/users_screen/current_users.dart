@@ -80,63 +80,77 @@ class CurrentUsers extends StatelessWidget {
                     ? null
                     : () async {
                         getUsers();
-                        bool firstCase = false;
-                        bool secondCase = false;
-                        String chatID;
-                        final QuerySnapshot firstCaseResult = await Firestore
-                            .instance
-                            .collection('chat')
-                            .where('email', isEqualTo: email)
-                            .where('email2', isEqualTo: users[index].email)
-                            .getDocuments();
-                        final List<DocumentSnapshot> documentsOfFirstCase =
-                            firstCaseResult.documents;
-                        documentsOfFirstCase.forEach((data) {
-                          firstCase = true;
-                          chatID = data.documentID;
-                        });
-                        final QuerySnapshot secondCaseResult = await Firestore
-                            .instance
-                            .collection('chat')
-                            .where('email', isEqualTo: users[index].email)
-                            .where('email2', isEqualTo: email)
-                            .getDocuments();
-                        final List<DocumentSnapshot> documentsOfSecondCase =
-                            secondCaseResult.documents;
-                        documentsOfSecondCase.forEach((data) {
-                          secondCase = true;
-                          chatID = data.documentID;
-                        });
+                        // bool firstCase = false;
+                        // bool secondCase = false;
+                        // String chatID;
+                        // final QuerySnapshot firstCaseResult = await Firestore
+                        //     .instance
+                        //     .collection('chat')
+                        //     .where('email', isEqualTo: email)
+                        //     .where('email2', isEqualTo: users[index].email)
+                        //     .getDocuments();
+                        // final List<DocumentSnapshot> documentsOfFirstCase =
+                        //     firstCaseResult.documents;
+                        // documentsOfFirstCase.forEach((data) {
+                        //   firstCase = true;
+                        //   chatID = data.documentID;
+                        // });
+                        // final QuerySnapshot secondCaseResult = await Firestore
+                        //     .instance
+                        //     .collection('chat')
+                        //     .where('email', isEqualTo: users[index].email)
+                        //     .where('email2', isEqualTo: email)
+                        //     .getDocuments();
+                        // final List<DocumentSnapshot> documentsOfSecondCase =
+                        //     secondCaseResult.documents;
+                        // documentsOfSecondCase.forEach((data) {
+                        //   secondCase = true;
+                        //   chatID = data.documentID;
+                        // });
 
-                        if (firstCase || secondCase) {
-                          print('Found');
-                        } else {
-                          Firestore.instance
-                              .collection('chat')
-                              .document()
-                              .setData({
-                            'email': email,
-                            'email2': users[index].email,
-                            'name': name,
-                            'name2': users[index].name,
-                            'typing': '',
-                            'typing2': ''
-                          });
-                          Mysql().addToChatTable(
-                            email,
-                            users[index].email,
-                            gender,
-                            users[index].gender,
-                            image,
-                            users[index].image,
-                            '1',
-                            users[index].online,
-                            code,
-                            users[index].code,
-                            name,
-                            users[index].name,
-                          );
-                        }
+                        // if (firstCase || secondCase) {
+                        //   print('Found');
+                        // } else {
+                        //   Firestore.instance
+                        //       .collection('chat')
+                        //       .document()
+                        //       .setData({
+                        //     'email': email,
+                        //     'email2': users[index].email,
+                        //     'name': name,
+                        //     'name2': users[index].name,
+                        //     'typing': '',
+                        //     'typing2': ''
+                        //   });
+                        //   Mysql().addToChatTable(
+                        //     email,
+                        //     users[index].email,
+                        //     gender,
+                        //     users[index].gender,
+                        //     image,
+                        //     users[index].image,
+                        //     '1',
+                        //     users[index].online,
+                        //     code,
+                        //     users[index].code,
+                        //     name,
+                        //     users[index].name,
+                        //   );
+                        // }
+                        Mysql().addToChatTable(
+                          email,
+                          users[index].email,
+                          gender,
+                          users[index].gender,
+                          image,
+                          users[index].image,
+                          '1',
+                          users[index].online,
+                          code,
+                          users[index].code,
+                          name,
+                          users[index].name,
+                        );
                       },
                 child: Card(
                   color:
