@@ -8,17 +8,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:502960105351:android:c087a367618d2eecea9522",
+        "mobilesdk_app_id": "1:502960105351:android:1100ddb1a37dad93ea9522",
         "android_client_info": {
-          "package_name": "com.example.chatting"
+          "package_name": "yousef.alyouswf.chatting"
         }
       },
       "oauth_client": [
         {
-          "client_id": "502960105351-jbgugujgd7j4nc02fgo013fpqqipfncn.apps.googleusercontent.com",
+          "client_id": "502960105351-p6mv51mah0929sns0ss8s6tf46c8gnnk.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.chatting",
+            "package_name": "yousef.alyouswf.chatting",
             "certificate_hash": "3ebba0be7d2911ae4be982e8fc8d830c56a2afb6"
           }
         },
@@ -38,6 +38,13 @@
             {
               "client_id": "502960105351-3omiq6gakqe7hmo050s9kf58v000jcgr.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "502960105351-foafb03240rtsnb2jn56g0c4jm8840l9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "yousefksa.alyouswf.chatting"
+              }
             }
           ]
         }

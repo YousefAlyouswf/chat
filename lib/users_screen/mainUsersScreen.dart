@@ -38,7 +38,6 @@ class _UsersScreenState extends State<UsersScreen>
 //-------- this all function to fet data from mysql
   List<Users> _users;
   List<Chat> _chat;
-  GlobalKey<ScaffoldState> _scaffoldKey;
  
 
   _getUsers() {
@@ -47,8 +46,7 @@ class _UsersScreenState extends State<UsersScreen>
       setState(() {
         _users = users;
       });
-    
-      print("Length ${users.length}");
+  
     });
   }
 
@@ -75,7 +73,6 @@ class _UsersScreenState extends State<UsersScreen>
     _controller.index = 0;
     WidgetsBinding.instance.addObserver(this);
     _users = [];
-    _scaffoldKey = GlobalKey();
     _getUsers();
     _getChatFromMysql();
 

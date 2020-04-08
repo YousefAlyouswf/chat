@@ -20,6 +20,11 @@ class Mysql {
   static const OFFLINE = 'OFFLINE';
   static const ADD_TO_CHAT = 'ADD_TO_CHAT';
   static const GET_CHAT = "GET_CHAT";
+  static const UPDATE_LAST_MSG = "UPDATE_LAST_MSG";
+  static const UPDATE_READ_MSG = "UPDATE_READ_MSG";
+
+
+
   //get all users from mysql to show them in the users screen
 
   Future<List<Users>> getUsers() async {
@@ -27,7 +32,6 @@ class Mysql {
       var map = Map<String, dynamic>();
       map['action'] = GET_USERS;
       final response = await http.post(ROOT, body: map);
-      print('getEmployees Response: ${response.body}');
       if (200 == response.statusCode) {
         List<Users> list = parseResponse(response.body);
         return list;
@@ -63,7 +67,6 @@ class Mysql {
       map['gender'] = genderToDB;
       map['code'] = countryCode;
       final response = await http.post(ROOT, body: map);
-      print('addUser Response: ${response.body}');
       if (200 == response.statusCode) {
         if (response.body == '1') {
           Scaffold.of(context).showSnackBar(
@@ -127,7 +130,6 @@ class Mysql {
       map['email'] = email;
       map['password'] = password;
       final response = await http.post(ROOT, body: map);
-      print('updateEmployee Response: ${response.body}');
       if (200 == response.statusCode) {
         if (response.body == '1') {
           updateUserInfo(email);
@@ -175,17 +177,16 @@ class Mysql {
         );
       }
     } catch (e) {
-      // Scaffold.of(context).showSnackBar(
-      //   SnackBar(
-      //     backgroundColor: Colors.red,
-      //     content: Text(
-      //       'لا يوجد إتصال بالشبكه',
-      //       textAlign: TextAlign.end,
-      //     ),
-      //     duration: Duration(seconds: 3),
-      //   ),
-      // );
-      print(e);
+      Scaffold.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(
+            'لا يوجد إتصال بالشبكه',
+            textAlign: TextAlign.end,
+          ),
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
     return null;
   }
@@ -200,7 +201,6 @@ class Mysql {
       map['email'] = email;
       map['image'] = image;
       final response = await http.post(ROOT, body: map);
-      print('updateEmployee Response: ${response.body}');
       if (200 == response.statusCode) {
         return response.body;
       } else {
@@ -237,7 +237,6 @@ class Mysql {
       map['action'] = DELETE;
       map['emp_id'] = empId;
       final response = await http.post(ROOT, body: map);
-      print('deleteEmployee Response: ${response.body}');
       if (200 == response.statusCode) {
         return response.body;
       } else {
@@ -262,7 +261,6 @@ class Mysql {
       map['ip'] = ip;
       map['country'] = country;
       final response = await http.post(ROOT, body: map);
-      print('updateEmployee Response: ${response.body}');
       if (200 == response.statusCode) {
         return response.body;
       } else {
@@ -322,13 +320,13 @@ class Mysql {
       map['hisName'] = hisName;
 
       final response = await http.post(ROOT, body: map);
-      print('addUser Response: ${response.body}');
       if (200 == response.statusCode) {
         if (response.body == '1') {
         } else {}
         return response.body;
       } else {}
     } catch (e) {}
+    return null;
   }
 
   Future<List<Chat>> getChat() async {
@@ -351,5 +349,41 @@ class Mysql {
   static List<Chat> parseResponseForChat(String responseBody) {
     final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
     return parsed.map<Chat>((json) => Chat.fromJson(json)).toList();
+  }
+
+  Future<String> updateLastMsg(String email, String email2, String text) async {
+    try {
+      var map = Map<String, dynamic>();
+      map['action'] = UPDATE_LAST_MSG;
+      map['email'] = email;
+      map['email2'] = email2;
+      map['text'] = text;
+      final response = await http.post(ROOT, body: map);
+      print(response.body);
+      if (200 == response.statusCode) {
+        return response.body;
+      } else {
+        return "error";
+      }
+    } catch (e) {
+      return "error";
+    }
+  }
+  Future<String> updateReadMsg(String email, String email2,) async {
+    try {
+      var map = Map<String, dynamic>();
+      map['action'] = UPDATE_READ_MSG;
+      map['email'] = email;
+      map['email2'] = email2;
+      final response = await http.post(ROOT, body: map);
+      print(response.body);
+      if (200 == response.statusCode) {
+        return response.body;
+      } else {
+        return "error";
+      }
+    } catch (e) {
+      return "error";
+    }
   }
 }

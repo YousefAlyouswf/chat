@@ -1,5 +1,7 @@
 import 'package:chatting/chatScreen/chatScreen.dart';
 import 'package:chatting/models/chat_model.dart';
+import 'package:chatting/models/firebase.dart';
+import 'package:chatting/mysql/mysql_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -37,7 +39,6 @@ class MessageRecive extends StatelessWidget {
   //---End pull
   @override
   Widget build(BuildContext context) {
-    print("----------------->" + chat.length.toString());
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SmartRefresher(
@@ -74,7 +75,57 @@ class MessageRecive extends StatelessWidget {
                     chat[index].hisEmail == email
                 ? chat[index].text != ''
                     ? InkWell(
-                        onTap: () async {},
+                        onTap: () async {
+                          if (chat[index].yourEmail == email) {
+                            Mysql().updateReadMsg(email, chat[index].hisEmail);
+                            Fireebase()
+                                .getChatId(email, chat[index].hisEmail)
+                                .then((id) {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (BuildContext context) => ChatScreen(
+                                    name: name,
+                                    email: email,
+                                    image: chat[index].yourImage,
+                                    code: code,
+                                    gender: gender,
+                                    email2: chat[index].hisEmail,
+                                    gender2: chat[index].hisGender,
+                                    name2: chat[index].hisName,
+                                    code2: chat[index].hisCode,
+                                    image2: chat[index].hisImage,
+                                    chatID: id,
+                                    online: chat[index].hisOnline,
+                                  ),
+                                ),
+                              );
+                            });
+                          } else {
+                            Mysql().updateReadMsg(email, chat[index].yourEmail);
+                            Fireebase()
+                                .getChatId(email, chat[index].yourEmail)
+                                .then((id) {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (BuildContext context) => ChatScreen(
+                                    name: name,
+                                    email: email,
+                                    image: chat[index].hisEmail,
+                                    code: code,
+                                    gender: gender,
+                                    email2: chat[index].yourEmail,
+                                    gender2: chat[index].yourGender,
+                                    name2: chat[index].yourName,
+                                    code2: chat[index].yourCode,
+                                    image2: chat[index].yourImage,
+                                    chatID: id,
+                                    online: chat[index].yourOnline,
+                                  ),
+                                ),
+                              );
+                            });
+                          }
+                        },
                         child: Card(
                           color: Colors.white,
                           child: Padding(

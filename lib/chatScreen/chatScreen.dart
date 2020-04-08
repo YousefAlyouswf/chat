@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:chatting/models/app_functions.dart';
 import 'package:chatting/models/firebase.dart';
+import 'package:chatting/mysql/mysql_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:bubble/bubble.dart';
@@ -18,7 +20,8 @@ class ChatScreen extends StatefulWidget {
   final String code2;
   final String name2;
   final String gender2;
-
+  final String chatID;
+  final String online;
   const ChatScreen({
     Key key,
     this.email,
@@ -31,6 +34,8 @@ class ChatScreen extends StatefulWidget {
     this.code2,
     this.name2,
     this.gender2,
+    this.chatID,
+    this.online,
   }) : super(key: key);
 
   @override
@@ -39,153 +44,69 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   double width = 0, height = 60;
-  String chattingID, startTyping;
+  String chattingID;
   var _txtController = TextEditingController();
   ScrollController _controller = ScrollController();
-  void getMsgId() async {
-    final QuerySnapshot result =
-        await Firestore.instance.collection('chat').getDocuments();
-    final List<DocumentSnapshot> documents = result.documents;
-    documents.forEach((data) {
-      if (data['from'] == widget.email && data['to'] == widget.email2 ||
-          data['to'] == widget.email && data['from'] == widget.email2) {
-        if (this.mounted) {
-          setState(() {
-            chattingID = data.documentID;
-          });
-        }
-        if (data['from'] == widget.email) {
-          online = data['onlineTo'];
-          startTyping = data['typingTo'];
-        } else {
-          online = data['onlineFrom'];
-          startTyping = data['typingFrom'];
-        }
-      }
-    });
-    final QuerySnapshot textId = await Firestore.instance
-        .collection('textMe')
-        .document('JzCPQt7TQZTZDMa5jfYq')
-        .collection('lastText')
-        .getDocuments();
-    final List<DocumentSnapshot> documentstextId = textId.documents;
-    documentstextId.forEach((data) {
-      if (data['from'] == widget.email && data['to'] == widget.email2 ||
-          data['to'] == widget.email && data['from'] == widget.email2) {
-        setState(() {
-          lastTextId = data.documentID;
-        });
-      }
-    });
-  }
-
-  String online;
 
   void isTyping() async {
-    final QuerySnapshot result =
-        await Firestore.instance.collection('chat').getDocuments();
-    final List<DocumentSnapshot> documents = result.documents;
-    documents.forEach((data) {
-      if (data['from'] == widget.email && data['to'] == widget.email2 ||
-          data['to'] == widget.email && data['from'] == widget.email2) {
-        if (data['from'] == widget.email) {
-          if (_txtController.text == '' || _txtController.text == null) {
-            DocumentReference documentReference =
-                Firestore.instance.collection('chat').document(chattingID);
-            Firestore.instance.runTransaction((transaction) async {
-              await transaction.update(documentReference, {
-                'typingFrom': '0',
-              });
-            });
-          } else {
-            DocumentReference documentReference =
-                Firestore.instance.collection('chat').document(chattingID);
-            Firestore.instance.runTransaction((transaction) async {
-              await transaction.update(documentReference, {
-                'typingFrom': '1',
-              });
-            });
-          }
-        } else {
-          if (_txtController.text == '' || _txtController.text == null) {
-            DocumentReference documentReference =
-                Firestore.instance.collection('chat').document(chattingID);
-            Firestore.instance.runTransaction((transaction) async {
-              await transaction.update(documentReference, {
-                'typingTo': '0',
-              });
-            });
-          } else {
-            DocumentReference documentReference =
-                Firestore.instance.collection('chat').document(chattingID);
-            Firestore.instance.runTransaction((transaction) async {
-              await transaction.update(documentReference, {
-                'typingTo': '1',
-              });
-            });
-          }
-        }
-      }
-    });
-  }
-
-  void typingInReveivingMsg() {
-    if (_txtController.text == '' || _txtController.text == null) {
-      DocumentReference documentReference = Firestore.instance
-          .collection('textMe')
-          .document('JzCPQt7TQZTZDMa5jfYq')
-          .collection('lastText')
-          .document(lastTextId);
-      Firestore.instance.runTransaction((transaction) async {
-        await transaction.update(documentReference, {
-          'typing': '0',
-        });
-      });
-    } else {
-      DocumentReference documentReference = Firestore.instance
-          .collection('textMe')
-          .document('JzCPQt7TQZTZDMa5jfYq')
-          .collection('lastText')
-          .document(lastTextId);
-      Firestore.instance.runTransaction((transaction) async {
-        await transaction.update(documentReference, {
-          'typing': '1',
-        });
-      });
-    }
-  }
-
-  bool hang = false;
-  void checkMsgFromAnotherUser() async {
-    var document = Firestore.instance
-        .collection('textMe')
-        .document('JzCPQt7TQZTZDMa5jfYq')
-        .collection('lastText')
-        .document(lastTextId);
-    document.get().then((data) {
-      String emailID = data['emailID'];
-      if (emailID != widget.email && hang) {
-        Fireebase().readFromRecive(lastTextId);
-      }
-    });
-    hang = true;
+    // final QuerySnapshot result =
+    //     await Firestore.instance.collection('chat').getDocuments();
+    // final List<DocumentSnapshot> documents = result.documents;
+    // documents.forEach((data) {
+    //   if (data['from'] == widget.email && data['to'] == widget.email2 ||
+    //       data['to'] == widget.email && data['from'] == widget.email2) {
+    //     if (data['from'] == widget.email) {
+    //       if (_txtController.text == '' || _txtController.text == null) {
+    //         DocumentReference documentReference =
+    //             Firestore.instance.collection('chat').document(chattingID);
+    //         Firestore.instance.runTransaction((transaction) async {
+    //           await transaction.update(documentReference, {
+    //             'typingFrom': '0',
+    //           });
+    //         });
+    //       } else {
+    //         DocumentReference documentReference =
+    //             Firestore.instance.collection('chat').document(chattingID);
+    //         Firestore.instance.runTransaction((transaction) async {
+    //           await transaction.update(documentReference, {
+    //             'typingFrom': '1',
+    //           });
+    //         });
+    //       }
+    //     } else {
+    //       if (_txtController.text == '' || _txtController.text == null) {
+    //         DocumentReference documentReference =
+    //             Firestore.instance.collection('chat').document(chattingID);
+    //         Firestore.instance.runTransaction((transaction) async {
+    //           await transaction.update(documentReference, {
+    //             'typingTo': '0',
+    //           });
+    //         });
+    //       } else {
+    //         DocumentReference documentReference =
+    //             Firestore.instance.collection('chat').document(chattingID);
+    //         Firestore.instance.runTransaction((transaction) async {
+    //           await transaction.update(documentReference, {
+    //             'typingTo': '1',
+    //           });
+    //         });
+    //       }
+    //     }
+    //   }
+    // });
   }
 
   @override
   void initState() {
     super.initState();
     _txtController.addListener(isTyping);
-    _txtController.addListener(typingInReveivingMsg);
-    getMsgId();
-    Fireebase().userReadit(chattingID, widget.email);
   }
 
+  bool startTyping = false;
   File _image;
   String genderImage;
   @override
   Widget build(BuildContext context) {
-     getMsgId();
-
     Future getImage() async {
       var image = await ImagePicker.pickImage(source: ImageSource.gallery);
       setState(() {
@@ -197,13 +118,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
     //
     // print(lastTextId);
-    Fireebase().userReadit(
-      chattingID,
-      widget.email,
-    );
-    checkMsgFromAnotherUser();
+    // Fireebase().userReadit(
+    //   chattingID,
+    //   widget.email,
+    // );
 
-    print('object');
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -225,7 +144,7 @@ class _ChatScreenState extends State<ChatScreen> {
         actions: <Widget>[
           Padding(
             padding: const EdgeInsets.only(right: 32.0),
-            child: online == '1'
+            child: widget.online == '1'
                 ? Container(
                     width: 15.0,
                     height: 15.0,
@@ -253,7 +172,7 @@ class _ChatScreenState extends State<ChatScreen> {
               child: StreamBuilder(
                   stream: Firestore.instance
                       .collection('chat')
-                      .document(chattingID)
+                      .document(widget.chatID)
                       .collection('messages')
                       .orderBy('time', descending: true)
                       .snapshots(),
@@ -293,27 +212,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                                   ),
                                                 ),
                                               ),
-                                              online == '1'
-                                                  ? Container(
-                                                      width: 15.0,
-                                                      height: 15.0,
-                                                      decoration:
-                                                          new BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        color: Colors
-                                                                .lightGreenAccent[
-                                                            400],
-                                                      ),
-                                                    )
-                                                  : Container(
-                                                      width: 15.0,
-                                                      height: 15.0,
-                                                      decoration:
-                                                          new BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        color: Colors.grey,
-                                                      ),
-                                                    ),
                                             ],
                                           ),
                                         )
@@ -421,6 +319,16 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: Padding(
                           padding: const EdgeInsets.only(right: 8.0),
                           child: TextField(
+                            onChanged: (text) {
+                              if (!startTyping) {
+                                //  Mysql().updateReadMsg(widget.email, widget.email2);
+                                Fireebase().userReadit(
+                                  widget.chatID,
+                                  widget.email,
+                                );
+                                startTyping = true;
+                              }
+                            },
                             keyboardType: TextInputType.multiline,
                             maxLines: null,
                             controller: _txtController,
@@ -463,7 +371,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             padding: const EdgeInsets.all(8.0),
                             child: IconButton(
                               icon: Icon(Icons.send),
-                              onPressed: null,
+                              onPressed: callback,
                             ),
                           ),
                   ],
@@ -480,11 +388,12 @@ class _ChatScreenState extends State<ChatScreen> {
   int now;
   int lastMsg;
   Future<void> callback() async {
+    startTyping = false;
     if (now != null) {
       now = now - 1;
     }
     final QuerySnapshot result = await Firestore.instance
-        .collection('chat/$chattingID/messages')
+        .collection('chat/${widget.chatID}/messages')
         .orderBy('time')
         .where('time', isGreaterThan: now)
         .getDocuments();
@@ -498,38 +407,20 @@ class _ChatScreenState extends State<ChatScreen> {
       now++;
     }
 
-    //----------------------------------------------- Show last message
-
-    if (lastMsg != null) {
-      lastMsg--;
-    }
-    final QuerySnapshot lastMessages = await Firestore.instance
-        .collection('textMe/JzCPQt7TQZTZDMa5jfYq/lastText')
-        .orderBy('lastMsg')
-        .where('lastMsg', isGreaterThan: lastMsg)
-        .getDocuments();
-    final List<DocumentSnapshot> documentsOfLastMessage =
-        lastMessages.documents;
-    documentsOfLastMessage.forEach((data) {
-      lastMsg = data['lastMsg'];
-    });
-    if (lastMsg == 0) {
-      lastMsg = 1;
-    } else {
-      lastMsg++;
-    }
-
     //------------------------- this the firestore function
     Fireebase().updateToChatCollections(
       widget.email,
       widget.email2,
       now,
       _txtController.text,
-      chattingID,
-      lastTextId,
-      lastMsg,
+      widget.chatID,
     );
 
+    Mysql().updateLastMsg(
+      widget.email,
+      widget.email2,
+      _txtController.text,
+    );
     _txtController.clear();
     AppFunctions().goDownFunction(_controller);
   }

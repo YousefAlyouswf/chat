@@ -28,43 +28,8 @@ class AppFunctions {
 
     
    
-      Fireebase().enterToChat(
-        prefs.getString('email'),
-        prefs.getString('gender'),
-        prefs.getString('username'),
-        prefs.getString('password'),
-        prefs.getString('image'),
-        code,
-      );
-//------------------------------ make yourseld online
 
-      Firestore.instance
-          .collection('textMe')
-          .document("JzCPQt7TQZTZDMa5jfYq")
-          .collection('lastText')
-          .where('from', isEqualTo: prefs.getString('email'))
-          .getDocuments()
-          .then((snapshot) {
-        for (DocumentSnapshot ds in snapshot.documents) {
-          ds.reference.updateData({
-            'onlineFrom': '1',
-          });
-        }
-      });
 
-      Firestore.instance
-          .collection('textMe')
-          .document("JzCPQt7TQZTZDMa5jfYq")
-          .collection('lastText')
-          .where('to', isEqualTo: prefs.getString('email'))
-          .getDocuments()
-          .then((snapshot) {
-        for (DocumentSnapshot ds in snapshot.documents) {
-          ds.reference.updateData({
-            'onlineTo': '1',
-          });
-        }
-      });
 
       //-------------------- chat collection
 
