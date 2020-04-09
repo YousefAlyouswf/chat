@@ -2,9 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:chatting/models/app_functions.dart';
-import 'package:chatting/models/firebase.dart';
 import 'package:chatting/mysql/mysql_functions.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
 import 'package:bubble/bubble.dart';
@@ -67,10 +65,8 @@ class _ChatScreenState extends State<ChatScreen> {
     itemRef.onChildRemoved.listen(_onEntryRemoved);
     AppFunctions().goDownFunction(_controller);
     //------------------------------ TEST
-databaseForTyping.onChildChanged.listen(type);
-    // Timer.periodic(new Duration(seconds: 3), (timer) {
-    //   type();
-    // });
+    databaseForTyping.onChildChanged.listen(type);
+    itemRef.onChildAdded.listen(chatScreenDown);
   }
 
 //------------------------------ TEST
@@ -104,6 +100,10 @@ databaseForTyping.onChildChanged.listen(type);
     }
   }
 
+  chatScreenDown(Event event) {
+    AppFunctions().goDownFunction(_controller);
+  }
+
   void handleSubmit() async {
     await databaseForTyping
         .reference()
@@ -121,11 +121,12 @@ databaseForTyping.onChildChanged.listen(type);
       await itemRef.push().set(realTimeFirebase.toJson());
 
       AppFunctions().goDownFunction(_controller);
+
+      Mysql().updateLastMsg(widget.email, widget.email2, realTimeFirebase.text);
     }
   }
 
-
-   type(Event event) async {
+  type(Event event) async {
     await databaseForTyping
         .reference()
         .child(widget.chatID)
@@ -142,8 +143,6 @@ databaseForTyping.onChildChanged.listen(type);
   //------------------------------ TEST
   @override
   Widget build(BuildContext context) {
-   
-    print("----------------------------------------> $startTyping");
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -152,7 +151,7 @@ databaseForTyping.onChildChanged.listen(type);
           children: <Widget>[
             startTyping == widget.email
                 ? Image.network(
-                    'https://media.giphy.com/media/h1o3Laxj3tCp35DWaP/giphy.gif',
+                    'https://media.giphy.com/media/FsWCqX6FR0ASKUOArv/giphy.gif',
                     height: 60,
                     width: 60,
                   )
@@ -197,7 +196,11 @@ databaseForTyping.onChildChanged.listen(type);
                     Animation<double> animation, int index) {
                   if (_realTime[index].email1 != widget.email &&
                       _realTime[index].key != 'typing') {
-                    itemRef.child(_realTime[index].key).update({'read': '1'});
+                    itemRef
+                        .child(_realTime[index].key)
+                        .update({'read': '1'}).whenComplete(() {
+                      Mysql().updateReadMsg(widget.email, widget.email2);
+                    });
                   }
 
                   return InkWell(

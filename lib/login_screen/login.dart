@@ -41,8 +41,7 @@ class _LoginState extends State<Login> {
             ),
             InkWell(
               onTap: () async {
-                // Mysql().loginUser(
-                //     _nameController.text, _passwordController.text, context);
+               
                 Mysql().login(
                   _nameController.text,
                   _passwordController.text,

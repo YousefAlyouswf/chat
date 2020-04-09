@@ -22,8 +22,7 @@ class Mysql {
   static const GET_CHAT = "GET_CHAT";
   static const UPDATE_LAST_MSG = "UPDATE_LAST_MSG";
   static const UPDATE_READ_MSG = "UPDATE_READ_MSG";
-
-
+  static const GET_CHAT_ID = "GET_CHAT_ID";
 
   //get all users from mysql to show them in the users screen
 
@@ -80,18 +79,23 @@ class Mysql {
             ),
           );
         } else {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (BuildContext context) => UsersScreen(
-                name: userName,
-                email: email,
-                image: '',
-                gender: genderToDB,
-                password: password,
-                code: countryCode,
+       updateUserInfo(email);
+
+          getThisUserInfo(email).then((user) {
+            _user = user;
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (BuildContext context) => UsersScreen(
+                  email: email,
+                  password: password,
+                  name: _user[0].name,
+                  image: _user[0].image,
+                  code: _user[0].code,
+                  gender: _user[0].gender,
+                ),
               ),
-            ),
-          );
+            );
+          });
         }
         return response.body;
       } else {
@@ -369,7 +373,11 @@ class Mysql {
       return "error";
     }
   }
-  Future<String> updateReadMsg(String email, String email2,) async {
+
+  Future<String> updateReadMsg(
+    String email,
+    String email2,
+  ) async {
     try {
       var map = Map<String, dynamic>();
       map['action'] = UPDATE_READ_MSG;
@@ -386,4 +394,23 @@ class Mysql {
       return "error";
     }
   }
+
+  Future<String> getChatId(String email, String email2) async {
+    try {
+      var map = Map<String, dynamic>();
+      map['action'] = GET_CHAT_ID;
+      map['email'] = email;
+      map['email2'] = email2;
+      final response = await http.post(ROOT, body: map);
+      print(response.body);
+      if (200 == response.statusCode) {
+        return response.body;
+      } else {
+        return "error";
+      }
+    } catch (e) {
+      return "error";
+    }
+  }
+
 }

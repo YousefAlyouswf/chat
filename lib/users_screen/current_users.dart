@@ -1,3 +1,4 @@
+import 'package:chatting/chatScreen/chatScreen.dart';
 import 'package:chatting/mysql/mysql_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -80,63 +81,7 @@ class CurrentUsers extends StatelessWidget {
                     ? null
                     : () async {
                         getUsers();
-                        // bool firstCase = false;
-                        // bool secondCase = false;
-                        // String chatID;
-                        // final QuerySnapshot firstCaseResult = await Firestore
-                        //     .instance
-                        //     .collection('chat')
-                        //     .where('email', isEqualTo: email)
-                        //     .where('email2', isEqualTo: users[index].email)
-                        //     .getDocuments();
-                        // final List<DocumentSnapshot> documentsOfFirstCase =
-                        //     firstCaseResult.documents;
-                        // documentsOfFirstCase.forEach((data) {
-                        //   firstCase = true;
-                        //   chatID = data.documentID;
-                        // });
-                        // final QuerySnapshot secondCaseResult = await Firestore
-                        //     .instance
-                        //     .collection('chat')
-                        //     .where('email', isEqualTo: users[index].email)
-                        //     .where('email2', isEqualTo: email)
-                        //     .getDocuments();
-                        // final List<DocumentSnapshot> documentsOfSecondCase =
-                        //     secondCaseResult.documents;
-                        // documentsOfSecondCase.forEach((data) {
-                        //   secondCase = true;
-                        //   chatID = data.documentID;
-                        // });
 
-                        // if (firstCase || secondCase) {
-                        //   print('Found');
-                        // } else {
-                        //   Firestore.instance
-                        //       .collection('chat')
-                        //       .document()
-                        //       .setData({
-                        //     'email': email,
-                        //     'email2': users[index].email,
-                        //     'name': name,
-                        //     'name2': users[index].name,
-                        //     'typing': '',
-                        //     'typing2': ''
-                        //   });
-                        //   Mysql().addToChatTable(
-                        //     email,
-                        //     users[index].email,
-                        //     gender,
-                        //     users[index].gender,
-                        //     image,
-                        //     users[index].image,
-                        //     '1',
-                        //     users[index].online,
-                        //     code,
-                        //     users[index].code,
-                        //     name,
-                        //     users[index].name,
-                        //   );
-                        // }
                         Mysql().addToChatTable(
                           email,
                           users[index].email,
@@ -149,6 +94,16 @@ class CurrentUsers extends StatelessWidget {
                           code,
                           users[index].code,
                           name,
+                          users[index].name,
+                        );
+
+                        showSheet(
+                          context,
+                          users[index].image,
+                          users[index].gender,
+                          users[index].online,
+                          users[index].email,
+                          users[index].code,
                           users[index].name,
                         );
                       },
@@ -201,14 +156,18 @@ class CurrentUsers extends StatelessWidget {
                                     width: 75.0,
                                     height: 75.0,
                                     decoration: new BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        image: new DecorationImage(
-                                            fit: BoxFit.fill,
-                                            image: users[index].gender == '1'
-                                                ? NetworkImage(
-                                                    'https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-7/64/x-01-512.png')
-                                                : NetworkImage(
-                                                    'https://cdn1.iconfinder.com/data/icons/business-planning-management-set-2/64/x-90-512.png'))),
+                                      shape: BoxShape.circle,
+                                      image: new DecorationImage(
+                                        fit: BoxFit.fill,
+                                        image: users[index].gender == '1'
+                                            ? NetworkImage(
+                                                'https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-7/64/x-01-512.png',
+                                              )
+                                            : NetworkImage(
+                                                'https://cdn1.iconfinder.com/data/icons/business-planning-management-set-2/64/x-90-512.png',
+                                              ),
+                                      ),
+                                    ),
                                   )
                                 : Container(
                                     width: 75.0,
@@ -249,6 +208,103 @@ class CurrentUsers extends StatelessWidget {
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+
+  void showSheet(
+    BuildContext context,
+    String usersImage,
+    String usersGender,
+    String usersOnline,
+    String usersEmail,
+    String usersCode,
+    String usersName,
+  ) {
+    showBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        color: Colors.blue[900],
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+          children: <Widget>[
+            Stack(
+              alignment: Alignment.bottomLeft,
+              children: <Widget>[
+                usersImage == null || usersImage == ''
+                    ? Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height / 2,
+                        decoration: new BoxDecoration(
+                            shape: BoxShape.rectangle,
+                            image: new DecorationImage(
+                                fit: BoxFit.fill,
+                                image: usersGender == '1'
+                                    ? NetworkImage(
+                                        'https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-7/64/x-01-512.png')
+                                    : NetworkImage(
+                                        'https://cdn1.iconfinder.com/data/icons/business-planning-management-set-2/64/x-90-512.png'))),
+                      )
+                    : Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height / 2,
+                        decoration: new BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          image: new DecorationImage(
+                            fit: BoxFit.fill,
+                            image: new NetworkImage(
+                              usersImage,
+                            ),
+                          ),
+                        ),
+                      ),
+                usersOnline == '1'
+                    ? Container(
+                        width: 15.0,
+                        height: 15.0,
+                        decoration: new BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.lightGreenAccent[400],
+                        ),
+                      )
+                    : Container(
+                        width: 15.0,
+                        height: 15.0,
+                        decoration: new BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.grey,
+                        ),
+                      ),
+              ],
+            ),
+            RaisedButton(
+              onPressed: () {
+                Mysql().getChatId(email, usersEmail).then((id) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => ChatScreen(
+                        name: name,
+                        email: email,
+                        image: image,
+                        code: code,
+                        gender: gender,
+                        email2: usersEmail,
+                        gender2: usersGender,
+                        name2: usersName,
+                        code2: usersCode,
+                        image2: usersImage,
+                        chatID: id,
+                        online: usersOnline,
+                      ),
+                    ),
+                  );
+                });
+              },
+              child: Text("بدأ المحادثة"),
+            )
+          ],
         ),
       ),
     );

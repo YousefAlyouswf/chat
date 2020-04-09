@@ -78,11 +78,7 @@ class MessageRecive extends StatelessWidget {
                         onTap: () async {
                           if (chat[index].yourEmail == email) {
                             Mysql().updateReadMsg(email, chat[index].hisEmail);
-                            // Fireebase()
-                            //     .getChatId(email, chat[index].hisEmail)
-                            //     .then((id) {
 
-                            // });
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (BuildContext context) => ChatScreen(
@@ -103,24 +99,24 @@ class MessageRecive extends StatelessWidget {
                             );
                           } else {
                             Mysql().updateReadMsg(email, chat[index].yourEmail);
-                           Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (BuildContext context) => ChatScreen(
-                                    name: name,
-                                    email: email,
-                                    image: chat[index].hisImage,
-                                    code: code,
-                                    gender: gender,
-                                    email2: chat[index].yourEmail,
-                                    gender2: chat[index].yourGender,
-                                    name2: chat[index].yourName,
-                                    code2: chat[index].yourCode,
-                                    image2: chat[index].yourImage,
-                                    chatID: chat[index].id,
-                                    online: chat[index].yourOnline,
-                                  ),
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (BuildContext context) => ChatScreen(
+                                  name: name,
+                                  email: email,
+                                  image: chat[index].hisImage,
+                                  code: code,
+                                  gender: gender,
+                                  email2: chat[index].yourEmail,
+                                  gender2: chat[index].yourGender,
+                                  name2: chat[index].yourName,
+                                  code2: chat[index].yourCode,
+                                  image2: chat[index].yourImage,
+                                  chatID: chat[index].id,
+                                  online: chat[index].yourOnline,
                                 ),
-                              );
+                              ),
+                            );
                           }
                         },
                         child: Card(
