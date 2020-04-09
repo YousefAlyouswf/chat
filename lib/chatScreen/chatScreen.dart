@@ -9,6 +9,7 @@ import 'package:bubble/bubble.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/firebase_model.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:vector_math/vector_math_64.dart' as vc;
 
 class ChatScreen extends StatefulWidget {
   final String email;
@@ -128,6 +129,8 @@ class _ChatScreenState extends State<ChatScreen> {
     } else if (urlImage != null) {
       form.save();
       form.reset();
+      realTimeFirebase.email1 = widget.email;
+      realTimeFirebase.email2 = widget.email2;
       realTimeFirebase.image = urlImage;
       await itemRef.push().set(realTimeFirebase.toJson());
 
@@ -288,7 +291,17 @@ class _ChatScreenState extends State<ChatScreen> {
 
                                   //------ Here send Image to chat
                                   _realTime[index].image != ''
-                                      ? Flexible(
+                                      ? InkWell(
+                                          onTap: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) =>
+                                                  CustomDialog(
+                                                description:
+                                                    _realTime[index].image,
+                                              ),
+                                            );
+                                          },
                                           child: Bubble(
                                             margin: _realTime[index].email1 ==
                                                     widget.email
@@ -479,5 +492,64 @@ class _ChatScreenState extends State<ChatScreen> {
     if (url.isNotEmpty) {
       handleSubmit(url);
     }
+  }
+}
+
+class CustomDialog extends StatefulWidget {
+  final String description;
+
+  CustomDialog({
+    @required this.description,
+  });
+
+  @override
+  _CustomDialogState createState() => _CustomDialogState();
+}
+
+class _CustomDialogState extends State<CustomDialog> {
+  double _scale = 1.0;
+
+  double _previuseScale = 1.0;
+
+  dialogContent(BuildContext context) {
+    return GestureDetector(
+      onScaleStart: (ScaleStartDetails _detials) {
+        print(_detials);
+        _previuseScale = _scale;
+        setState(() {});
+      },
+      onScaleUpdate: (ScaleUpdateDetails _detials) {
+        _scale = _previuseScale * _detials.scale;
+        setState(() {});
+      },
+      onScaleEnd: (ScaleEndDetails _detials) {
+        _previuseScale = 1.0;
+        setState(() {});
+      },
+      child: Transform(
+        transform: Matrix4.diagonal3(vc.Vector3(_scale, _scale, _scale)),
+        alignment: FractionalOffset.center,
+        child: Container(
+          height: MediaQuery.of(context).size.height * 0.5,
+          width: double.infinity,
+          decoration: new BoxDecoration(
+            shape: BoxShape.rectangle,
+            image: new DecorationImage(
+              fit: BoxFit.fill,
+              image: NetworkImage(widget.description),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      elevation: 0.0,
+      backgroundColor: Colors.transparent,
+      child: dialogContent(context),
+    );
   }
 }
