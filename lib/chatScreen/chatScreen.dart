@@ -65,7 +65,12 @@ class _ChatScreenState extends State<ChatScreen> {
     itemRef.onChildAdded.listen(_onEntryAdded);
     itemRef.onChildChanged.listen(_onEntryChanged);
     itemRef.onChildRemoved.listen(_onEntryRemoved);
+    AppFunctions().goDownFunction(_controller);
     //------------------------------ TEST
+databaseForTyping.onChildChanged.listen(type);
+    // Timer.periodic(new Duration(seconds: 3), (timer) {
+    //   type();
+    // });
   }
 
 //------------------------------ TEST
@@ -119,18 +124,35 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+
+   type(Event event) async {
+    await databaseForTyping
+        .reference()
+        .child(widget.chatID)
+        .child('typing' + widget.email2)
+        .once()
+        .then((DataSnapshot snap) {
+      setState(() {
+        startTyping = snap.value['typingTo'];
+      });
+    });
+  }
+
+  String startTyping;
   //------------------------------ TEST
   @override
   Widget build(BuildContext context) {
+   
+    print("----------------------------------------> $startTyping");
     return Scaffold(
       appBar: AppBar(
         title: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            "" == widget.email
+            startTyping == widget.email
                 ? Image.network(
-                    'https://media.giphy.com/media/j0q1HmfoyfTNL4jeoL/giphy.gif',
+                    'https://media.giphy.com/media/h1o3Laxj3tCp35DWaP/giphy.gif',
                     height: 60,
                     width: 60,
                   )
@@ -175,11 +197,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     Animation<double> animation, int index) {
                   if (_realTime[index].email1 != widget.email &&
                       _realTime[index].key != 'typing') {
-                    itemRef
-                        .child(_realTime[index].key)
-                        .update({'read': '1'}).whenComplete(() {
-                      AppFunctions().goDownFunction(_controller);
-                    });
+                    itemRef.child(_realTime[index].key).update({'read': '1'});
                   }
 
                   return InkWell(
