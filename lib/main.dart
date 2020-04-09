@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ipfinder/ipfinder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'loading.dart';
+import 'login_screen/mainStartScreen.dart';
 
 void main() {
   getCountry();
@@ -89,7 +90,7 @@ class _MyAppState extends State<MyApp> {
           body1: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
         ),
       ),
-      home: Loading(),
+      home: StartScreen(),
     );
   }
 }

@@ -10,18 +10,23 @@ class Loading extends StatefulWidget {
 
 class _LoadingState extends State<Loading> {
   void userAlreadyLogin() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String userName = prefs.getString('username');
-    String password = prefs.getString('password');
-    if (userName != null && password != null) {
-      AppFunctions().goToChat(context);
-    } else {
-      Navigator.of(context).push(
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    // String userName = prefs.getString('username');
+    // String password = prefs.getString('password');
+    // if (userName != null && password != null) {
+    //   AppFunctions().goToChat(context);
+    // } else {
+    //   Navigator.of(context).push(
+    //     MaterialPageRoute(
+    //       builder: (BuildContext context) => StartScreen(),
+    //     ),
+    //   );
+    // }
+     Navigator.of(context).push(
         MaterialPageRoute(
           builder: (BuildContext context) => StartScreen(),
         ),
       );
-    }
   }
 
   @override
