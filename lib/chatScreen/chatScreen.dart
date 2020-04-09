@@ -52,63 +52,19 @@ class _ChatScreenState extends State<ChatScreen> {
   RealTimeFirebase realTimeFirebase;
   // End <-----------------------------------------------
   ScrollController _controller = ScrollController();
-  void isTyping() async {
-    // final QuerySnapshot result =
-    //     await Firestore.instance.collection('chat').getDocuments();
-    // final List<DocumentSnapshot> documents = result.documents;
-    // documents.forEach((data) {
-    //   if (data['from'] == widget.email && data['to'] == widget.email2 ||
-    //       data['to'] == widget.email && data['from'] == widget.email2) {
-    //     if (data['from'] == widget.email) {
-    //       if (_txtController.text == '' || _txtController.text == null) {
-    //         DocumentReference documentReference =
-    //             Firestore.instance.collection('chat').document(chattingID);
-    //         Firestore.instance.runTransaction((transaction) async {
-    //           await transaction.update(documentReference, {
-    //             'typingFrom': '0',
-    //           });
-    //         });
-    //       } else {
-    //         DocumentReference documentReference =
-    //             Firestore.instance.collection('chat').document(chattingID);
-    //         Firestore.instance.runTransaction((transaction) async {
-    //           await transaction.update(documentReference, {
-    //             'typingFrom': '1',
-    //           });
-    //         });
-    //       }
-    //     } else {
-    //       if (_txtController.text == '' || _txtController.text == null) {
-    //         DocumentReference documentReference =
-    //             Firestore.instance.collection('chat').document(chattingID);
-    //         Firestore.instance.runTransaction((transaction) async {
-    //           await transaction.update(documentReference, {
-    //             'typingTo': '0',
-    //           });
-    //         });
-    //       } else {
-    //         DocumentReference documentReference =
-    //             Firestore.instance.collection('chat').document(chattingID);
-    //         Firestore.instance.runTransaction((transaction) async {
-    //           await transaction.update(documentReference, {
-    //             'typingTo': '1',
-    //           });
-    //         });
-    //       }
-    //     }
-    //   }
-    // });
-  }
 
+  FirebaseDatabase database;
+  final databaseForTyping = FirebaseDatabase.instance.reference();
   @override
   void initState() {
     super.initState();
     //------------------------------ TEST
-    realTimeFirebase = RealTimeFirebase('', '', '', '', '', '');
-    final FirebaseDatabase database = FirebaseDatabase.instance;
-    itemRef = database.reference().child(widget.chatID);
+    realTimeFirebase = RealTimeFirebase('', '', '', '', '');
+    database = FirebaseDatabase.instance;
+    itemRef = database.reference().child(widget.chatID).child('chat');
     itemRef.onChildAdded.listen(_onEntryAdded);
     itemRef.onChildChanged.listen(_onEntryChanged);
+    itemRef.onChildRemoved.listen(_onEntryRemoved);
     //------------------------------ TEST
   }
 
@@ -122,16 +78,33 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   _onEntryChanged(Event event) {
-    var old = _realTime.singleWhere((entry) {
-      return entry.key == event.snapshot.key;
-    });
-    setState(() {
-      _realTime[_realTime.indexOf(old)] =
-          RealTimeFirebase.fromSnapshot(event.snapshot);
-    });
+    try {
+      var old = _realTime.singleWhere((entry) {
+        return entry.key == event.snapshot.key;
+      });
+      setState(() {
+        _realTime[_realTime.indexOf(old)] =
+            RealTimeFirebase.fromSnapshot(event.snapshot);
+      });
+    } catch (e) {
+      print('error');
+    }
   }
 
-  void handleSubmit() {
+  _onEntryRemoved(Event event) {
+    if (mounted) {
+      setState(() {
+        _realTime.remove(RealTimeFirebase.fromSnapshot(event.snapshot));
+      });
+    }
+  }
+
+  void handleSubmit() async {
+    await databaseForTyping
+        .reference()
+        .child(widget.chatID)
+        .child('typing' + widget.email)
+        .update({'typingTo': ''});
     final FormState form = formKey.currentState;
 
     if (form.validate()) {
@@ -139,13 +112,14 @@ class _ChatScreenState extends State<ChatScreen> {
       form.reset();
       realTimeFirebase.email1 = widget.email;
       realTimeFirebase.email2 = widget.email2;
-      itemRef.push().set(realTimeFirebase.toJson());
+      realTimeFirebase.read = '0';
+      await itemRef.push().set(realTimeFirebase.toJson());
+
       AppFunctions().goDownFunction(_controller);
     }
   }
 
   //------------------------------ TEST
-  String startTyping = '0';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,13 +128,13 @@ class _ChatScreenState extends State<ChatScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            startTyping == '1'
+            "" == widget.email
                 ? Image.network(
-                    'https://media.giphy.com/media/Zx0gTTVNOvRrLxKgc8/giphy.gif',
-                    height: 40,
-                    width: 40,
+                    'https://media.giphy.com/media/j0q1HmfoyfTNL4jeoL/giphy.gif',
+                    height: 60,
+                    width: 60,
                   )
-                : Text(''),
+                : Text(""),
             Text(widget.name2),
           ],
         ),
@@ -199,101 +173,126 @@ class _ChatScreenState extends State<ChatScreen> {
                 query: itemRef,
                 itemBuilder: (BuildContext context, DataSnapshot snapshot,
                     Animation<double> animation, int index) {
-                  return Container(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _realTime[index].email1 != widget.email
-                            ? Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Stack(
-                                  alignment: Alignment.bottomLeft,
-                                  children: <Widget>[
-                                    Container(
-                                      width: 60.0,
-                                      height: 60.0,
-                                      decoration: new BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        image: new DecorationImage(
-                                          fit: BoxFit.fill,
-                                          image: NetworkImage(widget.image2),
+                  if (_realTime[index].email1 != widget.email &&
+                      _realTime[index].key != 'typing') {
+                    itemRef
+                        .child(_realTime[index].key)
+                        .update({'read': '1'}).whenComplete(() {
+                      AppFunctions().goDownFunction(_controller);
+                    });
+                  }
+
+                  return InkWell(
+                    onLongPress: () {
+                      print(_realTime[index].key.toString());
+                      //  itemRef.child(_realTime[index].key).remove();
+                    },
+                    child: Container(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          _realTime[index].email1 != widget.email
+                              ? Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Stack(
+                                    alignment: Alignment.bottomLeft,
+                                    children: <Widget>[
+                                      Container(
+                                        width: 60.0,
+                                        height: 60.0,
+                                        decoration: new BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          image: new DecorationImage(
+                                            fit: BoxFit.fill,
+                                            image: NetworkImage(widget.image2),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : Container(),
-                        Flexible(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              mainAxisAlignment:
+                                    ],
+                                  ),
+                                )
+                              : Container(),
+                          Flexible(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    _realTime[index].email1 == widget.email
+                                        ? MainAxisAlignment.end
+                                        : MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: <Widget>[
                                   _realTime[index].email1 == widget.email
-                                      ? MainAxisAlignment.end
-                                      : MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: <Widget>[
-                                _realTime[index].email1 == widget.email
-                                    ? _realTime[index].read == '0'
-                                        ? Image.network(
-                                            'http://getdrawings.com/free-icon/email-icon-transparent-63.png',
-                                            height: 25,
-                                            width: 25,
-                                          )
-                                        : Image.network(
-                                            'https://images.vexels.com/media/users/3/157932/isolated/preview/951a617272553f49e75548e212ed947f-curved-check-mark-icon-by-vexels.png',
-                                            height: 25,
-                                            width: 25,
-                                          )
-                                    : Text(''),
-                                //-------------------- end of user read
-                                Flexible(
-                                  child: Bubble(
-                                    margin: _realTime[index].email1 ==
-                                            widget.email
-                                        ? BubbleEdges.only(top: 10, left: 10)
-                                        : BubbleEdges.only(top: 10, right: 10),
-                                    padding: BubbleEdges.only(
-                                        right: 16.0, left: 16.0),
-                                    stick: true,
-                                    nip: _realTime[index].email1 == widget.email
-                                        ? BubbleNip.rightTop
-                                        : BubbleNip.leftTop,
-                                    color:
-                                        _realTime[index].email1 == widget.email
-                                            ? Theme.of(context).cardColor
-                                            : Colors.grey[300],
-                                    child: Text(
-                                      _realTime[index].text,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.normal),
-                                      textAlign: TextAlign.right,
-                                      textDirection: TextDirection.rtl,
+                                      ? _realTime[index].read == '0'
+                                          ? Image.network(
+                                              'http://getdrawings.com/free-icon/email-icon-transparent-63.png',
+                                              height: 25,
+                                              width: 25,
+                                            )
+                                          : Image.network(
+                                              'https://images.vexels.com/media/users/3/157932/isolated/preview/951a617272553f49e75548e212ed947f-curved-check-mark-icon-by-vexels.png',
+                                              height: 25,
+                                              width: 25,
+                                            )
+                                      : Text(''),
+                                  //-------------------- end of user read
+                                  Flexible(
+                                    child: Bubble(
+                                      margin: _realTime[index].email1 ==
+                                              widget.email
+                                          ? BubbleEdges.only(
+                                              top: 10,
+                                              left: 10,
+                                            )
+                                          : BubbleEdges.only(
+                                              top: 10,
+                                              right: 10,
+                                            ),
+                                      padding: BubbleEdges.only(
+                                        right: 16.0,
+                                        left: 16.0,
+                                      ),
+                                      stick: true,
+                                      nip: _realTime[index].email1 ==
+                                              widget.email
+                                          ? BubbleNip.rightTop
+                                          : BubbleNip.leftTop,
+                                      color: _realTime[index].email1 ==
+                                              widget.email
+                                          ? Theme.of(context).cardColor
+                                          : Colors.grey[300],
+                                      child: Text(
+                                        _realTime[index].text,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.normal,
+                                        ),
+                                        textAlign: TextAlign.right,
+                                        textDirection: TextDirection.rtl,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        _realTime[index].email1 == widget.email
-                            ? Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  width: 60.0,
-                                  height: 60.0,
-                                  decoration: new BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    image: new DecorationImage(
-                                      fit: BoxFit.fill,
-                                      image: NetworkImage(widget.image),
+                          _realTime[index].email1 == widget.email
+                              ? Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    width: 60.0,
+                                    height: 60.0,
+                                    decoration: new BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: new DecorationImage(
+                                        fit: BoxFit.fill,
+                                        image: NetworkImage(widget.image),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              )
-                            : Container(),
-                      ],
+                                )
+                              : Container(),
+                        ],
+                      ),
                     ),
                   );
                 }),
@@ -319,6 +318,23 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: Form(
                           key: formKey,
                           child: TextFormField(
+                            onChanged: (t) {
+                              if (t.length == 1) {
+                                databaseForTyping
+                                    .reference()
+                                    .child(widget.chatID)
+                                    .child('typing' + widget.email)
+                                    .set({
+                                  'typingTo': widget.email2,
+                                });
+                              } else if (t.length == 0) {
+                                databaseForTyping
+                                    .reference()
+                                    .child(widget.chatID)
+                                    .child('typing' + widget.email)
+                                    .update({'typingTo': ''});
+                              }
+                            },
                             keyboardType: TextInputType.multiline,
                             maxLines: null,
                             textAlign: TextAlign.end,
