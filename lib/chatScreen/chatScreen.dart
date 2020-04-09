@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:bubble/bubble.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/firebase_model.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class ChatScreen extends StatefulWidget {
   final String email;
@@ -57,7 +58,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     //------------------------------ TEST
-    realTimeFirebase = RealTimeFirebase('', '', '', '', '');
+    realTimeFirebase = RealTimeFirebase('', '', '', '', '', '');
     database = FirebaseDatabase.instance;
     itemRef = database.reference().child(widget.chatID).child('chat');
     itemRef.onChildAdded.listen(_onEntryAdded);
@@ -104,7 +105,7 @@ class _ChatScreenState extends State<ChatScreen> {
     AppFunctions().goDownFunction(_controller);
   }
 
-  void handleSubmit() async {
+  void handleSubmit(String urlImage) async {
     await databaseForTyping
         .reference()
         .child(widget.chatID)
@@ -117,32 +118,59 @@ class _ChatScreenState extends State<ChatScreen> {
       form.reset();
       realTimeFirebase.email1 = widget.email;
       realTimeFirebase.email2 = widget.email2;
+      realTimeFirebase.image = '';
       realTimeFirebase.read = '0';
       await itemRef.push().set(realTimeFirebase.toJson());
 
       AppFunctions().goDownFunction(_controller);
 
       Mysql().updateLastMsg(widget.email, widget.email2, realTimeFirebase.text);
-    }
-  }
+    } else if (urlImage != null) {
+      form.save();
+      form.reset();
+      realTimeFirebase.image = urlImage;
+      await itemRef.push().set(realTimeFirebase.toJson());
 
-  type(Event event) async {
-    await databaseForTyping
-        .reference()
-        .child(widget.chatID)
-        .child('typing' + widget.email2)
-        .once()
-        .then((DataSnapshot snap) {
-      setState(() {
-        startTyping = snap.value['typingTo'];
-      });
+      AppFunctions().goDownFunction(_controller);
+
+      Mysql().updateLastMsg(widget.email, widget.email2, 'صورة');
+    }
+    setState(() {
+      urlImage = null;
+      url = null;
     });
   }
 
+  type(Event event) async {
+    try {
+      await databaseForTyping
+          .reference()
+          .child(widget.chatID)
+          .child('typing' + widget.email2)
+          .once()
+          .then((DataSnapshot snap) {
+        if (mounted) {
+          setState(() {
+            startTyping = snap.value['typingTo'];
+          });
+        }
+      });
+    } catch (e) {}
+  }
+
+  File _image;
   String startTyping;
   //------------------------------ TEST
   @override
   Widget build(BuildContext context) {
+    Future getImage() async {
+      var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+      setState(() {
+        _image = image;
+      });
+      uploadImage();
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -257,41 +285,86 @@ class _ChatScreenState extends State<ChatScreen> {
                                             )
                                       : Text(''),
                                   //-------------------- end of user read
-                                  Flexible(
-                                    child: Bubble(
-                                      margin: _realTime[index].email1 ==
-                                              widget.email
-                                          ? BubbleEdges.only(
-                                              top: 10,
-                                              left: 10,
-                                            )
-                                          : BubbleEdges.only(
-                                              top: 10,
-                                              right: 10,
+
+                                  //------ Here send Image to chat
+                                  _realTime[index].image != ''
+                                      ? Flexible(
+                                          child: Bubble(
+                                            margin: _realTime[index].email1 ==
+                                                    widget.email
+                                                ? BubbleEdges.only(
+                                                    top: 10,
+                                                    left: 10,
+                                                  )
+                                                : BubbleEdges.only(
+                                                    top: 10,
+                                                    right: 10,
+                                                  ),
+                                            padding: BubbleEdges.only(
+                                              right: 16.0,
+                                              left: 16.0,
                                             ),
-                                      padding: BubbleEdges.only(
-                                        right: 16.0,
-                                        left: 16.0,
-                                      ),
-                                      stick: true,
-                                      nip: _realTime[index].email1 ==
-                                              widget.email
-                                          ? BubbleNip.rightTop
-                                          : BubbleNip.leftTop,
-                                      color: _realTime[index].email1 ==
-                                              widget.email
-                                          ? Theme.of(context).cardColor
-                                          : Colors.grey[300],
-                                      child: Text(
-                                        _realTime[index].text,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.normal,
+                                            stick: true,
+                                            nip: _realTime[index].email1 ==
+                                                    widget.email
+                                                ? BubbleNip.rightTop
+                                                : BubbleNip.leftTop,
+                                            color: _realTime[index].email1 ==
+                                                    widget.email
+                                                ? Theme.of(context).cardColor
+                                                : Colors.grey[300],
+                                            child: Container(
+                                              width: 100,
+                                              height: 100,
+                                              decoration: new BoxDecoration(
+                                                shape: BoxShape.rectangle,
+                                                image: new DecorationImage(
+                                                  fit: BoxFit.fill,
+                                                  image: new NetworkImage(
+                                                    _realTime[index].image,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      :
+                                      //-------- End Image to Chat
+                                      Flexible(
+                                          child: Bubble(
+                                            margin: _realTime[index].email1 ==
+                                                    widget.email
+                                                ? BubbleEdges.only(
+                                                    top: 10,
+                                                    left: 10,
+                                                  )
+                                                : BubbleEdges.only(
+                                                    top: 10,
+                                                    right: 10,
+                                                  ),
+                                            padding: BubbleEdges.only(
+                                              right: 16.0,
+                                              left: 16.0,
+                                            ),
+                                            stick: true,
+                                            nip: _realTime[index].email1 ==
+                                                    widget.email
+                                                ? BubbleNip.rightTop
+                                                : BubbleNip.leftTop,
+                                            color: _realTime[index].email1 ==
+                                                    widget.email
+                                                ? Theme.of(context).cardColor
+                                                : Colors.grey[300],
+                                            child: Text(
+                                              _realTime[index].text,
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.normal,
+                                              ),
+                                              textAlign: TextAlign.right,
+                                              textDirection: TextDirection.rtl,
+                                            ),
+                                          ),
                                         ),
-                                        textAlign: TextAlign.right,
-                                        textDirection: TextDirection.rtl,
-                                      ),
-                                    ),
-                                  ),
                                 ],
                               ),
                             ),
@@ -331,9 +404,10 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               child: Row(
                 children: <Widget>[
-                  IconButton(icon: Icon(Icons.image), onPressed: null),
+                  IconButton(icon: Icon(Icons.image), onPressed: getImage),
                   Flexible(
                     child: Container(
+                      height: 50,
                       child: Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: Form(
@@ -363,7 +437,9 @@ class _ChatScreenState extends State<ChatScreen> {
                               border: InputBorder.none,
                               hintText: 'أكتب هنا',
                             ),
-                            onEditingComplete: handleSubmit,
+                            onEditingComplete: () {
+                              handleSubmit(url);
+                            },
                             textInputAction: TextInputAction.send,
                             initialValue: '',
                             onSaved: (val) => realTimeFirebase.text = val,
@@ -377,7 +453,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     padding: const EdgeInsets.all(8.0),
                     child: IconButton(
                       icon: Icon(Icons.send),
-                      onPressed: handleSubmit,
+                      onPressed: () {
+                        handleSubmit(url);
+                      },
                     ),
                   ),
                 ],
@@ -387,5 +465,19 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
     );
+  }
+
+  String url;
+  Future uploadImage() async {
+    String fileName = '${DateTime.now()}.png';
+    StorageReference firebaseStorage =
+        FirebaseStorage.instance.ref().child(fileName);
+    StorageUploadTask uploadTask = firebaseStorage.putFile(_image);
+    await uploadTask.onComplete;
+    url = await firebaseStorage.getDownloadURL() as String;
+
+    if (url.isNotEmpty) {
+      handleSubmit(url);
+    }
   }
 }

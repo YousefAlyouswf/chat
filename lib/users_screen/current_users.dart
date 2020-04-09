@@ -1,6 +1,5 @@
 import 'package:chatting/chatScreen/chatScreen.dart';
 import 'package:chatting/mysql/mysql_functions.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -81,7 +80,6 @@ class CurrentUsers extends StatelessWidget {
                     ? null
                     : () async {
                         getUsers();
-
                         Mysql().addToChatTable(
                           email,
                           users[index].email,

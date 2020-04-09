@@ -38,31 +38,26 @@ class _UsersScreenState extends State<UsersScreen>
 //-------- this all function to fet data from mysql
   List<Users> _users;
   List<Chat> _chat;
- 
 
   _getUsers() {
-   
     Mysql().getUsers().then((users) {
-      setState(() {
-        _users = users;
-      });
-  
+      if (mounted) {
+        setState(() {
+          _users = users;
+        });
+      }
     });
   }
 
   _getChatFromMysql() {
-   
     Mysql().getChat().then((chat) {
-      setState(() {
-        _chat = chat;
-      });
-     
+      if (mounted) {
+        setState(() {
+          _chat = chat;
+        });
+      }
     });
   }
-
-
-
- 
 
   //--------END of sql
 
@@ -75,7 +70,6 @@ class _UsersScreenState extends State<UsersScreen>
     _users = [];
     _getUsers();
     _getChatFromMysql();
-
 
     Timer.periodic(new Duration(seconds: 10), (timer) {
       _getUsers();
@@ -130,12 +124,12 @@ class _UsersScreenState extends State<UsersScreen>
   }
 
   int submitExit = 0;
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
         if (submitExit == 0) {
+          Navigator.of(context).pop();
           Fluttertoast.showToast(
               msg: "لتأكيد الخروج أضغط رجوع مرة أخرى",
               toastLength: Toast.LENGTH_SHORT,
@@ -144,7 +138,7 @@ class _UsersScreenState extends State<UsersScreen>
               backgroundColor: Colors.yellow,
               textColor: Colors.black,
               fontSize: 16.0);
-          submitExit++;
+          //    submitExit++;
         } else {
           Fireebase().exitFfromChat();
           SystemChannels.platform.invokeMethod('SystemNavigator.pop');

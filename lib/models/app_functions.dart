@@ -72,8 +72,11 @@ class AppFunctions {
 // Start chatScreen
 
   void goDownFunction(ScrollController _controller) {
-    Timer(Duration(milliseconds: 300),
-        () => _controller.jumpTo(_controller.position.maxScrollExtent + 1));
+    if (_controller.hasClients) {
+      Future.delayed(Duration(milliseconds: 300), () {
+        _controller?.jumpTo(_controller.position.maxScrollExtent);
+      });
+    }
   }
 
   //End chatScreen

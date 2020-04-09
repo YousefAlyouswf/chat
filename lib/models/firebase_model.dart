@@ -7,15 +7,17 @@ class RealTimeFirebase {
   String typingTo;
   String text;
   String read;
+  String image;
 
-  RealTimeFirebase(
-      this.email1, this.email2, this.text, this.read, this.typingTo);
+  RealTimeFirebase(this.email1, this.email2, this.text, this.read,
+      this.typingTo, this.image);
   RealTimeFirebase.fromSnapshot(DataSnapshot snapshot) {
     key = snapshot.key;
     email1 = snapshot.value['from'];
     email2 = snapshot.value['to'];
     text = snapshot.value['text'];
     read = snapshot.value['read'];
+    image = snapshot.value['image'];
   }
   toJson() {
     return {
@@ -23,6 +25,7 @@ class RealTimeFirebase {
       "to": email2,
       "text": text,
       "read": read,
+      "image": image,
     };
   }
 }
