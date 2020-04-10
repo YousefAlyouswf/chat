@@ -1,13 +1,10 @@
 import 'dart:io';
 import 'package:chatting/login_screen/mainStartScreen.dart';
-import 'package:chatting/models/firebase.dart';
 import 'package:chatting/mysql/mysql_functions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'models/firebase.dart';
 import 'models/user_model.dart';
 
 class DrawerPage extends StatefulWidget {

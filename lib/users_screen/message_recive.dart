@@ -1,6 +1,5 @@
 import 'package:chatting/chatScreen/chatScreen.dart';
 import 'package:chatting/models/chat_model.dart';
-import 'package:chatting/models/firebase.dart';
 import 'package:chatting/mysql/mysql_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +8,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 class MessageRecive extends StatelessWidget {
   final String email, gender, image, code, name;
   final List<Chat> chat;
-  final Function getChat;
+  final Function getChat, countNewMsg;
   MessageRecive({
     Key key,
     this.email,
@@ -19,6 +18,7 @@ class MessageRecive extends StatelessWidget {
     this.name,
     this.chat,
     this.getChat,
+    this.countNewMsg,
   }) : super(key: key);
   //---pull to refresh
 
@@ -27,12 +27,14 @@ class MessageRecive extends StatelessWidget {
   void _onRefresh() async {
     await Future.delayed(Duration(milliseconds: 1000));
     getChat();
+    countNewMsg();
     _refreshController.refreshCompleted();
   }
 
   void _onLoading() async {
     await Future.delayed(Duration(milliseconds: 1000));
     getChat();
+    countNewMsg();
     _refreshController.loadComplete();
   }
 

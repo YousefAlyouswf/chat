@@ -23,6 +23,7 @@ class Mysql {
   static const UPDATE_LAST_MSG = "UPDATE_LAST_MSG";
   static const UPDATE_READ_MSG = "UPDATE_READ_MSG";
   static const GET_CHAT_ID = "GET_CHAT_ID";
+  static const COUNT_NEW_MSG = "COUNT_NEW_MSG";
 
   //get all users from mysql to show them in the users screen
 
@@ -79,7 +80,7 @@ class Mysql {
             ),
           );
         } else {
-       updateUserInfo(email);
+          updateUserInfo(email);
 
           getThisUserInfo(email).then((user) {
             _user = user;
@@ -413,4 +414,20 @@ class Mysql {
     }
   }
 
+  Future<String> countNewNsg(String email) async {
+    try {
+      var map = Map<String, dynamic>();
+      map['action'] = COUNT_NEW_MSG;
+      map['email'] = email;
+      final response = await http.post(ROOT, body: map);
+      print(response.body);
+      if (200 == response.statusCode) {
+        return response.body;
+      } else {
+        return "error";
+      }
+    } catch (e) {
+      return "error";
+    }
+  }
 }

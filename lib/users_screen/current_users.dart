@@ -12,7 +12,7 @@ class CurrentUsers extends StatelessWidget {
   final String name;
   final String gender;
   final List<Users> users;
-  final Function getUsers;
+  final Function getUsers, countNewMsg;
   CurrentUsers({
     Key key,
     this.email,
@@ -21,7 +21,7 @@ class CurrentUsers extends StatelessWidget {
     this.name,
     this.gender,
     this.users,
-    this.getUsers,
+    this.getUsers, this.countNewMsg,
   }) : super(key: key);
 
   //---pull to refresh
@@ -31,12 +31,14 @@ class CurrentUsers extends StatelessWidget {
   void _onRefresh() async {
     await Future.delayed(Duration(milliseconds: 1000));
     getUsers();
+    countNewMsg();
     _refreshController.refreshCompleted();
   }
 
   void _onLoading() async {
     await Future.delayed(Duration(milliseconds: 1000));
     getUsers();
+    countNewMsg();
     _refreshController.loadComplete();
   }
 

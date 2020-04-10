@@ -59,6 +59,17 @@ class _UsersScreenState extends State<UsersScreen>
     });
   }
 
+  String numberOfNewMsg;
+  _countNewMsg() {
+    Mysql().countNewNsg(widget.email).then((number) {
+      if (mounted) {
+        setState(() {
+          numberOfNewMsg = number;
+          print("New Message->>>>$numberOfNewMsg");
+        });
+      }
+    });
+  }
   //--------END of sql
 
   @override
@@ -71,9 +82,10 @@ class _UsersScreenState extends State<UsersScreen>
     _getUsers();
     _getChatFromMysql();
 
-    Timer.periodic(new Duration(seconds: 10), (timer) {
+    Timer.periodic(new Duration(seconds: 5), (timer) {
       _getUsers();
       _getChatFromMysql();
+      _countNewMsg();
     });
   }
 
@@ -162,7 +174,7 @@ class _UsersScreenState extends State<UsersScreen>
                 text: 'الأعضاء',
               ),
               Tab(
-                text: 'الرسائل',
+                text: numberOfNewMsg==null || numberOfNewMsg==''? 'الرسائل (0)': 'الرسائل ($numberOfNewMsg)',
               ),
             ],
             controller: _controller,
@@ -189,6 +201,7 @@ class _UsersScreenState extends State<UsersScreen>
                 gender: widget.gender,
                 users: _users,
                 getUsers: _getUsers,
+                countNewMsg: _countNewMsg,
               ),
             ),
             Container(
@@ -201,6 +214,7 @@ class _UsersScreenState extends State<UsersScreen>
                 gender: widget.gender,
                 chat: _chat,
                 getChat: _getChatFromMysql,
+                countNewMsg: _countNewMsg,
               ),
             ),
           ],

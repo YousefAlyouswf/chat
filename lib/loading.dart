@@ -1,6 +1,4 @@
-import 'package:chatting/models/app_functions.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:chatting/login_screen/mainStartScreen.dart';
 
 class Loading extends StatefulWidget {

@@ -1,11 +1,9 @@
 import 'dart:async';
 
-import 'package:chatting/users_screen/mainUsersScreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'firebase.dart';
 
 class AppFunctions {
   void whatGender(String genderType, String genderImage) {
@@ -18,14 +16,9 @@ class AppFunctions {
     }
   }
 
-  String code;
-  void getCountry() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    code = 'us';
-  }
+
 
   void goToChat(BuildContext context) async {
-    getCountry();
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     //-------------------- chat collection
@@ -55,18 +48,7 @@ class AppFunctions {
     //----------------------
 
 //-----------------------------------------
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (BuildContext context) => UsersScreen(
-          name: prefs.getString('username'),
-          email: prefs.getString('email'),
-          image: prefs.getString('image'),
-          gender: prefs.getString('gender'),
-          password: prefs.getString('password'),
-          code: code,
-        ),
-      ),
-    );
+   
   }
 
 // Start chatScreen
