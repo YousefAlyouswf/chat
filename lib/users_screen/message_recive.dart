@@ -120,7 +120,10 @@ class MessageRecive extends StatelessWidget {
                           }
                         },
                         child: Card(
-                          color: Colors.white,
+                          color: chat[index].readMsg == "0" &&
+                                  chat[index].lastSent != email
+                              ? Colors.yellow
+                              : Colors.white,
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
