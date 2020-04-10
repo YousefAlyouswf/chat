@@ -3,6 +3,7 @@ import 'package:chatting/login_screen/mainStartScreen.dart';
 import 'package:chatting/mysql/mysql_functions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'models/user_model.dart';
@@ -38,16 +39,15 @@ class _DrawerPageState extends State<DrawerPage> {
   List<Users> _user = new List();
 
   void updateImage() {
-    _user.add(Users(image: 'https://media.giphy.com/media/swhRkVYLJDrCE/giphy.gif'));
+    _user.add(
+        Users(image: 'https://media.giphy.com/media/swhRkVYLJDrCE/giphy.gif'));
     try {
       Mysql().getThisUserInfo(widget.email).then((image) {
-      setState(() {
-        _user = image;
+        setState(() {
+          _user = image;
+        });
       });
-    });
-    } catch (e) {
-    }
-    
+    } catch (e) {}
   }
 
   @override
@@ -78,7 +78,6 @@ class _DrawerPageState extends State<DrawerPage> {
                 height: 200,
                 width: 150,
                 decoration: new BoxDecoration(
-                 
                   image: new DecorationImage(
                     fit: BoxFit.contain,
                     image: new NetworkImage(
@@ -179,12 +178,23 @@ class _DrawerPageState extends State<DrawerPage> {
     String fileName = '${DateTime.now()}.png';
     StorageReference firebaseStorage =
         FirebaseStorage.instance.ref().child(fileName);
-    StorageUploadTask uploadTask = firebaseStorage.putFile(_image);
-    await uploadTask.onComplete;
-    url = await firebaseStorage.getDownloadURL() as String;
+    if (_image.lengthSync() > 1000000) {
+            Fluttertoast.showToast(
+              msg: "حجم الصورة كبير!! أختر صورة أخرى",
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.black,
+              textColor: Colors.white,
+              fontSize: 16.0);
+    } else {
+      StorageUploadTask uploadTask = firebaseStorage.putFile(_image);
+      await uploadTask.onComplete;
+      url = await firebaseStorage.getDownloadURL() as String;
 
-    if (url.isNotEmpty) {
-      updateSection(url);
+      if (url.isNotEmpty) {
+        updateSection(url);
+      }
     }
   }
 }

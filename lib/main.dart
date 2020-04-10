@@ -1,3 +1,4 @@
+import 'package:chatting/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:ipfinder/ipfinder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -89,7 +90,7 @@ class _MyAppState extends State<MyApp> {
           body1: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
         ),
       ),
-      home: StartScreen(),
+      home: Loading(),
     );
   }
 }

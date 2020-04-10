@@ -81,7 +81,9 @@ class Mysql {
           );
         } else {
           updateUserInfo(email);
-
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString("email", email);
+          prefs.setString("password", password);
           getThisUserInfo(email).then((user) {
             _user = user;
             Navigator.of(context).push(
@@ -138,7 +140,9 @@ class Mysql {
       if (200 == response.statusCode) {
         if (response.body == '1') {
           updateUserInfo(email);
-
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString("email", email);
+          prefs.setString("password", password);
           getThisUserInfo(email).then((user) {
             _user = user;
             Navigator.of(context).push(
