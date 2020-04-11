@@ -2,7 +2,6 @@ import 'package:chatting/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:ipfinder/ipfinder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'login_screen/mainStartScreen.dart';
 
 void main() {
   getCountry();

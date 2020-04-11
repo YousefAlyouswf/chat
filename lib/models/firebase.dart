@@ -62,9 +62,8 @@ class Fireebase {
   ) {
     Firestore.instance
         .collection('chat')
-        .document(id)
-        .collection('messages')
-        .document(now.toString())
+
+        .document()
         .setData({
       'from': email,
       'to': userEmail,

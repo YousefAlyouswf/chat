@@ -8,7 +8,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 class MessageRecive extends StatelessWidget {
   final String email, gender, image, code, name;
   final List<Chat> chat;
-  final Function getChat, countNewMsg;
+  final Function getChat, getUsers, countNewMsg;
   MessageRecive({
     Key key,
     this.email,
@@ -19,6 +19,7 @@ class MessageRecive extends StatelessWidget {
     this.chat,
     this.getChat,
     this.countNewMsg,
+    this.getUsers,
   }) : super(key: key);
   //---pull to refresh
 
@@ -28,6 +29,7 @@ class MessageRecive extends StatelessWidget {
     await Future.delayed(Duration(milliseconds: 1000));
     getChat();
     countNewMsg();
+    getUsers();
     _refreshController.refreshCompleted();
   }
 
@@ -35,6 +37,7 @@ class MessageRecive extends StatelessWidget {
     await Future.delayed(Duration(milliseconds: 1000));
     getChat();
     countNewMsg();
+    getUsers();
     _refreshController.loadComplete();
   }
 
@@ -78,6 +81,9 @@ class MessageRecive extends StatelessWidget {
                 ? chat[index].text != ''
                     ? InkWell(
                         onTap: () async {
+                          getChat();
+                          countNewMsg();
+                          getUsers();
                           if (chat[index].yourEmail == email) {
                             Mysql().updateReadMsg(email, chat[index].hisEmail);
 
@@ -120,6 +126,9 @@ class MessageRecive extends StatelessWidget {
                               ),
                             );
                           }
+                          getChat();
+                          countNewMsg();
+                          getUsers();
                         },
                         child: Card(
                           color: chat[index].readMsg == "0" &&

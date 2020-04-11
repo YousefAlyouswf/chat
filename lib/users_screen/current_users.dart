@@ -3,6 +3,7 @@ import 'package:chatting/mysql/mysql_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:translator/translator.dart';
 import '../models/user_model.dart';
 
 class CurrentUsers extends StatelessWidget {
@@ -12,7 +13,7 @@ class CurrentUsers extends StatelessWidget {
   final String name;
   final String gender;
   final List<Users> users;
-  final Function getUsers, countNewMsg;
+  final Function getUsers, getChat, countNewMsg;
   CurrentUsers({
     Key key,
     this.email,
@@ -21,17 +22,20 @@ class CurrentUsers extends StatelessWidget {
     this.name,
     this.gender,
     this.users,
-    this.getUsers, this.countNewMsg,
+    this.getUsers,
+    this.countNewMsg,
+    this.getChat,
   }) : super(key: key);
 
   //---pull to refresh
-
+  final translator = new GoogleTranslator();
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
   void _onRefresh() async {
     await Future.delayed(Duration(milliseconds: 1000));
     getUsers();
     countNewMsg();
+    getChat();
     _refreshController.refreshCompleted();
   }
 
@@ -39,6 +43,7 @@ class CurrentUsers extends StatelessWidget {
     await Future.delayed(Duration(milliseconds: 1000));
     getUsers();
     countNewMsg();
+    getChat();
     _refreshController.loadComplete();
   }
 
@@ -81,6 +86,8 @@ class CurrentUsers extends StatelessWidget {
                 onTap: users[index].email == email
                     ? null
                     : () async {
+                        getChat();
+                        countNewMsg();
                         getUsers();
                         Mysql().addToChatTable(
                           email,
@@ -97,15 +104,21 @@ class CurrentUsers extends StatelessWidget {
                           users[index].name,
                         );
 
-                        showSheet(
-                          context,
-                          users[index].image,
-                          users[index].gender,
-                          users[index].online,
-                          users[index].email,
-                          users[index].code,
-                          users[index].name,
-                        );
+                        translator
+                            .translate(users[index].country,
+                                from: 'en', to: 'ar')
+                            .then((s) {
+                          showSheet(
+                            context,
+                            users[index].image,
+                            users[index].gender,
+                            users[index].online,
+                            users[index].email,
+                            users[index].code,
+                            users[index].name,
+                            s,
+                          );
+                        });
                       },
                 child: Card(
                   color:
@@ -214,44 +227,36 @@ class CurrentUsers extends StatelessWidget {
   }
 
   void showSheet(
-    BuildContext context,
-    String usersImage,
-    String usersGender,
-    String usersOnline,
-    String usersEmail,
-    String usersCode,
-    String usersName,
-  ) {
+      BuildContext context,
+      String usersImage,
+      String usersGender,
+      String usersOnline,
+      String usersEmail,
+      String usersCode,
+      String usersName,
+      String country) {
     showBottomSheet(
       context: context,
       builder: (context) => Container(
-        color: Colors.blue[900],
+        color: Colors.transparent,
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
-        child: Column(
-          children: <Widget>[
-            Stack(
-              alignment: Alignment.bottomLeft,
-              children: <Widget>[
-                usersImage == null || usersImage == ''
-                    ? Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height / 2,
+        child: Padding(
+          padding: const EdgeInsets.only(right: 32.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[
+              Padding(
+                padding:
+                    const EdgeInsets.only(left: 32.0, top: 32.0, bottom: 32.0),
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height / 3,
+                  child: Stack(
+                    alignment: Alignment.bottomLeft,
+                    children: <Widget>[
+                      Container(
                         decoration: new BoxDecoration(
-                            shape: BoxShape.rectangle,
-                            image: new DecorationImage(
-                                fit: BoxFit.fill,
-                                image: usersGender == '1'
-                                    ? NetworkImage(
-                                        'https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-7/64/x-01-512.png')
-                                    : NetworkImage(
-                                        'https://cdn1.iconfinder.com/data/icons/business-planning-management-set-2/64/x-90-512.png'))),
-                      )
-                    : Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height / 2,
-                        decoration: new BoxDecoration(
-                          shape: BoxShape.rectangle,
                           image: new DecorationImage(
                             fit: BoxFit.fill,
                             image: new NetworkImage(
@@ -260,51 +265,96 @@ class CurrentUsers extends StatelessWidget {
                           ),
                         ),
                       ),
-                usersOnline == '1'
-                    ? Container(
-                        width: 15.0,
-                        height: 15.0,
-                        decoration: new BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.lightGreenAccent[400],
-                        ),
-                      )
-                    : Container(
-                        width: 15.0,
-                        height: 15.0,
-                        decoration: new BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey,
-                        ),
-                      ),
-              ],
-            ),
-            RaisedButton(
-              onPressed: () {
-                Mysql().getChatId(email, usersEmail).then((id) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => ChatScreen(
-                        name: name,
-                        email: email,
-                        image: image,
-                        code: code,
-                        gender: gender,
-                        email2: usersEmail,
-                        gender2: usersGender,
-                        name2: usersName,
-                        code2: usersCode,
-                        image2: usersImage,
-                        chatID: id,
-                        online: usersOnline,
+                      usersOnline == '1'
+                          ? Container(
+                              width: 15.0,
+                              height: 15.0,
+                              decoration: new BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.lightGreenAccent[400],
+                              ),
+                            )
+                          : Container(
+                              width: 15.0,
+                              height: 15.0,
+                              decoration: new BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.grey,
+                              ),
+                            ),
+                    ],
+                  ),
+                ),
+              ),
+              Text(
+                "الأسم: $usersName",
+                textDirection: TextDirection.rtl,
+              ),
+              usersGender == '2'
+                  ? Text(
+                      "الجنس: أنثى",
+                      textDirection: TextDirection.rtl,
+                    )
+                  : Text(
+                      "الجنس: ذكر",
+                      textDirection: TextDirection.rtl,
+                    ),
+              Text(
+                "العمر: لم يحدد",
+                textDirection: TextDirection.rtl,
+              ),
+              Text(
+                "الدولة: $country",
+                textDirection: TextDirection.rtl,
+              ),
+              Spacer(),
+              Padding(
+                padding: const EdgeInsets.only(left: 32.0),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: RaisedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text("رجوع"),
                       ),
                     ),
-                  );
-                });
-              },
-              child: Text("بدأ المحادثة"),
-            )
-          ],
+                    SizedBox(
+                      width: 15,
+                    ),
+                    Expanded(
+                      child: RaisedButton(
+                        onPressed: () {
+                          Mysql().getChatId(email, usersEmail).then((id) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (BuildContext context) => ChatScreen(
+                                  name: name,
+                                  email: email,
+                                  image: image,
+                                  code: code,
+                                  gender: gender,
+                                  email2: usersEmail,
+                                  gender2: usersGender,
+                                  name2: usersName,
+                                  code2: usersCode,
+                                  image2: usersImage,
+                                  chatID: id,
+                                  online: usersOnline,
+                                ),
+                              ),
+                            );
+                          });
+                        },
+                        child: Text("بدأ المحادثة"),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
