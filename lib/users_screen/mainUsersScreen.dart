@@ -4,6 +4,7 @@ import 'package:chatting/models/firebase.dart';
 import 'package:chatting/models/user_model.dart';
 import 'package:chatting/mysql/mysql_functions.dart';
 import 'package:chatting/users_screen/current_users.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../drawer.dart';
@@ -34,6 +35,11 @@ class UsersScreen extends StatefulWidget {
 
 class _UsersScreenState extends State<UsersScreen>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+  // firebase messaging
+
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+
+  //-----------------------> End firebase messaging
   TabController _controller;
 //-------- this all function to fet data from mysql
   List<Users> _users;
@@ -75,6 +81,24 @@ class _UsersScreenState extends State<UsersScreen>
 
   @override
   void initState() {
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+        final notification = message['notification'];
+        setState(() {
+          _chat.add(
+              Chat(hisName: notification['title'], text: notification['body']));
+        });
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print("onLaunch: $message");
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("onResume: $message");
+      },
+    );
+    _firebaseMessaging.requestNotificationPermissions(
+        const IosNotificationSettings(sound: true, badge: true, alert: true));
     super.initState();
     _controller = TabController(length: 2, vsync: this);
     _controller.index = 0;
@@ -217,7 +241,6 @@ class _UsersScreenState extends State<UsersScreen>
                 code: widget.code,
                 name: widget.name,
                 gender: widget.gender,
-                chat: _chat,
                 getChat: _getChatFromMysql,
                 getUsers: _getUsers,
                 countNewMsg: _countNewMsg,

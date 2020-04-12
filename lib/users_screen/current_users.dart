@@ -1,4 +1,5 @@
 import 'package:chatting/chatScreen/chatScreen.dart';
+import 'package:chatting/models/firebase.dart';
 import 'package:chatting/mysql/mysql_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -89,35 +90,52 @@ class CurrentUsers extends StatelessWidget {
                         getChat();
                         countNewMsg();
                         getUsers();
-                        Mysql().addToChatTable(
-                          email,
-                          users[index].email,
-                          gender,
-                          users[index].gender,
-                          image,
-                          users[index].image,
-                          '1',
-                          users[index].online,
-                          code,
-                          users[index].code,
-                          name,
-                          users[index].name,
-                        );
+                        // Mysql().addToChatTable(
+                        //   email,
+                        //   users[index].email,
+                        //   gender,
+                        //   users[index].gender,
+                        //   image,
+                        //   users[index].image,
+                        //   '1',
+                        //   users[index].online,
+                        //   code,
+                        //   users[index].code,
+                        //   name,
+                        //   users[index].name,
+                        // );
 
-                        translator
-                            .translate(users[index].country,
-                                from: 'en', to: 'ar')
-                            .then((s) {
-                          showSheet(
-                            context,
-                            users[index].image,
-                            users[index].gender,
-                            users[index].online,
-                            users[index].email,
-                            users[index].code,
-                            users[index].name,
-                            s,
-                          );
+                        Fireebase()
+                            .addToChatFirestore(
+                                email,
+                                users[index].email,
+                                name,
+                                users[index].name,
+                                image,
+                                users[index].image,
+                                gender,
+                                users[index].gender,
+                                '1',
+                                users[index].online,
+                                code,
+                                users[index].code)
+                            .then((chatID) {
+                          translator
+                              .translate(users[index].country,
+                                  from: 'en', to: 'ar')
+                              .then((s) {
+                            showSheet(
+                              context,
+                              users[index].image,
+                              users[index].gender,
+                              users[index].online,
+                              users[index].email,
+                              users[index].code,
+                              users[index].name,
+                              s,
+                              chatID,
+                            );
+                          });
                         });
                       },
                 child: Card(
@@ -227,14 +245,16 @@ class CurrentUsers extends StatelessWidget {
   }
 
   void showSheet(
-      BuildContext context,
-      String usersImage,
-      String usersGender,
-      String usersOnline,
-      String usersEmail,
-      String usersCode,
-      String usersName,
-      String country) {
+    BuildContext context,
+    String usersImage,
+    String usersGender,
+    String usersOnline,
+    String usersEmail,
+    String usersCode,
+    String usersName,
+    String country,
+    String chatID,
+  ) {
     showBottomSheet(
       context: context,
       builder: (context) => Container(
@@ -326,26 +346,24 @@ class CurrentUsers extends StatelessWidget {
                     Expanded(
                       child: RaisedButton(
                         onPressed: () {
-                          Mysql().getChatId(email, usersEmail).then((id) {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (BuildContext context) => ChatScreen(
-                                  name: name,
-                                  email: email,
-                                  image: image,
-                                  code: code,
-                                  gender: gender,
-                                  email2: usersEmail,
-                                  gender2: usersGender,
-                                  name2: usersName,
-                                  code2: usersCode,
-                                  image2: usersImage,
-                                  chatID: id,
-                                  online: usersOnline,
-                                ),
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (BuildContext context) => ChatScreen(
+                                name: name,
+                                email: email,
+                                image: image,
+                                code: code,
+                                gender: gender,
+                                email2: usersEmail,
+                                gender2: usersGender,
+                                name2: usersName,
+                                code2: usersCode,
+                                image2: usersImage,
+                                chatID: chatID,
+                                online: usersOnline,
                               ),
-                            );
-                          });
+                            ),
+                          );
                         },
                         child: Text("بدأ المحادثة"),
                       ),

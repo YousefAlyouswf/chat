@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:chatting/models/firebase.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:chatting/models/app_functions.dart';
 import 'package:chatting/mysql/mysql_functions.dart';
@@ -51,6 +52,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   RealTimeFirebase realTimeFirebase;
   // End <-----------------------------------------------
+  String url;
   ScrollController _controller = ScrollController();
 
   FirebaseDatabase database;
@@ -125,7 +127,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
       AppFunctions().goDownFunction(_controller);
 
-      Mysql().updateLastMsg(widget.email, widget.email2, realTimeFirebase.text);
+      Fireebase().addLastMesageToFiresotre(
+          widget.chatID, widget.email, realTimeFirebase.text);
     } else if (urlImage != null) {
       form.save();
       form.reset();
@@ -136,7 +139,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
       AppFunctions().goDownFunction(_controller);
 
-      Mysql().updateLastMsg(widget.email, widget.email2, 'صورة');
+      Fireebase().addLastMesageToFiresotre(
+          widget.chatID, widget.email, '📸');
     }
     setState(() {
       urlImage = null;
@@ -218,269 +222,273 @@ class _ChatScreenState extends State<ChatScreen> {
       //   resizeToAvoidBottomPadding: false,
       body: Column(
         children: <Widget>[
-          Flexible(
-            child: FirebaseAnimatedList(
-                reverse: false,
-                controller: _controller,
-                query: itemRef,
-                itemBuilder: (BuildContext context, DataSnapshot snapshot,
-                    Animation<double> animation, int index) {
-                  if (_realTime[index].email1 != widget.email &&
-                      _realTime[index].key != 'typing') {
-                    itemRef
-                        .child(_realTime[index].key)
-                        .update({'read': '1'}).whenComplete(() {
-                      Mysql().updateReadMsg(widget.email, widget.email2);
-                    });
-                  }
-
-                  return InkWell(
-                    onLongPress: () {
-                      print(_realTime[index].key.toString());
-                      //  itemRef.child(_realTime[index].key).remove();
-                    },
-                    child: Container(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          _realTime[index].email1 != widget.email
-                              ? Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Stack(
-                                    alignment: Alignment.bottomLeft,
-                                    children: <Widget>[
-                                      Container(
-                                        width: 60.0,
-                                        height: 60.0,
-                                        decoration: new BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          image: new DecorationImage(
-                                            fit: BoxFit.fill,
-                                            image: NetworkImage(widget.image2),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : Container(),
-                          Flexible(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    _realTime[index].email1 == widget.email
-                                        ? MainAxisAlignment.end
-                                        : MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: <Widget>[
-                                  _realTime[index].email1 == widget.email
-                                      ? _realTime[index].read == '0'
-                                          ? Image.network(
-                                              'http://getdrawings.com/free-icon/email-icon-transparent-63.png',
-                                              height: 25,
-                                              width: 25,
-                                            )
-                                          : Image.network(
-                                              'https://images.vexels.com/media/users/3/157932/isolated/preview/951a617272553f49e75548e212ed947f-curved-check-mark-icon-by-vexels.png',
-                                              height: 25,
-                                              width: 25,
-                                            )
-                                      : Text(''),
-                                  //-------------------- end of user read
-
-                                  //------ Here send Image to chat
-                                  _realTime[index].image != ''
-                                      ? InkWell(
-                                          onTap: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) =>
-                                                  CustomDialog(
-                                                description:
-                                                    _realTime[index].image,
-                                              ),
-                                            );
-                                          },
-                                          child: Bubble(
-                                            margin: _realTime[index].email1 ==
-                                                    widget.email
-                                                ? BubbleEdges.only(
-                                                    top: 10,
-                                                    left: 10,
-                                                  )
-                                                : BubbleEdges.only(
-                                                    top: 10,
-                                                    right: 10,
-                                                  ),
-                                            padding: BubbleEdges.only(
-                                              right: 16.0,
-                                              left: 16.0,
-                                            ),
-                                            stick: true,
-                                            nip: _realTime[index].email1 ==
-                                                    widget.email
-                                                ? BubbleNip.rightTop
-                                                : BubbleNip.leftTop,
-                                            color: _realTime[index].email1 ==
-                                                    widget.email
-                                                ? Theme.of(context).cardColor
-                                                : Colors.grey[300],
-                                            child: Container(
-                                              width: 100,
-                                              height: 100,
-                                              decoration: new BoxDecoration(
-                                                shape: BoxShape.rectangle,
-                                                image: new DecorationImage(
-                                                  fit: BoxFit.fill,
-                                                  image: new NetworkImage(
-                                                    _realTime[index].image,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                      :
-                                      //-------- End Image to Chat
-                                      Flexible(
-                                          child: Bubble(
-                                            margin: _realTime[index].email1 ==
-                                                    widget.email
-                                                ? BubbleEdges.only(
-                                                    top: 10,
-                                                    left: 10,
-                                                  )
-                                                : BubbleEdges.only(
-                                                    top: 10,
-                                                    right: 10,
-                                                  ),
-                                            padding: BubbleEdges.only(
-                                              right: 16.0,
-                                              left: 16.0,
-                                            ),
-                                            stick: true,
-                                            nip: _realTime[index].email1 ==
-                                                    widget.email
-                                                ? BubbleNip.rightTop
-                                                : BubbleNip.leftTop,
-                                            color: _realTime[index].email1 ==
-                                                    widget.email
-                                                ? Theme.of(context).cardColor
-                                                : Colors.grey[300],
-                                            child: Text(
-                                              _realTime[index].text,
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.normal,
-                                              ),
-                                              textAlign: TextAlign.right,
-                                              textDirection: TextDirection.rtl,
-                                            ),
-                                          ),
-                                        ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          _realTime[index].email1 == widget.email
-                              ? Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Container(
-                                    width: 60.0,
-                                    height: 60.0,
-                                    decoration: new BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: new DecorationImage(
-                                        fit: BoxFit.fill,
-                                        image: NetworkImage(widget.image),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : Container(),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-          ),
-
-          //------------> here you type message
-          Flexible(
-            flex: 0,
-            child: Container(
-              decoration: new BoxDecoration(
-                color: Theme.of(context).primaryColor,
-                borderRadius: new BorderRadius.all(
-                  const Radius.circular(16.0),
-                ),
-              ),
-              child: Row(
-                children: <Widget>[
-                  IconButton(icon: Icon(Icons.image), onPressed: getImage),
-                  Flexible(
-                    child: Container(
-                      height: 50,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: Form(
-                          key: formKey,
-                          child: TextFormField(
-                            onChanged: (t) {
-                              if (t.length == 1) {
-                                databaseForTyping
-                                    .reference()
-                                    .child(widget.chatID)
-                                    .child('typing' + widget.email)
-                                    .set({
-                                  'typingTo': widget.email2,
-                                });
-                              } else if (t.length == 0) {
-                                databaseForTyping
-                                    .reference()
-                                    .child(widget.chatID)
-                                    .child('typing' + widget.email)
-                                    .update({'typingTo': ''});
-                              }
-                            },
-                            keyboardType: TextInputType.multiline,
-                            maxLines: null,
-                            textAlign: TextAlign.end,
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'أكتب هنا',
-                            ),
-                            onEditingComplete: () {
-                              handleSubmit(url);
-                            },
-                            textInputAction: TextInputAction.send,
-                            initialValue: '',
-                            onSaved: (val) => realTimeFirebase.text = val,
-                            validator: (val) => val == "" ? val : null,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: IconButton(
-                      icon: Icon(Icons.send),
-                      onPressed: () {
-                        handleSubmit(url);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          buildChatFlexible(),
+          buildInputFlexible(context, getImage),
         ],
       ),
     );
   }
 
-  String url;
+  Flexible buildInputFlexible(BuildContext context, Future getImage()) {
+    return Flexible(
+      flex: 0,
+      child: Container(
+        decoration: new BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          borderRadius: new BorderRadius.all(
+            const Radius.circular(16.0),
+          ),
+        ),
+        child: Row(
+          children: <Widget>[
+            IconButton(icon: Icon(Icons.image), onPressed: getImage),
+            Flexible(
+              child: Container(
+                height: 50,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Form(
+                    key: formKey,
+                    child: TextFormField(
+                      onChanged: (t) {
+                        if (t.length == 1) {
+                          databaseForTyping
+                              .reference()
+                              .child(widget.chatID)
+                              .child('typing' + widget.email)
+                              .set({
+                            'typingTo': widget.email2,
+                          });
+                        } else if (t.length == 0) {
+                          databaseForTyping
+                              .reference()
+                              .child(widget.chatID)
+                              .child('typing' + widget.email)
+                              .update({'typingTo': ''});
+                        }
+                      },
+                      keyboardType: TextInputType.multiline,
+                      maxLines: null,
+                      textAlign: TextAlign.end,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'أكتب هنا',
+                      ),
+                      onEditingComplete: () {
+                        handleSubmit(url);
+                      },
+                      textInputAction: TextInputAction.send,
+                      initialValue: '',
+                      onSaved: (val) => realTimeFirebase.text = val,
+                      validator: (val) => val == "" ? val : null,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: IconButton(
+                icon: Icon(Icons.send),
+                onPressed: () {
+                  handleSubmit(url);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Flexible buildChatFlexible() {
+    return Flexible(
+      child: FirebaseAnimatedList(
+          reverse: false,
+          controller: _controller,
+          query: itemRef,
+          itemBuilder: (BuildContext context, DataSnapshot snapshot,
+              Animation<double> animation, int index) {
+            if (_realTime[index].email1 != widget.email &&
+                _realTime[index].key != 'typing') {
+              itemRef
+                  .child(_realTime[index].key)
+                  .update({'read': '1'}).whenComplete(() {
+                Mysql().updateReadMsg(widget.email, widget.email2);
+              });
+            }
+
+            return InkWell(
+              onLongPress: () {
+                print(_realTime[index].key.toString());
+                //  itemRef.child(_realTime[index].key).remove();
+              },
+              child: Container(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    _realTime[index].email1 != widget.email
+                        ? Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Stack(
+                              alignment: Alignment.bottomLeft,
+                              children: <Widget>[
+                                Container(
+                                  width: 60.0,
+                                  height: 60.0,
+                                  decoration: new BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: new DecorationImage(
+                                      fit: BoxFit.fill,
+                                      image: NetworkImage(widget.image2),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Container(),
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment:
+                              _realTime[index].email1 == widget.email
+                                  ? MainAxisAlignment.end
+                                  : MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: <Widget>[
+                            _realTime[index].email1 == widget.email
+                                ? _realTime[index].read == '0'
+                                    ? Image.network(
+                                        'http://getdrawings.com/free-icon/email-icon-transparent-63.png',
+                                        height: 25,
+                                        width: 25,
+                                      )
+                                    : Image.network(
+                                        'https://images.vexels.com/media/users/3/157932/isolated/preview/951a617272553f49e75548e212ed947f-curved-check-mark-icon-by-vexels.png',
+                                        height: 25,
+                                        width: 25,
+                                      )
+                                : Text(''),
+                            //-------------------- end of user read
+
+                            //------ Here send Image to chat
+                            _realTime[index].image != ''
+                                ? InkWell(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) =>
+                                            CustomDialog(
+                                          description: _realTime[index].image,
+                                        ),
+                                      );
+                                    },
+                                    child: Bubble(
+                                      margin: _realTime[index].email1 ==
+                                              widget.email
+                                          ? BubbleEdges.only(
+                                              top: 10,
+                                              left: 10,
+                                            )
+                                          : BubbleEdges.only(
+                                              top: 10,
+                                              right: 10,
+                                            ),
+                                      padding: BubbleEdges.only(
+                                        right: 16.0,
+                                        left: 16.0,
+                                      ),
+                                      stick: true,
+                                      nip: _realTime[index].email1 ==
+                                              widget.email
+                                          ? BubbleNip.rightTop
+                                          : BubbleNip.leftTop,
+                                      color: _realTime[index].email1 ==
+                                              widget.email
+                                          ? Theme.of(context).cardColor
+                                          : Colors.grey[300],
+                                      child: Container(
+                                        width: 100,
+                                        height: 100,
+                                        decoration: new BoxDecoration(
+                                          shape: BoxShape.rectangle,
+                                          image: new DecorationImage(
+                                            fit: BoxFit.fill,
+                                            image: new NetworkImage(
+                                              _realTime[index].image,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                :
+                                //-------- End Image to Chat
+                                Flexible(
+                                    child: Bubble(
+                                      margin: _realTime[index].email1 ==
+                                              widget.email
+                                          ? BubbleEdges.only(
+                                              top: 10,
+                                              left: 10,
+                                            )
+                                          : BubbleEdges.only(
+                                              top: 10,
+                                              right: 10,
+                                            ),
+                                      padding: BubbleEdges.only(
+                                        right: 16.0,
+                                        left: 16.0,
+                                      ),
+                                      stick: true,
+                                      nip: _realTime[index].email1 ==
+                                              widget.email
+                                          ? BubbleNip.rightTop
+                                          : BubbleNip.leftTop,
+                                      color: _realTime[index].email1 ==
+                                              widget.email
+                                          ? Theme.of(context).cardColor
+                                          : Colors.grey[300],
+                                      child: Text(
+                                        _realTime[index].text,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.normal,
+                                        ),
+                                        textAlign: TextAlign.right,
+                                        textDirection: TextDirection.rtl,
+                                      ),
+                                    ),
+                                  ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    _realTime[index].email1 == widget.email
+                        ? Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              width: 60.0,
+                              height: 60.0,
+                              decoration: new BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: new DecorationImage(
+                                  fit: BoxFit.fill,
+                                  image: NetworkImage(widget.image),
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
+                  ],
+                ),
+              ),
+            );
+          }),
+    );
+  }
+
   Future uploadImage() async {
     String fileName = '${DateTime.now()}.png';
     StorageReference firebaseStorage =

@@ -33,6 +33,13 @@ class Fireebase {
     prefs.setString('userID', null);
   }
 
+  void addLastMesageToFiresotre(String id, String email, String text) {
+    Firestore.instance
+        .collection('chat')
+        .document(id)
+        .updateData({'email_last': email, 'text': text});
+  }
+
   void userReadit(
     String id,
     String email,
@@ -42,7 +49,6 @@ class Fireebase {
         .document(id)
         .collection('messages')
         .where('to', isEqualTo: email)
-     
         .getDocuments()
         .then((snapshot) {
       for (DocumentSnapshot ds in snapshot.documents) {
@@ -53,24 +59,74 @@ class Fireebase {
     });
   }
 
-  void updateToChatCollections(
+  Future<String> addToChatFirestore(
     String email,
     String userEmail,
-    int now,
-    String msg,
-    String id,
-  ) {
-    Firestore.instance
+    String myName,
+    String userName,
+    String myImage,
+    String userImage,
+    String myGender,
+    String userGender,
+    String myOnline,
+    String userOnline,
+    String myCode,
+    String userCode,
+  ) async {
+    String chatID;
+    final QuerySnapshot firstCaseResult = await Firestore.instance
         .collection('chat')
-
-        .document()
-        .setData({
-      'from': email,
-      'to': userEmail,
-      'content': msg,
-      'time': now,
-      'read': '0'
+        .where('from', isEqualTo: email)
+        .where('to', isEqualTo: userEmail)
+        .getDocuments();
+    final List<DocumentSnapshot> documentsOfFirstCase =
+        firstCaseResult.documents;
+    documentsOfFirstCase.forEach((data) {
+      chatID = data.documentID;
     });
+    final QuerySnapshot secondCaseResult = await Firestore.instance
+        .collection('chat')
+        .where('from', isEqualTo: email)
+        .where('to', isEqualTo: userEmail)
+        .getDocuments();
+    final List<DocumentSnapshot> documentsOfsecondCase =
+        secondCaseResult.documents;
+    documentsOfsecondCase.forEach((data) {
+      chatID = data.documentID;
+    });
+    if (chatID == null) {
+      Firestore.instance.collection('chat').document().setData(
+        {
+          'from': email,
+          'to': userEmail,
+          'text': '',
+          'num': '',
+          'image1': myImage,
+          'image2': userImage,
+          'gender1': myGender,
+          'gender2': userGender,
+          'name1': myName,
+          'name2': userName,
+          'online1': myOnline,
+          'online2': userOnline,
+          'code1': myCode,
+          'code2': userCode,
+          'email_last': '',
+          'read': '',
+        },
+      );
+      final QuerySnapshot thirdCaseResult = await Firestore.instance
+          .collection('chat')
+          .where('from', isEqualTo: email)
+          .where('to', isEqualTo: userEmail)
+          .getDocuments();
+      final List<DocumentSnapshot> documentsOfthirddCase =
+          thirdCaseResult.documents;
+      documentsOfthirddCase.forEach((data) {
+        chatID = data.documentID;
+      });
+    }
+    return chatID;
   }
 
   Future<String> getChatId(String email, String userEmail) async {
