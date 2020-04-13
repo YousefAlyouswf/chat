@@ -33,11 +33,12 @@ class Fireebase {
     prefs.setString('userID', null);
   }
 
-  void addLastMesageToFiresotre(String id, String email, String text) {
+  void addLastMesageToFiresotre(
+      String id, String email, String text, int lastMsg) async {
     Firestore.instance
         .collection('chat')
         .document(id)
-        .updateData({'email_last': email, 'text': text});
+        .updateData({'email_last': email, 'text': text, 'num': lastMsg});
   }
 
   void userReadit(
@@ -86,8 +87,8 @@ class Fireebase {
     });
     final QuerySnapshot secondCaseResult = await Firestore.instance
         .collection('chat')
-        .where('from', isEqualTo: email)
-        .where('to', isEqualTo: userEmail)
+        .where('to', isEqualTo: email)
+        .where('from', isEqualTo: userEmail)
         .getDocuments();
     final List<DocumentSnapshot> documentsOfsecondCase =
         secondCaseResult.documents;
@@ -100,7 +101,7 @@ class Fireebase {
           'from': email,
           'to': userEmail,
           'text': '',
-          'num': '',
+          'num': 0,
           'image1': myImage,
           'image2': userImage,
           'gender1': myGender,

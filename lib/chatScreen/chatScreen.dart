@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:chatting/models/firebase.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:chatting/models/app_functions.dart';
 import 'package:chatting/mysql/mysql_functions.dart';
@@ -11,6 +12,8 @@ import 'package:image_picker/image_picker.dart';
 import '../models/firebase_model.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:vector_math/vector_math_64.dart' as vc;
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ChatScreen extends StatefulWidget {
   final String email;
@@ -108,6 +111,7 @@ class _ChatScreenState extends State<ChatScreen> {
     AppFunctions().goDownFunction(_controller);
   }
 
+  int lastMsg;
   void handleSubmit(String urlImage) async {
     await databaseForTyping
         .reference()
@@ -126,9 +130,26 @@ class _ChatScreenState extends State<ChatScreen> {
       await itemRef.push().set(realTimeFirebase.toJson());
 
       AppFunctions().goDownFunction(_controller);
-
+      if (lastMsg != null) {
+        lastMsg--;
+      }
+      final QuerySnapshot lastMessages = await Firestore.instance
+          .collection('chat')
+          .orderBy('num')
+          .where('num', isGreaterThan: lastMsg)
+          .getDocuments();
+      final List<DocumentSnapshot> documentsOfLastMessage =
+          lastMessages.documents;
+      documentsOfLastMessage.forEach((data) {
+        lastMsg =  data['num'];
+      });
+      if (lastMsg == 0) {
+        lastMsg = 1;
+      } else {
+        lastMsg++;
+      }
       Fireebase().addLastMesageToFiresotre(
-          widget.chatID, widget.email, realTimeFirebase.text);
+          widget.chatID, widget.email, realTimeFirebase.text, lastMsg);
     } else if (urlImage != null) {
       form.save();
       form.reset();
@@ -138,9 +159,26 @@ class _ChatScreenState extends State<ChatScreen> {
       await itemRef.push().set(realTimeFirebase.toJson());
 
       AppFunctions().goDownFunction(_controller);
-
-      Fireebase().addLastMesageToFiresotre(
-          widget.chatID, widget.email, '📸');
+      if (lastMsg != null) {
+        lastMsg--;
+      }
+      final QuerySnapshot lastMessages = await Firestore.instance
+          .collection('chat')
+          .orderBy('num')
+          .where('num', isGreaterThan: lastMsg)
+          .getDocuments();
+      final List<DocumentSnapshot> documentsOfLastMessage =
+          lastMessages.documents;
+      documentsOfLastMessage.forEach((data) {
+        lastMsg = data['num'];
+      });
+      if (lastMsg == 0) {
+        lastMsg = 1;
+      } else {
+        lastMsg++;
+      }
+      Fireebase()
+          .addLastMesageToFiresotre(widget.chatID, widget.email, '📸', lastMsg);
     }
     setState(() {
       urlImage = null;
@@ -163,6 +201,11 @@ class _ChatScreenState extends State<ChatScreen> {
         }
       });
     } catch (e) {}
+  }
+
+  void saveLastMsg(String msg) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(widget.chatID, msg);
   }
 
   File _image;
@@ -317,7 +360,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 Mysql().updateReadMsg(widget.email, widget.email2);
               });
             }
-
+            saveLastMsg(_realTime.last.text);
             return InkWell(
               onLongPress: () {
                 print(_realTime[index].key.toString());
@@ -493,12 +536,24 @@ class _ChatScreenState extends State<ChatScreen> {
     String fileName = '${DateTime.now()}.png';
     StorageReference firebaseStorage =
         FirebaseStorage.instance.ref().child(fileName);
-    StorageUploadTask uploadTask = firebaseStorage.putFile(_image);
-    await uploadTask.onComplete;
-    url = await firebaseStorage.getDownloadURL() as String;
 
-    if (url.isNotEmpty) {
-      handleSubmit(url);
+    if (_image.lengthSync() > 1000000) {
+      Fluttertoast.showToast(
+          msg: "حجم الصورة كبير!! أختر صورة أخرى",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    } else {
+      StorageUploadTask uploadTask = firebaseStorage.putFile(_image);
+      await uploadTask.onComplete;
+      url = await firebaseStorage.getDownloadURL() as String;
+
+      if (url.isNotEmpty) {
+        handleSubmit(url);
+      }
     }
   }
 }

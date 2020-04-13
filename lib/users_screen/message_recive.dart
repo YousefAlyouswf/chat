@@ -1,10 +1,8 @@
 import 'package:chatting/chatScreen/chatScreen.dart';
-import 'package:chatting/models/chat_model.dart';
-import 'package:chatting/mysql/mysql_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MessageRecive extends StatelessWidget {
   final String email, gender, image, code, name;
@@ -22,31 +20,14 @@ class MessageRecive extends StatelessWidget {
   }) : super(key: key);
   //---pull to refresh
 
-  final RefreshController _refreshController =
-      RefreshController(initialRefresh: false);
-  void _onRefresh() async {
-    await Future.delayed(Duration(milliseconds: 1000));
-    getChat();
-    countNewMsg();
-    getUsers();
-    _refreshController.refreshCompleted();
-  }
-
-  void _onLoading() async {
-    await Future.delayed(Duration(milliseconds: 1000));
-    getChat();
-    countNewMsg();
-    getUsers();
-    _refreshController.loadComplete();
-  }
-
   //---End pull
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: StreamBuilder(
-          stream: Firestore.instance.collection('chat').snapshots(),
+          stream:
+              Firestore.instance.collection('chat').orderBy('num', descending: true).snapshots(),
           builder: (context, snapshot) {
             return ListView.builder(
               itemCount: snapshot.data.documents.length,
@@ -188,8 +169,8 @@ class MessageRecive extends StatelessWidget {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.end,
                                             children: <Widget>[
-                                               chat['email_last'] == email
-                                                  ?  chat['read'] == '0'
+                                              chat['email_last'] == email
+                                                  ? chat['read'] == '0'
                                                       ? Image.network(
                                                           'http://getdrawings.com/free-icon/email-icon-transparent-63.png',
                                                           height: 25,
@@ -206,7 +187,7 @@ class MessageRecive extends StatelessWidget {
                                               ),
                                               Flexible(
                                                 child: Text(
-                                                   chat['text'],
+                                                  chat['text'],
                                                   textDirection:
                                                       TextDirection.rtl,
                                                   overflow:
@@ -228,35 +209,31 @@ class MessageRecive extends StatelessWidget {
                                       children: <Widget>[
                                         chat['from'] != email
                                             ? Container(
-                                                    width: 75.0,
-                                                    height: 75.0,
-                                                    decoration:
-                                                        new BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      image:
-                                                          new DecorationImage(
-                                                        fit: BoxFit.fill,
-                                                        image: new NetworkImage(
-                                                          chat['imag1'],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  )
-                                            :  Container(
-                                                    width: 75.0,
-                                                    height: 75.0,
-                                                    decoration:
-                                                        new BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      image:
-                                                          new DecorationImage(
-                                                        fit: BoxFit.fill,
-                                                        image: new NetworkImage(
-                                                          chat['image2'],
-                                                        ),
-                                                      ),
+                                                width: 75.0,
+                                                height: 75.0,
+                                                decoration: new BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  image: new DecorationImage(
+                                                    fit: BoxFit.fill,
+                                                    image: new NetworkImage(
+                                                      chat['image1'],
                                                     ),
                                                   ),
+                                                ),
+                                              )
+                                            : Container(
+                                                width: 75.0,
+                                                height: 75.0,
+                                                decoration: new BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  image: new DecorationImage(
+                                                    fit: BoxFit.fill,
+                                                    image: new NetworkImage(
+                                                      chat['image2'],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
                                         chat['from'] != email
                                             ? chat['online1'] == '1'
                                                 ? Container(
