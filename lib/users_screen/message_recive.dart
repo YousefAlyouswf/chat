@@ -26,8 +26,10 @@ class MessageRecive extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: StreamBuilder(
-          stream:
-              Firestore.instance.collection('chat').orderBy('num', descending: true).snapshots(),
+          stream: Firestore.instance
+              .collection('chat')
+              .orderBy('num', descending: true)
+              .snapshots(),
           builder: (context, snapshot) {
             return ListView.builder(
               itemCount: snapshot.data.documents.length,
@@ -169,35 +171,42 @@ class MessageRecive extends StatelessWidget {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.end,
                                             children: <Widget>[
-                                              chat['email_last'] == email
-                                                  ? chat['read'] == '0'
-                                                      ? Image.network(
-                                                          'http://getdrawings.com/free-icon/email-icon-transparent-63.png',
+                                              chat['email_last'] != email
+                                                  ?  Image.network(
+                                                          'https://www.iconninja.com/files/479/1008/953/chat-icon.png',
                                                           height: 25,
                                                           width: 25,
                                                         )
-                                                      : Image.network(
-                                                          'https://images.vexels.com/media/users/3/157932/isolated/preview/951a617272553f49e75548e212ed947f-curved-check-mark-icon-by-vexels.png',
-                                                          height: 25,
-                                                          width: 25,
-                                                        )
+                                                      
                                                   : Text(''),
                                               SizedBox(
                                                 width: 20,
                                               ),
                                               Flexible(
-                                                child: Text(
-                                                  chat['text'],
-                                                  textDirection:
-                                                      TextDirection.rtl,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  maxLines: 1,
-                                                  style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.normal,
-                                                  ),
-                                                ),
+                                                child: chat['text'] ==
+                                                        'أرسل صورة 1989 تممم'
+                                                    ? Text(
+                                                        'صورة',
+                                                        textDirection:
+                                                            TextDirection.rtl,
+                                                        style: TextStyle(
+                                                          color: Colors.red,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      )
+                                                    : Text(
+                                                        chat['text'],
+                                                        textDirection:
+                                                            TextDirection.rtl,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        maxLines: 1,
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                        ),
+                                                      ),
                                               ),
                                             ],
                                           ),

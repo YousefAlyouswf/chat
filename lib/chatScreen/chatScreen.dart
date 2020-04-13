@@ -178,7 +178,7 @@ class _ChatScreenState extends State<ChatScreen> {
         lastMsg++;
       }
       Fireebase()
-          .addLastMesageToFiresotre(widget.chatID, widget.email, '📸', lastMsg);
+          .addLastMesageToFiresotre(widget.chatID, widget.email, 'أرسل صورة 1989 تممم', lastMsg);
     }
     setState(() {
       urlImage = null;

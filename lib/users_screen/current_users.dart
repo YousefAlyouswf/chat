@@ -87,25 +87,9 @@ class CurrentUsers extends StatelessWidget {
                 onTap: users[index].email == email
                     ? null
                     : () async {
-                        getChat();
-                        countNewMsg();
                         getUsers();
-                        // Mysql().addToChatTable(
-                        //   email,
-                        //   users[index].email,
-                        //   gender,
-                        //   users[index].gender,
-                        //   image,
-                        //   users[index].image,
-                        //   '1',
-                        //   users[index].online,
-                        //   code,
-                        //   users[index].code,
-                        //   name,
-                        //   users[index].name,
-                        // );
 
-                        Fireebase()
+                        await Fireebase()
                             .addToChatFirestore(
                                 email,
                                 users[index].email,
@@ -120,22 +104,17 @@ class CurrentUsers extends StatelessWidget {
                                 code,
                                 users[index].code)
                             .then((chatID) {
-                          translator
-                              .translate(users[index].country,
-                                  from: 'en', to: 'ar')
-                              .then((s) {
-                            showSheet(
-                              context,
-                              users[index].image,
-                              users[index].gender,
-                              users[index].online,
-                              users[index].email,
-                              users[index].code,
-                              users[index].name,
-                              s,
-                              chatID,
-                            );
-                          });
+                          showSheet(
+                            context,
+                            users[index].image,
+                            users[index].gender,
+                            users[index].online,
+                            users[index].email,
+                            users[index].code,
+                            users[index].name,
+                            users[index].country,
+                            chatID,
+                          );
                         });
                       },
                 child: Card(
@@ -255,126 +234,128 @@ class CurrentUsers extends StatelessWidget {
     String country,
     String chatID,
   ) {
-    showBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        color: Colors.transparent,
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        child: Padding(
-          padding: const EdgeInsets.only(right: 32.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              Padding(
-                padding:
-                    const EdgeInsets.only(left: 32.0, top: 32.0, bottom: 32.0),
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height / 3,
-                  child: Stack(
-                    alignment: Alignment.bottomLeft,
-                    children: <Widget>[
-                      Container(
-                        decoration: new BoxDecoration(
-                          image: new DecorationImage(
-                            fit: BoxFit.fill,
-                            image: new NetworkImage(
-                              usersImage,
+    translator.translate(country, from: 'en', to: 'ar').then((s) {
+      showBottomSheet(
+        context: context,
+        builder: (context) => Container(
+          color: Colors.transparent,
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 32.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: 32.0, top: 32.0, bottom: 32.0),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height / 3,
+                    child: Stack(
+                      alignment: Alignment.bottomLeft,
+                      children: <Widget>[
+                        Container(
+                          decoration: new BoxDecoration(
+                            image: new DecorationImage(
+                              fit: BoxFit.fill,
+                              image: new NetworkImage(
+                                usersImage,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      usersOnline == '1'
-                          ? Container(
-                              width: 15.0,
-                              height: 15.0,
-                              decoration: new BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.lightGreenAccent[400],
+                        usersOnline == '1'
+                            ? Container(
+                                width: 15.0,
+                                height: 15.0,
+                                decoration: new BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.lightGreenAccent[400],
+                                ),
+                              )
+                            : Container(
+                                width: 15.0,
+                                height: 15.0,
+                                decoration: new BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.grey,
+                                ),
                               ),
-                            )
-                          : Container(
-                              width: 15.0,
-                              height: 15.0,
-                              decoration: new BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.grey,
-                              ),
-                            ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              Text(
-                "الأسم: $usersName",
-                textDirection: TextDirection.rtl,
-              ),
-              usersGender == '2'
-                  ? Text(
-                      "الجنس: أنثى",
-                      textDirection: TextDirection.rtl,
-                    )
-                  : Text(
-                      "الجنس: ذكر",
-                      textDirection: TextDirection.rtl,
-                    ),
-              Text(
-                "العمر: لم يحدد",
-                textDirection: TextDirection.rtl,
-              ),
-              Text(
-                "الدولة: $country",
-                textDirection: TextDirection.rtl,
-              ),
-              Spacer(),
-              Padding(
-                padding: const EdgeInsets.only(left: 32.0),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: RaisedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text("رجوع"),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    Expanded(
-                      child: RaisedButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (BuildContext context) => ChatScreen(
-                                name: name,
-                                email: email,
-                                image: image,
-                                code: code,
-                                gender: gender,
-                                email2: usersEmail,
-                                gender2: usersGender,
-                                name2: usersName,
-                                code2: usersCode,
-                                image2: usersImage,
-                                chatID: chatID,
-                                online: usersOnline,
-                              ),
-                            ),
-                          );
-                        },
-                        child: Text("بدأ المحادثة"),
-                      ),
-                    ),
-                  ],
+                Text(
+                  "الأسم: $usersName",
+                  textDirection: TextDirection.rtl,
                 ),
-              )
-            ],
+                usersGender == '2'
+                    ? Text(
+                        "الجنس: أنثى",
+                        textDirection: TextDirection.rtl,
+                      )
+                    : Text(
+                        "الجنس: ذكر",
+                        textDirection: TextDirection.rtl,
+                      ),
+                Text(
+                  "العمر: لم يحدد",
+                  textDirection: TextDirection.rtl,
+                ),
+                Text(
+                  "الدولة: $s",
+                  textDirection: TextDirection.rtl,
+                ),
+                Spacer(),
+                Padding(
+                  padding: const EdgeInsets.only(left: 32.0),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: RaisedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text("رجوع"),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 15,
+                      ),
+                      Expanded(
+                        child: RaisedButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (BuildContext context) => ChatScreen(
+                                  name: name,
+                                  email: email,
+                                  image: image,
+                                  code: code,
+                                  gender: gender,
+                                  email2: usersEmail,
+                                  gender2: usersGender,
+                                  name2: usersName,
+                                  code2: usersCode,
+                                  image2: usersImage,
+                                  chatID: chatID,
+                                  online: usersOnline,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text("بدأ المحادثة"),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
